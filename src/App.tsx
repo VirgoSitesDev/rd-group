@@ -13,9 +13,7 @@ import ErrorFallback from './components/common/ErrorFallback';
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
 import AcquistiPage from './pages/AcquistiPage';
-
-// Pages placeholder  
-const CarDetailPage = () => <div style={{ padding: '2rem' }}>Dettaglio Auto - Coming Soon</div>;
+import CarDetailPage from './pages/CarDetailPage'; // FIXED: Import del vero componente
 
 // Styles
 import { GlobalStyles } from './styles/GlobalStyles';
@@ -80,7 +78,7 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/auto" element={<CatalogPage />} />
-          <Route path="/auto/:id" element={<CarDetailPage />} />
+          <Route path="/auto/:id" element={<CarDetailPage />} /> {/* FIXED: Usa il vero componente */}
           <Route path="/luxury" element={<LuxuryRedirect />} />
           <Route path="/sedi" element={<Navigate to="/#sedi" replace />} />
           <Route path="/acquistiamo" element={<AcquistiPage />} />

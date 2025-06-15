@@ -6,7 +6,6 @@ import { FaArrowLeft, FaPhone, FaEnvelope, FaMapMarkerAlt, FaHeart, FaShare, FaC
 import Container from '../components/layout/Container';
 import Button from '../components/common/Button';
 import Loading from '../components/common/Loading';
-import { useCar } from '../hooks/useCars';
 
 const mockCarsDatabase = {
   'featured-abarth': {
@@ -167,18 +166,28 @@ const mockCarsDatabase = {
 const PageContainer = styled.div`
   background: ${({ theme }) => theme.colors.background.default};
   min-height: 100vh;
-  padding-top: ${({ theme }) => theme.spacing.xl};
+  padding-top: ${({ theme }) => theme.spacing.md};
 `;
 
 const BackButton = styled(Button)`
   margin-bottom: ${({ theme }) => theme.spacing.lg};
   background: transparent;
   color: ${({ theme }) => theme.colors.text.primary};
-  border: 1px solid ${({ theme }) => theme.colors.border};
+  text-decoration: underline;
+  text-transform: none;
+  padding-bottom: ${({ theme }) => theme.spacing.md};
+  padding-top: 15px;
+  border: none;
   
   &:hover {
     background: ${({ theme }) => theme.colors.background.paper};
     transform: none;
+    text-decoration: none;
+  }
+
+  svg {
+    padding-top: 5px;
+    font-size: 16px;
   }
 `;
 
@@ -198,7 +207,7 @@ const ImageSection = styled.div``;
 
 const MainImage = styled.div`
   width: 100%;
-  height: 500px;
+  height: 600px;
   background: #f5f5f5;
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   overflow: hidden;
@@ -223,7 +232,7 @@ const ImageGallery = styled.div`
 `;
 
 const ThumbnailImage = styled.div<{ $isActive: boolean }>`
-  height: 100px;
+  height: 200px;
   background: #f5f5f5;
   border-radius: ${({ theme }) => theme.borderRadius.md};
   overflow: hidden;
@@ -246,22 +255,31 @@ const InfoSection = styled.div`
   background: white;
   padding: ${({ theme }) => theme.spacing.xl};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   height: fit-content;
   position: sticky;
   top: ${({ theme }) => theme.spacing.xl};
 `;
 
 const CarHeader = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing.xl};
-  padding-bottom: ${({ theme }) => theme.spacing.lg};
-  border-bottom: 1px solid ${({ theme }) => theme.colors.border};
+  padding-bottom: ${({ theme }) => theme.spacing.xs};
 `;
 
 const CarTitle = styled.h1`
   font-size: 2.5rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text.primary};
-  margin: 0 0 ${({ theme }) => theme.spacing.sm} 0;
+  color: #000000;
+  margin: 0 0 ${({ theme }) => theme.spacing.xs} 0;
+`;
+
+const CarMake = styled.h3`
+  color: #656565;
+  font-family: ${({ theme }) => theme.typography.fontFamily};
+  font-size: 1.4rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  margin: 0;
+  text-align: left;
 `;
 
 const CarPrice = styled.div`
@@ -286,14 +304,17 @@ const PrimaryButton = styled(Button)`
 `;
 
 const SecondaryButton = styled(Button)`
-  background: transparent;
-  color: ${({ theme }) => theme.colors.primary.main};
-  border: 2px solid ${({ theme }) => theme.colors.primary.main};
-  
-  &:hover {
-    background: ${({ theme }) => theme.colors.primary.main};
-    color: white;
-  }
+  flex: 1;
+`;
+
+const CarDivider = styled.hr`
+  width: 100%;
+  height: 0.8px;
+  background-color: #000000;
+  border: none;
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
+  margin-top: ${({ theme }) => theme.spacing.md};
+
 `;
 
 const SpecsGrid = styled.div`
@@ -310,7 +331,7 @@ const SpecItem = styled.div`
   color: ${({ theme }) => theme.colors.text.primary};
 
   svg {
-    color: ${({ theme }) => theme.colors.primary.main};
+    color: #000000;;
     font-size: 1.1rem;
   }
 `;
@@ -352,10 +373,13 @@ const DescriptionSection = styled.div`
   padding: ${({ theme }) => theme.spacing.xl};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   margin-bottom: ${({ theme }) => theme.spacing.xl};
+  margin-top: ${({ theme }) => theme.spacing.xl};
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 `;
 
 const SectionTitle = styled.h2`
-  color: ${({ theme }) => theme.colors.text.primary};
+  color: #000000;
   margin-bottom: ${({ theme }) => theme.spacing.lg};
   font-size: 1.5rem;
 `;
@@ -363,7 +387,8 @@ const SectionTitle = styled.h2`
 const Description = styled.p`
   color: ${({ theme }) => theme.colors.text.primary};
   line-height: 1.6;
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  font-size: 1.1rem;
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
 `;
 
 const FeaturesList = styled.div`
@@ -373,10 +398,10 @@ const FeaturesList = styled.div`
 `;
 
 const FeatureItem = styled.div`
-  background: #f9f9f9;
+  background: #000000;
   padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  color: ${({ theme }) => theme.colors.text.primary};
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  color: white;
   font-size: 0.9rem;
 `;
 
@@ -384,8 +409,6 @@ const CarDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  
-  // FIXED: Ora usa l'ID dall'URL per ottenere l'auto corretta
   const car = id ? mockCarsDatabase[id as keyof typeof mockCarsDatabase] : null;
   const isLoading = false;
   const error = !car && id;
@@ -500,12 +523,24 @@ const CarDetailPage: React.FC = () => {
                 </ThumbnailImage>
               ))}
             </ImageGallery>
+              <DescriptionSection>
+                <SectionTitle>Descrizione</SectionTitle>
+                <Description>{car.description}</Description>
+                
+                <SectionTitle>Equipaggiamenti</SectionTitle>
+                <FeaturesList>
+                  {car.features.map((feature, index) => (
+                    <FeatureItem key={index}>{feature}</FeatureItem>
+                  ))}
+                </FeaturesList>
+              </DescriptionSection>
           </ImageSection>
 
           {/* Sezione Info */}
           <InfoSection>
             <CarHeader>
-              <CarTitle>{car.make} {car.model}</CarTitle>
+              <CarTitle>{car.model}</CarTitle>
+              <CarMake>{car.make}</CarMake>
               <CarPrice>{car.price.toLocaleString('it-IT')}€</CarPrice>
               
               <ActionButtons>
@@ -517,6 +552,8 @@ const CarDetailPage: React.FC = () => {
                 </SecondaryButton>
               </ActionButtons>
             </CarHeader>
+            
+            <CarDivider></CarDivider>
 
             <SpecsGrid>
               <SpecItem>
@@ -564,19 +601,6 @@ const CarDetailPage: React.FC = () => {
             </DealerInfo>
           </InfoSection>
         </DetailGrid>
-
-        {/* Sezione Descrizione */}
-        <DescriptionSection>
-          <SectionTitle>Descrizione</SectionTitle>
-          <Description>{car.description}</Description>
-          
-          <SectionTitle>Equipaggiamenti</SectionTitle>
-          <FeaturesList>
-            {car.features.map((feature, index) => (
-              <FeatureItem key={index}>{feature}</FeatureItem>
-            ))}
-          </FeaturesList>
-        </DescriptionSection>
       </Container>
     </PageContainer>
   );
