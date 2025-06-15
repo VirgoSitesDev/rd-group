@@ -229,20 +229,20 @@ const PromoText = styled.p`
 `;
 
 interface ContactFormData {
-  firstName: string;
-  lastName: string;
+  nome: string;
+  cognome: string;
   email: string;
-  phone: string;
-  carModel: string;
+  telefono: string;
+  messaggio: string;
 }
 
 const WhoWeAre: React.FC = () => {
   const [formData, setFormData] = useState<ContactFormData>({
-    firstName: '',
-    lastName: '',
+    nome: '',
+    cognome: '',
     email: '',
-    phone: '',
-    carModel: ''
+    telefono: '',
+    messaggio: ''
   });
 
   const handleInputChange = (field: keyof ContactFormData, value: string) => {
@@ -253,13 +253,16 @@ const WhoWeAre: React.FC = () => {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    console.log('Invio form a Netlify...');
+    e.preventDefault();
+    console.log('Form submitted:', formData);
+    // Qui implementeresti l'invio del form
+    alert('Richiesta inviata! Vi contatteremo presto.');
     setFormData({ 
-      firstName: '', 
-      lastName: '', 
+      nome: '', 
+      cognome: '', 
       email: '',
-      phone: '',
-      carModel: '' 
+      telefono: '',
+      messaggio: '' 
     });
   };
 
@@ -321,26 +324,26 @@ const WhoWeAre: React.FC = () => {
 
               <LeftColumn>
                 <FormGroup>
-                  <FormLabel htmlFor="firstName">NOME</FormLabel>
+                  <FormLabel htmlFor="nome">NOME</FormLabel>
                   <FormInput
                     type="text"
-                    id="firstName"
+                    id="nome"
                     name="nome"
-                    value={formData.firstName}
-                    onChange={(e) => handleInputChange('firstName', e.target.value)}
+                    value={formData.nome}
+                    onChange={(e) => handleInputChange('nome', e.target.value)}
                     placeholder="Nome"
                     required
                   />
                 </FormGroup>
 
                 <FormGroup>
-                  <FormLabel htmlFor="lastName">COGNOME</FormLabel>
+                  <FormLabel htmlFor="cognome">COGNOME</FormLabel>
                   <FormInput
                     type="text"
-                    id="lastName"
+                    id="cognome"
                     name="cognome"
-                    value={formData.lastName}
-                    onChange={(e) => handleInputChange('lastName', e.target.value)}
+                    value={formData.cognome}
+                    onChange={(e) => handleInputChange('cognome', e.target.value)}
                     placeholder="Cognome"
                     required
                   />
@@ -360,13 +363,13 @@ const WhoWeAre: React.FC = () => {
                 </FormGroup>
 
                 <FormGroup>
-                  <FormLabel htmlFor="phone">TELEFONO</FormLabel>
+                  <FormLabel htmlFor="telefono">TELEFONO</FormLabel>
                   <FormInput
                     type="tel"
-                    id="phone"
+                    id="telefono"
                     name="telefono"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    value={formData.telefono}
+                    onChange={(e) => handleInputChange('telefono', e.target.value)}
                     placeholder="+39 000 000 0000"
                     required
                   />
@@ -375,12 +378,12 @@ const WhoWeAre: React.FC = () => {
 
               <RightColumn>
                 <FormGroup style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                  <FormLabel htmlFor="carModel">CHE AUTO CERCHI?</FormLabel>
+                  <FormLabel htmlFor="messaggio">CHE AUTO CERCHI?</FormLabel>
                   <FormTextArea
-                    id="carModel"
+                    id="messaggio"
                     name="messaggio"
-                    value={formData.carModel}
-                    onChange={(e) => handleInputChange('carModel', e.target.value)}
+                    value={formData.messaggio}
+                    onChange={(e) => handleInputChange('messaggio', e.target.value)}
                     placeholder="Inserisci qui le specifiche o nome dell'auto che cerchi"
                     required
                   />

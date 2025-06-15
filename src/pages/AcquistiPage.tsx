@@ -229,11 +229,11 @@ const AcquistiPage: React.FC = () => {
   });
 
   useEffect(() => {
-    document.title = 'Contatti - RD Group Pistoia | Come Raggiungerci';
+    document.title = 'Acquisizione Auto - RD Group Pistoia | Vendiamo la tua Auto';
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute('content', 'Contatta RD Group per qualsiasi informazione. Visita le nostre sedi a Pistoia o chiama il +39 057 318 7467. Siamo qui per aiutarti a trovare la tua auto ideale.');
+      metaDescription.setAttribute('content', 'Vendi la tua auto a RD Group. Pagamento immediato e passaggio di proprietà a carico nostro. Compila il modulo per una valutazione gratuita.');
     }
   }, []);
 
@@ -292,16 +292,17 @@ const AcquistiPage: React.FC = () => {
             
             {/* Form Section - Container bianco */}
             <FormSection>
-            <form 
-              onSubmit={handleSubmit}
-              data-netlify="true"
-              name="acquisizione"
-              method="POST"
-            >
-              <input type="hidden" name="form-name" value="acquisizione" />
-              <div style={{ display: 'none' }}>
-                <input name="bot-field" />
-              </div>
+              <form 
+                onSubmit={handleSubmit}
+                data-netlify="true"
+                name="acquisizione"
+                method="POST"
+              >
+                <input type="hidden" name="form-name" value="acquisizione" />
+                <div style={{ display: 'none' }}>
+                  <input name="bot-field" />
+                </div>
+                
                 <FormInnerGrid>
                   {/* Colonna sinistra - Campi del form */}
                   <FormFieldsColumn>
@@ -310,6 +311,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="text"
                         id="nome"
+                        name="nome"
                         value={formData.nome}
                         onChange={(e) => handleInputChange('nome', e.target.value)}
                         placeholder='Nome'
@@ -322,6 +324,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="text"
                         id="cognome"
+                        name="cognome"
                         value={formData.cognome}
                         onChange={(e) => handleInputChange('cognome', e.target.value)}
                         placeholder='Cognome'
@@ -334,6 +337,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="email"
                         id="mail"
+                        name="mail"
                         value={formData.mail}
                         onChange={(e) => handleInputChange('mail', e.target.value)}
                         placeholder='example@gmail.com'
@@ -346,6 +350,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="tel"
                         id="telefono"
+                        name="telefono"
                         value={formData.telefono}
                         onChange={(e) => handleInputChange('telefono', e.target.value)}
                         placeholder='+39 000 000 0000'
@@ -357,6 +362,7 @@ const AcquistiPage: React.FC = () => {
                       <FormLabel htmlFor="marca">Marca</FormLabel>
                       <FormInput
                         id="marca"
+                        name="marca"
                         value={formData.marca}
                         onChange={(e) => handleInputChange('marca', e.target.value)}
                         placeholder='Ex: Mercedes, BWM, etc...'
@@ -368,6 +374,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="number"
                         id="anno"
+                        name="anno"
                         value={formData.anno}
                         onChange={(e) => handleInputChange('anno', e.target.value)}
                         placeholder="MM/AAAA"
@@ -379,6 +386,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="number"
                         id="km"
+                        name="km"
                         value={formData.km}
                         onChange={(e) => handleInputChange('km', e.target.value)}
                         placeholder="Ex. 100 000km"
@@ -389,6 +397,7 @@ const AcquistiPage: React.FC = () => {
                       <FormLabel htmlFor="note">Altre note</FormLabel>
                       <FormTextArea
                         id="note"
+                        name="note"
                         value={formData.note}
                         onChange={(e) => handleInputChange('note', e.target.value)}
                         placeholder="Inserisci qui eventuali note"
