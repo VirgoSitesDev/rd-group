@@ -245,19 +245,8 @@ const AcquistiPage: React.FC = () => {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    alert('Richiesta inviata! Vi contatteremo presto.');
-    setFormData({
-      nome: '',
-      cognome: '',
-      mail: '',
-      telefono: '',
-      marca: '',
-      anno: '',
-      km: '',
-      note: ''
-    });
+    // NON blocchiamo l'invio - lasciamo che il form si invii nativamente a Netlify
+    console.log('Inviando form acquisizione a Netlify...', formData);
   };
 
   // Auto di esempio per la hero - puoi personalizzarla
