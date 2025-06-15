@@ -253,10 +253,7 @@ const WhoWeAre: React.FC = () => {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Qui implementeresti l'invio del form
-    alert('Richiesta inviata! Vi contatteremo presto.');
+    console.log('Invio form a Netlify...');
     setFormData({ 
       firstName: '', 
       lastName: '', 
