@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaArrowRight, FaMapMarkerAlt } from 'react-icons/fa';
 import { useFeaturedCars } from '../../hooks/useCars';
@@ -239,7 +239,8 @@ const CarActions = styled.div`
 `;
 
 const FeaturedHighlightSection: React.FC = () => {
-  const { data: featuredResult, isLoading } = useFeaturedCars(1); // Tornato a 1 auto
+  const navigate = useNavigate();
+  const { data: featuredResult, isLoading } = useFeaturedCars(1);
   
   const featuredCar = {
 	id: 'featured-abarth',
@@ -295,8 +296,9 @@ const FeaturedHighlightSection: React.FC = () => {
     updatedAt: new Date()
   };
 
+  // FIXED: Usa useNavigate invece di window.location.href
   const handleCarClick = () => {
-    window.location.href = `/auto/${featuredCar.id}`;
+    navigate(`/auto/${featuredCar.id}`);
   };
 
   if (isLoading) {

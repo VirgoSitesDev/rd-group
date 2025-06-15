@@ -538,9 +538,10 @@ const Header: React.FC<HeaderProps> = ({
               </CarSpecs>
             </CarDetails>
 
+            {/* FIXED: Ora il pulsante va alla Mercedes G63 AMG */}
             <DiscoverButton 
               as={Link} 
-              to={`/auto/featured-luxury`}
+              to="/auto/featured-luxury"
               variant="primary"
             >
               Scopri di più <FaArrowRight />
