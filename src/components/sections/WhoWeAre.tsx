@@ -311,13 +311,24 @@ const WhoWeAre: React.FC = () => {
           </PromotionalContainer>
 
           <ContactContainer>
-            <ContactForm onSubmit={handleSubmit}>
+            <ContactForm 
+              onSubmit={handleSubmit}
+              data-netlify="true" 
+              name="contatti"
+              method="POST"
+            >
+              <input type="hidden" name="form-name" value="contatti" />
+              <div style={{ display: 'none' }}>
+                <input name="bot-field" />
+              </div>
+
               <LeftColumn>
                 <FormGroup>
                   <FormLabel htmlFor="firstName">NOME</FormLabel>
                   <FormInput
                     type="text"
                     id="firstName"
+                    name="nome"
                     value={formData.firstName}
                     onChange={(e) => handleInputChange('firstName', e.target.value)}
                     placeholder="Nome"
@@ -330,6 +341,7 @@ const WhoWeAre: React.FC = () => {
                   <FormInput
                     type="text"
                     id="lastName"
+                    name="cognome"
                     value={formData.lastName}
                     onChange={(e) => handleInputChange('lastName', e.target.value)}
                     placeholder="Cognome"
@@ -342,6 +354,7 @@ const WhoWeAre: React.FC = () => {
                   <FormInput
                     type="email"
                     id="email"
+                    name="email"
                     value={formData.email}
                     onChange={(e) => handleInputChange('email', e.target.value)}
                     placeholder="example@gmail.com"
@@ -354,6 +367,7 @@ const WhoWeAre: React.FC = () => {
                   <FormInput
                     type="tel"
                     id="phone"
+                    name="telefono"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     placeholder="+39 000 000 0000"
@@ -367,6 +381,7 @@ const WhoWeAre: React.FC = () => {
                   <FormLabel htmlFor="carModel">CHE AUTO CERCHI?</FormLabel>
                   <FormTextArea
                     id="carModel"
+                    name="messaggio"
                     value={formData.carModel}
                     onChange={(e) => handleInputChange('carModel', e.target.value)}
                     placeholder="Inserisci qui le specifiche o nome dell'auto che cerchi"
