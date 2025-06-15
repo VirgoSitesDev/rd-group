@@ -292,7 +292,16 @@ const AcquistiPage: React.FC = () => {
             
             {/* Form Section - Container bianco */}
             <FormSection>
-              <form onSubmit={handleSubmit}>
+            <form 
+              onSubmit={handleSubmit}
+              data-netlify="true"
+              name="acquisizione"
+              method="POST"
+            >
+              <input type="hidden" name="form-name" value="acquisizione" />
+              <div style={{ display: 'none' }}>
+                <input name="bot-field" />
+              </div>
                 <FormInnerGrid>
                   {/* Colonna sinistra - Campi del form */}
                   <FormFieldsColumn>

@@ -28,13 +28,9 @@ interface ContactFormData {
   }
   
   class ContactService {
-	private apiUrl: string;
-  
-	constructor() {
-	  this.apiUrl = import.meta.env.VITE_API_BASE_URL || '';
-	}
-
-	async sendViaNetlifyForms(formData: ContactFormData): Promise<EmailResponse> {
+	
+	// Form contatti principale
+	async sendContactForm(formData: ContactFormData): Promise<EmailResponse> {
 	  try {
 		const response = await fetch('/', {
 		  method: 'POST',
@@ -50,25 +46,24 @@ interface ContactFormData {
 		});
   
 		if (response.ok) {
-		  this.saveContactToLocalStorage(formData);
 		  return {
 			success: true,
-			message: 'Richiesta inviata con successo!'
+			message: 'Richiesta inviata con successo! Ti contatteremo presto.'
 		  };
 		} else {
-		  throw new Error('Errore server');
+		  throw new Error(`HTTP ${response.status}`);
 		}
 	  } catch (error) {
-		console.error('Errore Netlify Forms:', error);
-		this.saveContactToLocalStorage(formData);
+		console.error('Errore invio form contatti:', error);
 		return {
 		  success: false,
-		  message: 'Errore nell\'invio. I tuoi dati sono stati salvati.'
+		  message: 'Errore nell\'invio del modulo. Ti preghiamo di riprovare o contattarci direttamente.'
 		};
 	  }
 	}
-
-	async sendViaNetlifyAcquisition(formData: AcquisitionFormData): Promise<EmailResponse> {
+  
+	// Form acquisizione auto
+	async sendAcquisitionForm(formData: AcquisitionFormData): Promise<EmailResponse> {
 	  try {
 		const response = await fetch('/', {
 		  method: 'POST',
@@ -89,75 +84,27 @@ interface ContactFormData {
 		if (response.ok) {
 		  return {
 			success: true,
-			message: 'Richiesta acquisizione inviata con successo!'
+			message: 'Richiesta acquisizione inviata con successo! Ti contatteremo per la valutazione.'
 		  };
 		} else {
-		  throw new Error('Errore server');
+		  throw new Error(`HTTP ${response.status}`);
 		}
 	  } catch (error) {
-		console.error('Errore Netlify Forms:', error);
+		console.error('Errore invio form acquisizione:', error);
 		return {
 		  success: false,
-		  message: 'Errore nell\'invio. I tuoi dati sono stati salvati.'
+		  message: 'Errore nell\'invio. Ti preghiamo di riprovare o contattarci direttamente.'
 		};
 	  }
 	}
-  
-	async sendContactForm(formData: ContactFormData): Promise<EmailResponse> {
-	  if (this.isNetlifyEnvironment()) {
-		return this.sendViaNetlifyForms(formData);
-	  }
-  
-	  this.saveContactToLocalStorage(formData);
-	  return {
-		success: false,
-		message: 'Servizio email temporaneamente non disponibile. I tuoi dati sono stati salvati e ti contatteremo al più presto.'
-	  };
-	}
-  
-	async sendAcquisitionForm(formData: AcquisitionFormData): Promise<EmailResponse> {
-	  if (this.isNetlifyEnvironment()) {
-		return this.sendViaNetlifyAcquisition(formData);
-	  }
-  
-	  return {
-		success: false,
-		message: 'Servizio temporaneamente non disponibile. Ti contatteremo al più presto.'
-	  };
-	}
-  
-	private saveContactToLocalStorage(formData: ContactFormData): void {
-	  try {
-		const contacts = JSON.parse(localStorage.getItem('rdgroup_contacts') || '[]');
-		contacts.push({
-		  ...formData,
-		  timestamp: new Date().toISOString(),
-		  sent: false
-		});
-		localStorage.setItem('rdgroup_contacts', JSON.stringify(contacts));
-	  } catch (error) {
-		console.error('Errore salvataggio localStorage:', error);
-	  }
-	}
-  
-	getStoredContacts(): ContactFormData[] {
-	  try {
-		return JSON.parse(localStorage.getItem('rdgroup_contacts') || '[]');
-	  } catch {
-		return [];
-	  }
-	}
-  
-	private isNetlifyEnvironment(): boolean {
-	  return window.location.hostname.includes('netlify') || 
-			 import.meta.env.VITE_DEPLOY_TARGET === 'netlify';
-	}
-  
+	
+	// Validazione email
 	validateEmail(email: string): boolean {
 	  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	  return emailRegex.test(email);
 	}
-  
+	
+	// Validazione telefono italiano
 	validatePhone(phone: string): boolean {
 	  const phoneRegex = /^(\+39)?[\s]?[0-9]{2,4}[\s]?[0-9]{6,7}$/;
 	  return phoneRegex.test(phone.replace(/\s/g, ''));
@@ -181,7 +128,7 @@ interface ContactFormData {
 	  },
 	  onError: (error) => {
 		console.error('❌ Errore invio contatto:', error);
-		alert('❌ Errore di connessione. Riprova più tardi.');
+		alert('❌ Errore di connessione. Riprova più tardi o chiamaci direttamente.');
 	  }
 	});
   };
@@ -200,7 +147,7 @@ interface ContactFormData {
 	  },
 	  onError: (error) => {
 		console.error('❌ Errore invio acquisizione:', error);
-		alert('❌ Errore di connessione. Riprova più tardi.');
+		alert('❌ Errore di connessione. Riprova più tardi o chiamaci direttamente.');
 	  }
 	});
   };
