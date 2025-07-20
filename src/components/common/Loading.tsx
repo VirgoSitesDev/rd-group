@@ -10,7 +10,6 @@ interface LoadingProps {
   className?: string;
 }
 
-// Animazioni
 const spin = keyframes`
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -42,7 +41,6 @@ const shimmer = keyframes`
   }
 `;
 
-// Container principale - FIXED: Semplifica le tipizzazioni
 const LoadingContainer = styled.div<{ $fullScreen?: boolean }>`
   display: flex;
   flex-direction: column;
@@ -65,7 +63,6 @@ const LoadingContainer = styled.div<{ $fullScreen?: boolean }>`
   `}
 `;
 
-// Spinner - FIXED: Semplifica le tipizzazioni
 const Spinner = styled.div<{ $size: LoadingProps['size'] }>`
   border: 3px solid ${({ theme }) => theme.colors.border};
   border-top: 3px solid ${({ theme }) => theme.colors.primary.main};
@@ -84,7 +81,6 @@ const Spinner = styled.div<{ $size: LoadingProps['size'] }>`
   }}
 `;
 
-// Dots
 const DotsContainer = styled.div`
   display: flex;
   gap: 8px;
@@ -108,7 +104,6 @@ const Dot = styled.div<{ $size: LoadingProps['size']; $delay: number }>`
   }}
 `;
 
-// Skeleton
 const SkeletonContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -126,7 +121,6 @@ background: ${theme.colors.primary.main};
   height: ${({ $height }) => $height || '16px'};
 `;
 
-// Pulse
 const PulseContainer = styled.div<{ $size: LoadingProps['size'] }>`
   background-color: ${({ theme }) => theme.colors.primary.main};
   border-radius: 50%;
@@ -144,7 +138,6 @@ const PulseContainer = styled.div<{ $size: LoadingProps['size'] }>`
   }}
 `;
 
-// Testo di caricamento
 const LoadingText = styled.p`
   margin: 0;
   color: ${({ theme }) => theme.colors.text.primary};

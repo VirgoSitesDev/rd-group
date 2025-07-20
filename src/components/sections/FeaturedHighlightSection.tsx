@@ -296,18 +296,16 @@ const FeaturedHighlightSection: React.FC = () => {
     updatedAt: new Date()
   };
 
-  // FIXED: Usa useNavigate invece di window.location.href
   const handleCarClick = () => {
     navigate(`/auto/${featuredCar.id}`);
   };
 
   if (isLoading) {
-    return null; // Or a skeleton loader
+    return null;
   }
 
   return (
         <FeaturedGrid>
-          {/* Primo container - Promotional Box */}
           <PromotionalContainer>
             <PromotionalBox>
               <div>
@@ -323,7 +321,6 @@ const FeaturedHighlightSection: React.FC = () => {
             </PromotionalBox>
           </PromotionalContainer>
 
-          {/* Secondo container - Featured Car (layout orizzontale) */}
           <FeaturedCarContainer>
             <CarCard onClick={handleCarClick}>
               <CarImageContainer>

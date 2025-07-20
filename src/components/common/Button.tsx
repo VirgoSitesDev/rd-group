@@ -47,13 +47,13 @@ const getButtonStyles = (variant: ButtonProps['variant'], theme: any) => {
 
         /* Override specifico per quando viene usato come Link */
         &&&& {
-          color: white !important;
-          text-decoration: none !important;
+          color: white;
+          text-decoration: none;
         }
 
         &&&&:hover, &&&&:focus, &&&&:active, &&&&:visited {
-          color: white !important;
-          text-decoration: none !important;
+          color: white;
+          text-decoration: none;
         }
       `;
     case 'outline':

@@ -245,11 +245,8 @@ const AcquistiPage: React.FC = () => {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    // NON blocchiamo l'invio - lasciamo che il form si invii nativamente a Netlify
-    console.log('Inviando form acquisizione a Netlify...', formData);
   };
 
-  // Auto di esempio per la hero - puoi personalizzarla
   const featuredCarForContacts = {
     make: "MERCEDES",
     model: "G63 AMG",
@@ -263,23 +260,19 @@ const AcquistiPage: React.FC = () => {
 
   return (
     <AcquistiPageContainer>
-      {/* Hero Section - Identica alla Homepage utilizzando il componente Header */}
       <Header 
         showHero={true} 
         featuredCar={featuredCarForContacts}
         backgroundImage="/Car_Luxury.jpg"
       />
 
-      {/* Contact Content */}
       <ContactContent id="contact-form">
         <Container>
           <ContactGrid>
-            {/* Titolo principale */}
             <MainTitle>
               Compriamo subito la tua auto con <span className="bold">pagamento immediato e passaggio di proprietà a carico nostro!</span>
             </MainTitle>
-            
-            {/* Form Section - Container bianco */}
+
             <FormSection>
               <form 
                 onSubmit={handleSubmit}
@@ -293,7 +286,6 @@ const AcquistiPage: React.FC = () => {
                 </div>
                 
                 <FormInnerGrid>
-                  {/* Colonna sinistra - Campi del form */}
                   <FormFieldsColumn>
                     <FormGroup>
                       <FormLabel htmlFor="nome">Nome</FormLabel>
@@ -412,8 +404,7 @@ const AcquistiPage: React.FC = () => {
                         </ImageUpload>
                       ))}
                     </GalleryGrid>
-                    
-                    {/* Pulsante ora è in un container separato e allineato a destra */}
+
                     <ButtonContainer>
                       <ActionButton type="submit">
                         Richiedi informazioni<FaArrowRight />

@@ -10,7 +10,6 @@ const HomePage: React.FC = () => {
   const { syncStatus } = useCarManagement();
   const location = useLocation();
 
-  // Imposta il titolo della pagina
   useEffect(() => {
     document.title = 'RD Group - Auto Usate Pistoia | Vendita Auto Usate di Qualità';
     
@@ -20,12 +19,10 @@ const HomePage: React.FC = () => {
     }
   }, []);
 
-  // Gestisce lo scroll automatico quando si arriva con un hash nell'URL
   useEffect(() => {
     if (location.hash) {
-      // Aspetta che il componente sia renderizzato
       const timer = setTimeout(() => {
-        const targetId = location.hash.substring(1); // Rimuove il #
+        const targetId = location.hash.substring(1);
         const targetElement = document.getElementById(targetId);
         
         if (targetElement) {
@@ -34,7 +31,7 @@ const HomePage: React.FC = () => {
             block: 'start'
           });
         }
-      }, 100); // Piccolo delay per assicurarsi che il DOM sia pronto
+      }, 100);
 
       return () => clearTimeout(timer);
     }

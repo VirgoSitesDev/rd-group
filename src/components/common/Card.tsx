@@ -4,12 +4,11 @@ import styled from 'styled-components';
 interface CardProps {
   children: React.ReactNode;
   variant?: 'default' | 'elevated' | 'outlined' | 'flat';
-  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl'; // FIXED: Aggiungi 'xl'
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   hoverable?: boolean;
   clickable?: boolean;
   onClick?: () => void;
   className?: string;
-  // FIXED: Aggiungi style prop
   style?: React.CSSProperties;
 }
 
@@ -51,7 +50,7 @@ const getCardPadding = (padding: CardProps['padding'], theme: any) => {
     case 'lg':
       return theme.spacing.xl;
     case 'xl':
-      return theme.spacing.xxl; // FIXED: Aggiungi supporto per xl
+      return theme.spacing.xxl;
     default:
       return theme.spacing.lg;
   }
@@ -98,8 +97,8 @@ const Card: React.FC<CardProps> = ({
   clickable = false,
   onClick,
   className,
-  style, // FIXED: Accetta style prop
-  ...restProps // FIXED: Passa tutte le altre props
+  style,
+  ...restProps
 }) => {
   const handleClick = () => {
     if (clickable && onClick) {
@@ -125,8 +124,8 @@ const Card: React.FC<CardProps> = ({
       tabIndex={clickable ? 0 : undefined}
       role={clickable ? 'button' : undefined}
       className={className}
-      style={style} // FIXED: Passa style
-      {...restProps} // FIXED: Spread delle props rimanenti
+      style={style}
+      {...restProps}
     >
       {children}
     </StyledCard>

@@ -28,8 +28,7 @@ interface ContactFormData {
   }
   
   class ContactService {
-	
-	// Form contatti principale
+
 	async sendContactForm(formData: ContactFormData): Promise<EmailResponse> {
 	  try {
 		const response = await fetch('/', {
@@ -61,8 +60,7 @@ interface ContactFormData {
 		};
 	  }
 	}
-  
-	// Form acquisizione auto
+
 	async sendAcquisitionForm(formData: AcquisitionFormData): Promise<EmailResponse> {
 	  try {
 		const response = await fetch('/', {
@@ -97,21 +95,18 @@ interface ContactFormData {
 		};
 	  }
 	}
-	
-	// Validazione email
+
 	validateEmail(email: string): boolean {
 	  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 	  return emailRegex.test(email);
 	}
-	
-	// Validazione telefono italiano
+
 	validatePhone(phone: string): boolean {
 	  const phoneRegex = /^(\+39)?[\s]?[0-9]{2,4}[\s]?[0-9]{6,7}$/;
 	  return phoneRegex.test(phone.replace(/\s/g, ''));
 	}
   }
-  
-  // Hook per React Query
+
   import { useMutation, UseMutationResult } from '@tanstack/react-query';
   
   export const useContactForm = (): UseMutationResult<EmailResponse, Error, ContactFormData, unknown> => {

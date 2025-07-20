@@ -6,7 +6,6 @@ import { FaArrowLeft, FaPhone, FaEnvelope, FaMapMarkerAlt, FaHeart, FaShare, FaC
 import Container from '../components/layout/Container';
 import Button from '../components/common/Button';
 import Loading from '../components/common/Loading';
-// 🔥 NUOVO: Usa il hook reale per ottenere i dati dal database
 import { useCar } from '../hooks/useCars';
 
 const PageContainer = styled.div`
@@ -255,8 +254,6 @@ const CarDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  
-  // 🔥 NUOVO: Usa il database reale invece dei dati mock
   const { data: car, isLoading, error } = useCar(id || '');
 
   useEffect(() => {
@@ -303,7 +300,6 @@ const CarDetailPage: React.FC = () => {
     );
   }
 
-  // 🔥 CAMBIATO: Controllo errore aggiornato per il database reale
   if (error || (!car && !isLoading)) {
     return (
       <PageContainer>

@@ -1,5 +1,3 @@
-// Tipi semplificati per l'API
-
 export interface ApiResponse<T = any> {
 	success: boolean;
 	data?: T;
@@ -24,8 +22,7 @@ export interface ApiResponse<T = any> {
 	hasNext: boolean;
 	hasPrev: boolean;
   }
-  
-  // Autoscout24 API Types
+
   export interface AutoScout24Config {
 	apiUrl: string;
 	apiKey: string;
@@ -99,8 +96,7 @@ export interface ApiResponse<T = any> {
 	title?: string;
 	order: number;
   }
-  
-  // Sync operations
+
   export interface SyncOperation {
 	id: string;
 	type: 'full' | 'incremental' | 'manual';

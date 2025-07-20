@@ -1,14 +1,8 @@
-// src/services/carMappers.ts - FIXED: Gestione ID migliorata
-
 import type { Car, CarFilters } from '../types/car/car';
 import { FuelType, TransmissionType, BodyType, CarCondition, AvailabilityStatus } from '../types/car/car';
 import type { RDGroupRow, RDGroupLuxuryRow, DBCarFilters, DBAlimentazione, DBCambio, DBCarrozzeria } from '../types/supabase/database';
 
-/**
- * Mapping dal database italiano ai tipi inglesi dell'app
- */
 export const mapDBToAppTypes = {
-  // Alimentazione: DB italiano → App inglese
   fuelType: (dbFuel: string | null): FuelType => {
     const mapping: Record<string, FuelType> = {
       'Benzina': FuelType.PETROL,
@@ -21,7 +15,6 @@ export const mapDBToAppTypes = {
     return mapping[dbFuel || ''] || FuelType.PETROL;
   },
 
-  // Cambio: DB italiano → App inglese
   transmission: (dbTransmission: string | null): TransmissionType => {
     const mapping: Record<string, TransmissionType> = {
       'Manuale': TransmissionType.MANUAL,
@@ -31,7 +24,6 @@ export const mapDBToAppTypes = {
     return mapping[dbTransmission || ''] || TransmissionType.MANUAL;
   },
 
-  // Carrozzeria: DB italiano → App inglese
   bodyType: (dbBodyType: string | null): BodyType => {
     const mapping: Record<string, BodyType> = {
       'Berlina': BodyType.SEDAN,
@@ -49,11 +41,7 @@ export const mapDBToAppTypes = {
   },
 };
 
-/**
- * Mapping dai tipi inglesi dell'app al database italiano
- */
 export const mapAppToDBTypes = {
-  // Alimentazione: App inglese → DB italiano
   fuelType: (appFuel: FuelType): DBAlimentazione => {
     const mapping: Record<FuelType, DBAlimentazione> = {
       'petrol': 'Benzina',
@@ -69,7 +57,6 @@ export const mapAppToDBTypes = {
     return mapping[appFuel];
   },
 
-  // Cambio: App inglese → DB italiano
   transmission: (appTransmission: TransmissionType): DBCambio => {
     const mapping: Record<TransmissionType, DBCambio> = {
       'manual': 'Manuale',
@@ -80,7 +67,6 @@ export const mapAppToDBTypes = {
     return mapping[appTransmission];
   },
 
-  // Carrozzeria: App inglese → DB italiano
   bodyType: (appBodyType: BodyType): DBCarrozzeria => {
     const mapping: Record<BodyType, DBCarrozzeria> = {
       'sedan': 'Berlina',
@@ -98,9 +84,6 @@ export const mapAppToDBTypes = {
   },
 };
 
-/**
- * Genera un slug pulito per l'auto
- */
 function generateSlug(marca: string, modello: string, id: number): string {
   const cleanText = (text: string) => 
     text.toLowerCase()
@@ -119,12 +102,7 @@ function generateSlug(marca: string, modello: string, id: number): string {
   return `${cleanText(marca)}-${cleanText(modello)}-${id}`;
 }
 
-/**
- * Trasforma un record dal database in un oggetto Car dell'app
- * FIXED: Gestione ID migliorata
- */
 export function transformDBCarToAppCar(dbCar: RDGroupRow | RDGroupLuxuryRow, isLuxury: boolean): Car {
-  // Parse delle immagini JSON
   const imagesJson = dbCar.immagini as any;
   const images = Array.isArray(imagesJson?.urls) 
     ? imagesJson.urls.map((url: string, index: number) => ({
@@ -144,15 +122,12 @@ export function transformDBCarToAppCar(dbCar: RDGroupRow | RDGroupLuxuryRow, isL
         }]
       : [];
 
-  // Estrae l'anno dal formato "MM/YYYY"
   const yearMatch = dbCar.anno.match(/(\d{4})/);
   const year = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
-
-  // 🔥 FIXED: Usa l'ID del database o genera uno slug pulito
   const carId = dbCar.slug || generateSlug(dbCar.marca, dbCar.modello, dbCar.id);
 
   return {
-    id: carId, // 🔥 FIXED: ID più pulito
+    id: carId,
     autoscout24Id: dbCar.autoscout_id || undefined,
     make: dbCar.marca,
     model: dbCar.modello,
@@ -167,13 +142,13 @@ export function transformDBCarToAppCar(dbCar: RDGroupRow | RDGroupLuxuryRow, isL
     doors: dbCar.porte || 4,
     seats: dbCar.posti || 5,
     color: dbCar.colore || 'Non specificato',
-    previousOwners: 1, // Valore di default
+    previousOwners: 1,
     engineSize: dbCar.cilindrata || 0,
     power: dbCar.potenza_kw || 0,
     horsepower: dbCar.potenza_cv || 0,
     images,
     description: dbCar.descrizione || `${dbCar.marca} ${dbCar.modello} in ottime condizioni.`,
-    features: [], // Potremmo aggiungerlo in futuro
+    features: [],
     location: {
       address: dbCar.luogo || 'Via Bottaia, 2',
       city: 'Pistoia',
@@ -203,14 +178,11 @@ export function transformDBCarToAppCar(dbCar: RDGroupRow | RDGroupLuxuryRow, isL
   };
 }
 
-/**
- * Trasforma i filtri dell'app in filtri per il database
- */
 export function transformAppFiltersToDBFilters(filters: CarFilters): DBCarFilters {
   const dbFilters: DBCarFilters = {};
 
   if (filters.make?.length) {
-    dbFilters.marca = filters.make[0]; // Per ora prendiamo solo il primo
+    dbFilters.marca = filters.make[0];
   }
 
   if (filters.model?.length) {
@@ -252,9 +224,6 @@ export function transformAppFiltersToDBFilters(filters: CarFilters): DBCarFilter
   return dbFilters;
 }
 
-/**
- * Traduce i valori dei filtri per l'interfaccia utente
- */
 export const getTranslatedValues = {
   fuelType: (fuelType: string): string => {
     const translations: Record<string, string> = {

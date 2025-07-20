@@ -116,7 +116,7 @@ const FilterInput = styled.input`
 
 const ApplyFiltersButton = styled(Button)`
   background: transparent;
-  color: ${({ theme }) => theme.colors.primary.main};
+  color: ${({ theme }) => theme.colors.primary.main} !important;
   padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.md};
   font-size: 1.1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
@@ -129,7 +129,7 @@ const ApplyFiltersButton = styled(Button)`
   
   &:hover {
     background: transparent;
-    color: ${({ theme }) => theme.colors.primary.main};
+    color: white !important;
   }
 `;
 
@@ -169,7 +169,6 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
     if (onSearch) {
       onSearch(filters);
     } else {
-      // Navigate to catalog page with filters
       const searchParams = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== '') {

@@ -291,10 +291,10 @@ const CarMake = styled.h3`
 const CarModel = styled.h4`
   color: white;
   font-family: ${({ theme }) => theme.typography.fontFamily};
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   margin: -2px 0 ${({ theme }) => theme.spacing.sm} 0;
-  text-align: right;
+  text-align: left;
   line-height: 1.1;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;

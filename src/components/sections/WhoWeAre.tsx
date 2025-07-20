@@ -253,8 +253,6 @@ const WhoWeAre: React.FC = () => {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
-    // NON blocchiamo l'invio - lasciamo che il form si invii nativamente a Netlify
-    console.log('Inviando form a Netlify...', formData);
   };
 
   return (

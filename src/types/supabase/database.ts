@@ -1,12 +1,12 @@
 export interface Database {
 	public: {
 	  Tables: {
-		rd_group: { // 🔥 FIXED: minuscolo!
+		rd_group: {
 		  Row: RDGroupRow;
 		  Insert: RDGroupInsert;
 		  Update: RDGroupUpdate;
 		};
-		rd_group_luxury: { // 🔥 FIXED: minuscolo!
+		rd_group_luxury: {
 		  Row: RDGroupLuxuryRow;
 		  Insert: RDGroupLuxuryInsert;
 		  Update: RDGroupLuxuryUpdate;
@@ -31,8 +31,7 @@ export interface Database {
 	  };
 	};
   }
-  
-  // Tabella rd_group (auto standard) - FIXED: nome minuscolo
+
   export interface RDGroupRow {
 	id: number;
 	autoscout_id: string | null;
@@ -66,13 +65,11 @@ export interface Database {
   
   export type RDGroupInsert = Omit<RDGroupRow, 'id' | 'created_at' | 'updated_at'>;
   export type RDGroupUpdate = Partial<RDGroupInsert>;
-  
-  // Tabella rd_group_luxury (auto di lusso) - FIXED: nome minuscolo
+
   export interface RDGroupLuxuryRow extends RDGroupRow {}
   export type RDGroupLuxuryInsert = Omit<RDGroupLuxuryRow, 'id' | 'created_at' | 'updated_at'>;
   export type RDGroupLuxuryUpdate = Partial<RDGroupLuxuryInsert>;
-  
-  // Vista combinata
+
   export interface VistaAutoCombinateRow {
 	id: number;
 	categoria: 'luxury' | 'standard';
@@ -90,8 +87,7 @@ export interface Database {
 	stato_annuncio: string | null;
 	created_at: string | null;
   }
-  
-  // Risultato della funzione cerca_auto
+
   export interface CercaAutoResult {
 	id: number;
 	categoria: 'luxury' | 'standard';
@@ -104,13 +100,11 @@ export interface Database {
 	alimentazione: string | null;
 	slug: string | null;
   }
-  
-  // Mapping dei valori del database verso i tipi dell'app
+
   export type DBAlimentazione = 'Benzina' | 'Diesel' | 'Elettrica/Diesel' | 'GPL' | 'Metano' | 'Elettrico';
   export type DBCambio = 'Manuale' | 'Automatico' | 'Semi-automatico';
   export type DBCarrozzeria = 'Berlina' | 'Station Wagon' | 'SUV' | 'Cabrio' | 'Coupé' | 'Monovolume' | 'Fuoristrada' | 'Pick-up' | 'Furgoni' | 'Citycar';
-  
-  // Interfaccia per i filtri di ricerca dal database
+
   export interface DBCarFilters {
 	marca?: string;
 	modello?: string;

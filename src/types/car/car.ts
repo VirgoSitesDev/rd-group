@@ -1,5 +1,3 @@
-// Tipi semplificati per le auto
-
 export interface Car {
 	id: string;
 	autoscout24Id?: string;
@@ -87,8 +85,7 @@ export interface Car {
 	termMonths?: number;
 	interestRate?: number;
   }
-  
-  // Enums
+
   export enum FuelType {
 	PETROL = 'petrol',
 	DIESEL = 'diesel',
@@ -149,8 +146,7 @@ export interface Car {
 	F = 'F',
 	G = 'G'
   }
-  
-  // Filtri per la ricerca
+
   export interface CarFilters {
 	make?: string[];
 	model?: string[];
@@ -167,14 +163,12 @@ export interface Car {
 	location?: string;
 	radius?: number; // km di raggio dalla location
   }
-  
-  // Ordinamento
+
   export interface CarSorting {
 	field: 'price' | 'year' | 'mileage' | 'createdAt' | 'make' | 'model';
 	direction: 'asc' | 'desc';
   }
-  
-  // Risultati della ricerca
+
   export interface CarSearchResult {
 	cars: Car[];
 	total: number;
@@ -184,8 +178,7 @@ export interface Car {
 	filters: CarFilters;
 	sorting: CarSorting;
   }
-  
-  // Statistiche
+
   export interface CarStats {
 	total: number;
 	available: number;

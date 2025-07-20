@@ -203,7 +203,7 @@ const CarActions = styled.div`
 `;
 
 const OtherHighlightCars: React.FC = () => {
-  const navigate = useNavigate(); // FIXED: Aggiunto useNavigate
+  const navigate = useNavigate();
   const { data: featuredResult, isLoading } = useFeaturedCars(2);
   
   const featuredCars = [
@@ -315,7 +315,6 @@ const OtherHighlightCars: React.FC = () => {
     }
   ];
 
-  // FIXED: Usa useNavigate invece di window.location.href
   const handleCarClick = (carId: string) => {
     navigate(`/auto/${carId}`);
   };
