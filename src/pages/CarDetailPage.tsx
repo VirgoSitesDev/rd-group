@@ -6,162 +6,8 @@ import { FaArrowLeft, FaPhone, FaEnvelope, FaMapMarkerAlt, FaHeart, FaShare, FaC
 import Container from '../components/layout/Container';
 import Button from '../components/common/Button';
 import Loading from '../components/common/Loading';
-
-const mockCarsDatabase = {
-  'featured-abarth': {
-    id: 'featured-abarth',
-    make: 'ABARTH',
-    model: '595 Turismo 1.4 T-Jet',
-    price: 15400,
-    year: 2015,
-    mileage: 68000,
-    fuelType: 'petrol',
-    transmission: 'manual',
-    power: 118,
-    images: [
-      { id: '1', url: '/car.jpg', altText: 'ABARTH 595 Turismo', isPrimary: true, order: 0 },
-      { id: '2', url: '/Car_1.jpg', altText: 'ABARTH 595 Turismo', isPrimary: false, order: 1 },
-      { id: '3', url: '/Car_2.jpg', altText: 'ABARTH 595 Turismo', isPrimary: false, order: 2 }
-    ],
-    description: 'Bellissima Abarth 595 Turismo in perfette condizioni. Auto tenuta maniacalmente, sempre tagliandata in concessionaria. Perfetta per chi cerca prestazioni e divertimento di guida. Interni sportivi con sedili Sabelt, volante in pelle, strumentazione dedicata.',
-    features: ['Climatizzatore', 'ABS', 'Airbag', 'Radio CD', 'Cerchi in lega', 'Fendinebbia', 'Sedili Sabelt', 'Volante sportivo', 'Coupé'],
-    doors: 3,
-    seats: 4,
-    color: 'Nero',
-    bodyType: 'coupe',
-    engineSize: 1400,
-    horsepower: 160,
-    condition: 'used',
-    availability: 'available',
-    previousOwners: 1,
-    currency: 'EUR',
-    location: {
-      address: 'Via Bottaia, 2',
-      city: 'Pistoia',
-      region: 'Toscana',
-      postalCode: '51100',
-      country: 'Italia'
-    },
-    dealer: {
-      id: '1',
-      name: 'RD Group',
-      phone: '+39 057 318 7467',
-      email: 'rdautosrlpistoia@gmail.com',
-      location: {
-        address: 'Via Bottaia, 2',
-        city: 'Pistoia',
-        region: 'Toscana',
-        postalCode: '51100',
-        country: 'Italia'
-      }
-    },
-    isLuxury: false,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  'featured-bmw': {
-    id: 'featured-bmw',
-    make: 'BMW',
-    model: 'X3 xDrive20d',
-    price: 28900,
-    year: 2019,
-    mileage: 45000,
-    fuelType: 'diesel',
-    transmission: 'automatic',
-    power: 140,
-    images: [
-      { id: '1', url: '/Car_2.jpg', altText: 'BMW X3 xDrive20d', isPrimary: true, order: 0 },
-      { id: '2', url: '/car.jpg', altText: 'BMW X3 xDrive20d', isPrimary: false, order: 1 },
-      { id: '3', url: '/Car_1.jpg', altText: 'BMW X3 xDrive20d', isPrimary: false, order: 2 }
-    ],
-    description: 'BMW X3 xDrive20d in perfette condizioni. Auto di categoria premium con trazione integrale xDrive, ideale per ogni situazione. Interni in pelle, navigatore BMW Professional, assistente di parcheggio. Service book completo.',
-    features: ['Trazione integrale xDrive', 'Navigatore BMW Professional', 'Pelle', 'Clima automatico', 'Sensori di parcheggio', 'SUV', 'Premium', 'Cruise Control', 'Start/Stop'],
-    doors: 5,
-    seats: 5,
-    color: 'Bianco',
-    bodyType: 'suv',
-    engineSize: 2000,
-    horsepower: 190,
-    condition: 'used',
-    availability: 'available',
-    previousOwners: 1,
-    currency: 'EUR',
-    location: {
-      address: 'Via Luigi Galvani, 2',
-      city: 'Pistoia',
-      region: 'Toscana',
-      postalCode: '51100',
-      country: 'Italia'
-    },
-    dealer: {
-      id: '1',
-      name: 'RD Group',
-      phone: '+39 057 318 7467',
-      email: 'rdautosrlpistoia@gmail.com',
-      location: {
-        address: 'Via Bottaia, 2',
-        city: 'Pistoia',
-        region: 'Toscana',
-        postalCode: '51100',
-        country: 'Italia'
-      }
-    },
-    isLuxury: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  'featured-luxury': {
-    id: 'featured-luxury',
-    make: 'MERCEDES',
-    model: 'G63 AMG',
-    price: 69800,
-    year: 2013,
-    mileage: 181000,
-    fuelType: 'petrol',
-    transmission: 'semi_automatic',
-    power: 400,
-    images: [
-      { id: '1', url: '/Car_Luxury.jpg', altText: 'Mercedes G63 AMG', isPrimary: true, order: 0 },
-      { id: '2', url: '/car.jpg', altText: 'Mercedes G63 AMG', isPrimary: false, order: 1 },
-      { id: '3', url: '/Car_1.jpg', altText: 'Mercedes G63 AMG', isPrimary: false, order: 2 }
-    ],
-    description: 'Mercedes-Benz G63 AMG, il SUV di lusso per eccellenza. Motore V8 biturbo da 5.5 litri, 544 CV di potenza pura. Interni in pelle Nappa, finiture in carbonio, pacchetto AMG completo. Una vera icona della strada.',
-    features: ['AMG Performance', 'Pelle Nappa', 'Finiture carbonio', 'Luxury', 'V8 Biturbo', 'Trazione integrale 4MATIC', 'Sospensioni adattive', 'Harman Kardon'],
-    doors: 5,
-    seats: 5,
-    color: 'Nero Ossidiana',
-    bodyType: 'suv',
-    engineSize: 5500,
-    horsepower: 544,
-    condition: 'used',
-    availability: 'available',
-    previousOwners: 2,
-    currency: 'EUR',
-    location: {
-      address: 'Via Fiorentina, 331',
-      city: 'Pistoia',
-      region: 'Toscana',
-      postalCode: '51100',
-      country: 'Italia'
-    },
-    dealer: {
-      id: '1',
-      name: 'RD Group',
-      phone: '+39 057 318 7467',
-      email: 'rdautosrlpistoia@gmail.com',
-      location: {
-        address: 'Via Bottaia, 2',
-        city: 'Pistoia',
-        region: 'Toscana',
-        postalCode: '51100',
-        country: 'Italia'
-      }
-    },
-    isLuxury: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-};
+// 🔥 NUOVO: Usa il hook reale per ottenere i dati dal database
+import { useCar } from '../hooks/useCars';
 
 const PageContainer = styled.div`
   background: ${({ theme }) => theme.colors.background.default};
@@ -409,9 +255,9 @@ const CarDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const car = id ? mockCarsDatabase[id as keyof typeof mockCarsDatabase] : null;
-  const isLoading = false;
-  const error = !car && id;
+  
+  // 🔥 NUOVO: Usa il database reale invece dei dati mock
+  const { data: car, isLoading, error } = useCar(id || '');
 
   useEffect(() => {
     if (car) {
@@ -457,7 +303,8 @@ const CarDetailPage: React.FC = () => {
     );
   }
 
-  if (error || !car) {
+  // 🔥 CAMBIATO: Controllo errore aggiornato per il database reale
+  if (error || (!car && !isLoading)) {
     return (
       <PageContainer>
         <Container>
@@ -476,6 +323,7 @@ const CarDetailPage: React.FC = () => {
     );
   }
 
+  if (!car) return 'Nessuna macchina trovata';
   return (
     <PageContainer>
       <Container>
@@ -501,39 +349,48 @@ const CarDetailPage: React.FC = () => {
               />
             </MainImage>
 
-            <ImageGallery>
-              {car.images.map((image, index) => (
-                <ThumbnailImage
-                  key={image.id}
-                  $isActive={activeImageIndex === index}
-                  onClick={() => setActiveImageIndex(index)}
-                >
-                  <img 
-                    src={image.url} 
-                    alt={image.altText}
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'flex';
-                      target.style.alignItems = 'center';
-                      target.style.justifyContent = 'center';
-                      target.style.fontSize = '2rem';
-                      target.innerHTML = '🚗';
-                    }}
-                  />
-                </ThumbnailImage>
-              ))}
-            </ImageGallery>
-              <DescriptionSection>
-                <SectionTitle>Descrizione</SectionTitle>
-                <Description>{car.description}</Description>
-                
-                <SectionTitle>Equipaggiamenti</SectionTitle>
-                <FeaturesList>
-                  {car.features.map((feature, index) => (
-                    <FeatureItem key={index}>{feature}</FeatureItem>
-                  ))}
-                </FeaturesList>
-              </DescriptionSection>
+            {/* 🔥 MIGLIORATO: Gestione immagini dal database */}
+            {car.images && car.images.length > 1 && (
+              <ImageGallery>
+                {car.images.map((image, index) => (
+                  <ThumbnailImage
+                    key={image.id}
+                    $isActive={activeImageIndex === index}
+                    onClick={() => setActiveImageIndex(index)}
+                  >
+                    <img 
+                      src={image.url} 
+                      alt={image.altText}
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'flex';
+                        target.style.alignItems = 'center';
+                        target.style.justifyContent = 'center';
+                        target.style.fontSize = '2rem';
+                        target.innerHTML = '🚗';
+                      }}
+                    />
+                  </ThumbnailImage>
+                ))}
+              </ImageGallery>
+            )}
+
+            <DescriptionSection>
+              <SectionTitle>Descrizione</SectionTitle>
+              <Description>{car.description}</Description>
+              
+              {/* 🔥 MIGLIORATO: Mostra features solo se esistono */}
+              {car.features && car.features.length > 0 && (
+                <>
+                  <SectionTitle>Equipaggiamenti</SectionTitle>
+                  <FeaturesList>
+                    {car.features.map((feature, index) => (
+                      <FeatureItem key={index}>{feature}</FeatureItem>
+                    ))}
+                  </FeaturesList>
+                </>
+              )}
+            </DescriptionSection>
           </ImageSection>
 
           {/* Sezione Info */}
