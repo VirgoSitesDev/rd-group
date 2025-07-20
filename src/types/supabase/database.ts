@@ -1,14 +1,12 @@
-// Tipi per le tabelle Supabase
-
 export interface Database {
 	public: {
 	  Tables: {
-		RD_GROUP: {
+		rd_group: { // 🔥 FIXED: minuscolo!
 		  Row: RDGroupRow;
 		  Insert: RDGroupInsert;
 		  Update: RDGroupUpdate;
 		};
-		RD_GROUP_LUXURY: {
+		rd_group_luxury: { // 🔥 FIXED: minuscolo!
 		  Row: RDGroupLuxuryRow;
 		  Insert: RDGroupLuxuryInsert;
 		  Update: RDGroupLuxuryUpdate;
@@ -34,7 +32,7 @@ export interface Database {
 	};
   }
   
-  // Tabella RD_GROUP (auto standard)
+  // Tabella rd_group (auto standard) - FIXED: nome minuscolo
   export interface RDGroupRow {
 	id: number;
 	autoscout_id: string | null;
@@ -69,7 +67,7 @@ export interface Database {
   export type RDGroupInsert = Omit<RDGroupRow, 'id' | 'created_at' | 'updated_at'>;
   export type RDGroupUpdate = Partial<RDGroupInsert>;
   
-  // Tabella RD_GROUP_LUXURY (auto di lusso) - stessa struttura
+  // Tabella rd_group_luxury (auto di lusso) - FIXED: nome minuscolo
   export interface RDGroupLuxuryRow extends RDGroupRow {}
   export type RDGroupLuxuryInsert = Omit<RDGroupLuxuryRow, 'id' | 'created_at' | 'updated_at'>;
   export type RDGroupLuxuryUpdate = Partial<RDGroupLuxuryInsert>;

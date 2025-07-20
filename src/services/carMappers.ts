@@ -1,3 +1,5 @@
+// src/services/carMappers.ts - FIXED: Gestione ID migliorata
+
 import type { Car, CarFilters } from '../types/car/car';
 import { FuelType, TransmissionType, BodyType, CarCondition, AvailabilityStatus } from '../types/car/car';
 import type { RDGroupRow, RDGroupLuxuryRow, DBCarFilters, DBAlimentazione, DBCambio, DBCarrozzeria } from '../types/supabase/database';
@@ -97,7 +99,29 @@ export const mapAppToDBTypes = {
 };
 
 /**
+ * Genera un slug pulito per l'auto
+ */
+function generateSlug(marca: string, modello: string, id: number): string {
+  const cleanText = (text: string) => 
+    text.toLowerCase()
+        .replace(/[àáâãäå]/g, 'a')
+        .replace(/[èéêë]/g, 'e')
+        .replace(/[ìíîï]/g, 'i')
+        .replace(/[òóôõö]/g, 'o')
+        .replace(/[ùúûü]/g, 'u')
+        .replace(/[ç]/g, 'c')
+        .replace(/[ñ]/g, 'n')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim();
+
+  return `${cleanText(marca)}-${cleanText(modello)}-${id}`;
+}
+
+/**
  * Trasforma un record dal database in un oggetto Car dell'app
+ * FIXED: Gestione ID migliorata
  */
 export function transformDBCarToAppCar(dbCar: RDGroupRow | RDGroupLuxuryRow, isLuxury: boolean): Car {
   // Parse delle immagini JSON
@@ -124,8 +148,11 @@ export function transformDBCarToAppCar(dbCar: RDGroupRow | RDGroupLuxuryRow, isL
   const yearMatch = dbCar.anno.match(/(\d{4})/);
   const year = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
 
+  // 🔥 FIXED: Usa l'ID del database o genera uno slug pulito
+  const carId = dbCar.slug || generateSlug(dbCar.marca, dbCar.modello, dbCar.id);
+
   return {
-    id: dbCar.slug || `car-${dbCar.id}`,
+    id: carId, // 🔥 FIXED: ID più pulito
     autoscout24Id: dbCar.autoscout_id || undefined,
     make: dbCar.marca,
     model: dbCar.modello,

@@ -7,6 +7,35 @@ import type { RDGroupRow, RDGroupLuxuryRow } from '../types/supabase/database';
 class DatabaseService {
   
   /**
+   * Estrae l'ID numerico da un ID stringa (es: "car-123" -> 123)
+   */
+  private extractNumericId(id: string): number | null {
+    // Se è già un numero, ritorna direttamente
+    if (/^\d+$/.test(id)) {
+      return parseInt(id);
+    }
+    
+    // Se è nel formato "car-123", estrai il numero
+    const match = id.match(/^car-(\d+)$/);
+    if (match) {
+      return parseInt(match[1]);
+    }
+    
+    // Se è nel formato "featured-xxx", gestisci casi speciali
+    if (id === 'featured-luxury') {
+      // Restituisce la prima auto luxury
+      return null; // Gestiremo questo caso separatamente
+    }
+    
+    if (id.startsWith('featured-')) {
+      // Altri casi featured
+      return null;
+    }
+    
+    return null;
+  }
+
+  /**
    * Cerca veicoli nel database reale
    */
   async searchVehicles(filters: CarFilters, page = 1, limit = 20): Promise<CarSearchResult> {
@@ -78,7 +107,7 @@ class DatabaseService {
    */
   private async queryLuxuryCars(filters: CarFilters, limit: number, offset: number) {
     let query = supabase
-      .from('RD_GROUP_LUXURY')
+      .from('rd_group_luxury')
       .select('*', { count: 'exact' })
       .eq('stato_annuncio', 'attivo')
       .order('created_at', { ascending: false });
@@ -94,7 +123,7 @@ class DatabaseService {
    */
   private async queryStandardCars(filters: CarFilters, limit: number, offset: number) {
     let query = supabase
-      .from('RD_GROUP')
+      .from('rd_group')
       .select('*', { count: 'exact' })
       .eq('stato_annuncio', 'attivo')
       .order('created_at', { ascending: false });
@@ -170,39 +199,96 @@ class DatabaseService {
   }
 
   /**
-   * Ottiene una singola auto per ID
+   * Ottiene una singola auto per ID - FIXED: Gestione ID migliorata
    */
   async getVehicle(id: string): Promise<Car | null> {
     try {
       console.log('🔍 Ricerca auto con ID:', id);
 
+      // Gestisci casi speciali per featured cars
+      if (id === 'featured-luxury') {
+        console.log('🏎️ Richiesta auto luxury featured, prendo la prima luxury disponibile');
+        const { data, error } = await supabase
+          .from('rd_group_luxury')
+          .select('*')
+          .eq('stato_annuncio', 'attivo')
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (data && data.length > 0 && !error) {
+          return transformDBCarToAppCar(data[0], true);
+        }
+      }
+
+      if (id.startsWith('featured-')) {
+        console.log('🚗 Richiesta auto featured, prendo la prima standard disponibile');
+        const { data, error } = await supabase
+          .from('rd_group')
+          .select('*')
+          .eq('stato_annuncio', 'attivo')
+          .order('created_at', { ascending: false })
+          .limit(1);
+        
+        if (data && data.length > 0 && !error) {
+          return transformDBCarToAppCar(data[0], false);
+        }
+      }
+
+      // Estrai l'ID numerico
+      const numericId = this.extractNumericId(id);
+      console.log(`🔢 ID originale: ${id}, ID numerico estratto: ${numericId}`);
+
       // Cerca prima nelle auto di lusso
-      const { data: luxuryData, error: luxuryError } = await supabase
-        .from('RD_GROUP_LUXURY')
+      console.log('🏎️ Cercando nelle auto luxury...');
+      
+      let luxuryQuery = supabase
+        .from('rd_group_luxury')
         .select('*')
-        .or(`id.eq.${id},slug.eq.${id}`)
-        .eq('stato_annuncio', 'attivo')
-        .single();
+        .eq('stato_annuncio', 'attivo');
+
+      // Cerca per ID numerico o slug
+      if (numericId !== null) {
+        luxuryQuery = luxuryQuery.or(`id.eq.${numericId},slug.eq.${id}`);
+      } else {
+        luxuryQuery = luxuryQuery.eq('slug', id);
+      }
+
+      const { data: luxuryData, error: luxuryError } = await luxuryQuery.maybeSingle();
 
       if (luxuryData && !luxuryError) {
-        console.log('✅ Auto di lusso trovata');
+        console.log('✅ Auto di lusso trovata:', luxuryData.marca, luxuryData.modello);
         return transformDBCarToAppCar(luxuryData, true);
       }
 
       // Se non trovata nelle luxury, cerca nelle standard
-      const { data: standardData, error: standardError } = await supabase
-        .from('RD_GROUP')
+      console.log('🚗 Cercando nelle auto standard...');
+      
+      let standardQuery = supabase
+        .from('rd_group')
         .select('*')
-        .or(`id.eq.${id},slug.eq.${id}`)
-        .eq('stato_annuncio', 'attivo')
-        .single();
+        .eq('stato_annuncio', 'attivo');
+
+      // Cerca per ID numerico o slug
+      if (numericId !== null) {
+        standardQuery = standardQuery.or(`id.eq.${numericId},slug.eq.${id}`);
+      } else {
+        standardQuery = standardQuery.eq('slug', id);
+      }
+
+      const { data: standardData, error: standardError } = await standardQuery.maybeSingle();
 
       if (standardData && !standardError) {
-        console.log('✅ Auto standard trovata');
+        console.log('✅ Auto standard trovata:', standardData.marca, standardData.modello);
         return transformDBCarToAppCar(standardData, false);
       }
 
-      console.log('❌ Auto non trovata');
+      // Log di debug
+      console.log('❌ Auto non trovata - Debug info:');
+      console.log('- ID cercato:', id);
+      console.log('- ID numerico:', numericId);
+      console.log('- Errore luxury:', luxuryError);
+      console.log('- Errore standard:', standardError);
+
       return null;
 
     } catch (error) {
@@ -222,14 +308,14 @@ class DatabaseService {
 
       const [luxuryResult, standardResult] = await Promise.all([
         supabase
-          .from('RD_GROUP_LUXURY')
+          .from('rd_group_luxury')
           .select('*')
           .eq('stato_annuncio', 'attivo')
           .order('created_at', { ascending: false })
           .limit(luxuryLimit),
         
         supabase
-          .from('RD_GROUP')
+          .from('rd_group')
           .select('*')
           .eq('stato_annuncio', 'attivo')
           .order('created_at', { ascending: false })
@@ -265,15 +351,14 @@ class DatabaseService {
    * Ottiene statistiche auto (mock per ora)
    */
   async getSyncStatus(): Promise<AutoScout24SyncStatus> {
-    // Per ora restituiamo dati mock
     return {
-      lastSync: new Date(Date.now() - 3600000), // 1 ora fa
+      lastSync: new Date(Date.now() - 3600000),
       isRunning: false,
       totalItems: 150,
       syncedItems: 150,
       failedItems: 0,
       errors: [],
-      nextSync: new Date(Date.now() + 3600000) // tra 1 ora
+      nextSync: new Date(Date.now() + 3600000)
     };
   }
 
@@ -305,7 +390,7 @@ class DatabaseService {
    */
   async testConnection(): Promise<boolean> {
     try {
-      const { error } = await supabase.from('RD_GROUP').select('id').limit(1);
+      const { error } = await supabase.from('rd_group').select('id').limit(1);
       return !error;
     } catch {
       return false;
