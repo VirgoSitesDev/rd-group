@@ -1,18 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaSearch, FaFilter, FaCar, FaMapMarkerAlt, FaChevronDown, FaArrowRight } from 'react-icons/fa';
+import { FaSearch, FaCar, FaMapMarkerAlt, FaChevronDown, FaArrowRight, FaTimes } from 'react-icons/fa';
 
 import Container from '../components/layout/Container';
 import Button from '../components/common/Button';
 import Loading from '../components/common/Loading';
-import ActionButton from '../components/common/ActionButton';
-import { useCars, useCarManagement } from '../hooks/useCars';
+import CarActionButton from '../components/common/ActionButton';
+
+import { useCars } from '../hooks/useCars';
 import type { CarFilters, FuelType, TransmissionType, BodyType } from '../types/car/car';
 
 const CatalogHeader = styled.div`
   background: transparent;
-  padding: ${({ theme }) => theme.spacing.xxl} 0 ${({ theme }) => theme.spacing.xxl} 0;
+  padding: ${({ theme }) => theme.spacing.xxl} 0 ${({ theme }) => theme.spacing.xl} 0;
 `;
 
 const SearchTitle = styled.h2`
@@ -33,13 +34,13 @@ const SearchTitle = styled.h2`
 
   svg {
     color: ${({ theme }) => theme.colors.text.primary};
-	font-size: 1rem;
+    font-size: 1rem;
   }
 `;
 
 const MainContainer = styled.div`
   display: grid;
-  grid-template-columns: 15% 85%;
+  grid-template-columns: 25% 75%;
   gap: ${({ theme }) => theme.spacing.xl};
   align-items: start;
 
@@ -70,7 +71,7 @@ const FiltersSection = styled.div`
 const FiltersGrid = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xxl};
+  gap: ${({ theme }) => theme.spacing.lg};
   margin-bottom: ${({ theme }) => theme.spacing.xl};
 `;
 
@@ -87,7 +88,7 @@ const FilterGroup = styled.div`
 `;
 
 const FilterLabel = styled.label`
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: #000000;
   cursor: pointer;
@@ -99,17 +100,42 @@ const FilterLabel = styled.label`
     padding-left: 5px;
     font-size: 1rem;
     color: #000000;
+    transition: transform 0.2s ease;
   }
 `;
 
-const HiddenSelect = styled.select`
+const DropdownContainer = styled.div<{ isOpen: boolean }>`
   position: absolute;
-  opacity: 0;
-  pointer-events: none;
-  width: 100%;
-  height: 100%;
-  top: 0;
+  top: 100%;
   left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  box-shadow: ${({ theme }) => theme.shadows.md};
+  z-index: 1000;
+  max-height: ${({ isOpen }) => isOpen ? '200px' : '0'};
+  overflow-y: auto;
+  opacity: ${({ isOpen }) => isOpen ? 1 : 0};
+  transform: ${({ isOpen }) => isOpen ? 'translateY(0)' : 'translateY(-10px)'};
+  transition: all 0.2s ease;
+  pointer-events: ${({ isOpen }) => isOpen ? 'all' : 'none'};
+`;
+
+const DropdownItem = styled.div`
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
+  cursor: pointer;
+  font-size: 1rem;
+  border-bottom: 1px solid ${({ theme }) => theme.colors.border}20;
+  
+  &:hover {
+    background: ${({ theme }) => theme.colors.primary.main}10;
+    color: ${({ theme }) => theme.colors.primary.main};
+  }
+  
+  &:last-child {
+    border-bottom: none;
+  }
 `;
 
 const FilterInput = styled.input`
@@ -120,7 +146,6 @@ const FilterInput = styled.input`
   font-size: 1rem;
   font-weight: bold;
   transition: border-color 0.2s ease;
-  width: 100%;
 
   &:focus {
     outline: none;
@@ -136,24 +161,85 @@ const FilterInput = styled.input`
   }
 `;
 
+
+
+const PriceInputsRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: ${({ theme }) => theme.spacing.sm};
+`;
+
 const FiltersActions = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
-  gap: 0;
-  padding-top: ${({ theme }) => theme.spacing.xs};
+  gap: ${({ theme }) => theme.spacing.sm};
+  padding-top: ${({ theme }) => theme.spacing.md};
+  border-top: 1px solid ${({ theme }) => theme.colors.border};
+`;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    flex-direction: row;
-    justify-content: flex-start;
+const ApplyButton = styled(Button)`
+  width: 100%;
+  font-size: 0.9rem;
+`;
+
+const ClearButton = styled(Button)`
+  width: 100%;
+  font-size: 0.9rem;
+`;
+
+const ActiveFiltersContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+`;
+
+const ActiveFilterTag = styled.div`
+  background: ${({ theme }) => theme.colors.primary.main};
+  color: white;
+  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.xs};
+  
+  svg {
+    cursor: pointer;
+    font-size: 0.8rem;
+    
+    &:hover {
+      opacity: 0.7;
+    }
   }
 `;
 
-const FullWidthActionButton = styled(ActionButton)`
-  width: 100%;
+const ResultsSection = styled.div``;
+
+const ResultsHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  padding: 0 ${({ theme }) => theme.spacing.sm};
 `;
 
-const ResultsSection = styled.div`
+const ResultsCount = styled.div`
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: 1.1rem;
+  
+  strong {
+    color: ${({ theme }) => theme.colors.primary.main};
+  }
+`;
+
+const SortingSelect = styled.select`
+  padding: ${({ theme }) => theme.spacing.sm};
+  border: 1px solid ${({ theme }) => theme.colors.border};
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  background: white;
+  font-size: 0.9rem;
+  cursor: pointer;
 `;
 
 const CarsGrid = styled.div`
@@ -356,6 +442,8 @@ const CatalogPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [sorting, setSorting] = useState({ field: 'createdAt', direction: 'desc' as 'asc' | 'desc' });
+  const [availableModels, setAvailableModels] = useState<string[]>([]);
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   const filters = useMemo(() => {
     const urlFilters: CarFilters = {};
@@ -403,7 +491,47 @@ const CatalogPage: React.FC = () => {
   }, [searchParams]);
 
   const { data: searchResult, isLoading, error } = useCars(filters, page, 20);
-  const { syncStatus } = useCarManagement();
+  const { data: allCarsResult } = useCars({}, 1, 1000);
+
+  const [localFilters, setLocalFilters] = useState<CarFilters>(filters);
+
+  // Estrai marche e modelli unici dal database
+  const availableMakes = useMemo(() => {
+    if (!allCarsResult?.cars) return [];
+    const makes = [...new Set(allCarsResult.cars.map(car => car.make))];
+    return makes.sort();
+  }, [allCarsResult]);
+
+  useEffect(() => {
+    setLocalFilters(filters);
+  }, [filters]);
+
+  // Aggiorna modelli quando cambia la marca
+  useEffect(() => {
+    if (!localFilters.make?.length || !allCarsResult?.cars) {
+      setAvailableModels([]);
+      return;
+    }
+    
+    const modelsForMake = allCarsResult.cars
+      .filter(car => localFilters.make!.includes(car.make))
+      .map(car => car.model);
+    
+    const uniqueModels = [...new Set(modelsForMake)].sort();
+    setAvailableModels(uniqueModels);
+  }, [localFilters.make, allCarsResult]);
+
+  // Chiudi dropdown quando clicchi fuori
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (openDropdown) {
+        setOpenDropdown(null);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [openDropdown]);
 
   useEffect(() => {
     const getPageTitle = () => {
@@ -415,17 +543,40 @@ const CatalogPage: React.FC = () => {
     document.title = getPageTitle();
   }, [filters]);
 
-  const [localFilters, setLocalFilters] = useState<CarFilters>(filters);
+  const toggleDropdown = (dropdownName: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setOpenDropdown(openDropdown === dropdownName ? null : dropdownName);
+  };
 
-  useEffect(() => {
-    setLocalFilters(filters);
-  }, [filters]);
+  const selectDropdownValue = (field: keyof CarFilters, value: string) => {
+    if (field === 'make') {
+      setLocalFilters(prev => ({
+        ...prev,
+        make: value ? [value] : undefined,
+        model: undefined // Reset model quando cambia marca
+      }));
+    } else {
+      setLocalFilters(prev => ({
+        ...prev,
+        [field]: value ? [value] : undefined
+      }));
+    }
+    setOpenDropdown(null);
+  };
 
-  const handleFilterChange = (field: keyof CarFilters, value: any) => {
-    setLocalFilters(prev => ({
-      ...prev,
-      [field]: value || undefined
-    }));
+  const handleFilterChange = (field: keyof CarFilters, value: string) => {
+    if (field === 'make') {
+      setLocalFilters(prev => ({
+        ...prev,
+        make: value ? [value] : undefined,
+        model: undefined // Reset model quando cambia marca
+      }));
+    } else {
+      setLocalFilters(prev => ({
+        ...prev,
+        [field]: value ? [value] : undefined
+      }));
+    }
   };
 
   const handlePriceChange = (field: 'priceMin' | 'priceMax', value: string) => {
@@ -433,6 +584,29 @@ const CatalogPage: React.FC = () => {
     setLocalFilters(prev => ({
       ...prev,
       [field]: numValue
+    }));
+  };
+
+  const handleMileageChange = (value: string) => {
+    if (!value) {
+      setLocalFilters(prev => ({
+        ...prev,
+        mileageMax: undefined
+      }));
+      return;
+    }
+
+    const ranges = {
+      '30000': 30000,
+      '50000': 50000,
+      '100000': 100000,
+      '150000': 150000,
+      '200000': 200000
+    };
+
+    setLocalFilters(prev => ({
+      ...prev,
+      mileageMax: ranges[value as keyof typeof ranges]
     }));
   };
 
@@ -461,6 +635,18 @@ const CatalogPage: React.FC = () => {
     setPage(1);
   };
 
+  const removeFilter = (field: keyof CarFilters) => {
+    setLocalFilters(prev => {
+      const newFilters = { ...prev };
+      delete newFilters[field];
+      return newFilters;
+    });
+    
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete(field);
+    setSearchParams(newSearchParams);
+  };
+
   const handleCarClick = (carId: string) => {
     navigate(`/auto/${carId}`);
   };
@@ -468,6 +654,43 @@ const CatalogPage: React.FC = () => {
   const formatPrice = (value: string) => {
     const numValue = value.replace(/\D/g, '');
     return numValue ? `${parseInt(numValue).toLocaleString('it-IT')}€` : '';
+  };
+
+  const getDisplayValue = (field: keyof CarFilters) => {
+    switch (field) {
+      case 'make':
+        return localFilters.make?.[0] || 'Marca';
+      case 'model':
+        return localFilters.model?.[0] || 'Modello';
+      case 'fuelType':
+        const fuelTranslations = {
+          'petrol': 'Benzina',
+          'diesel': 'Diesel',
+          'hybrid': 'Ibrido',
+          'electric': 'Elettrico',
+          'lpg': 'GPL',
+          'cng': 'Metano'
+        };
+        return localFilters.fuelType?.[0] ? fuelTranslations[localFilters.fuelType[0] as keyof typeof fuelTranslations] || localFilters.fuelType[0] : 'Alimentazione';
+      case 'transmission':
+        const transTranslations = {
+          'manual': 'Manuale',
+          'automatic': 'Automatico',
+          'semi_automatic': 'Semiautomatico'
+        };
+        return localFilters.transmission?.[0] ? transTranslations[localFilters.transmission[0] as keyof typeof transTranslations] || localFilters.transmission[0] : 'Cambio';
+      case 'mileageMax':
+        if (!localFilters.mileageMax) return 'Chilometraggio';
+        if (localFilters.mileageMax <= 30000) return 'Fino a 30.000 km';
+        if (localFilters.mileageMax <= 50000) return 'Fino a 50.000 km';
+        if (localFilters.mileageMax <= 100000) return 'Fino a 100.000 km';
+        if (localFilters.mileageMax <= 150000) return 'Fino a 150.000 km';
+        return 'Fino a 200.000 km';
+      case 'location':
+        return localFilters.location || 'Località';
+      default:
+        return '';
+    }
   };
 
   const getTranslatedFuelType = (fuelType: string) => {
@@ -493,16 +716,38 @@ const CatalogPage: React.FC = () => {
     return translations[transmission] || transmission;
   };
 
-  const getPageDisplayTitle = () => {
-    if (filters.isLuxury) return 'Auto di Lusso';
-    if (filters.make?.length === 1) return `Auto ${filters.make[0]}`;
-    return 'Catalogo Auto Usate';
-  };
-
-  const getPageDisplaySubtitle = () => {
-    if (filters.isLuxury) return 'Scopri la nostra selezione di auto di lusso e sportive';
-    if (filters.make?.length === 1) return `Trova la ${filters.make[0]} perfetta per te`;
-    return 'Trova l\'auto perfetta per te nel nostro ampio catalogo';
+  const getActiveFilterTags = () => {
+    const tags = [];
+    
+    if (localFilters.make?.length) {
+      tags.push({ key: 'make', label: `Marca: ${localFilters.make[0]}` });
+    }
+    if (localFilters.model?.length) {
+      tags.push({ key: 'model', label: `Modello: ${localFilters.model[0]}` });
+    }
+    if (localFilters.fuelType?.length) {
+      tags.push({ key: 'fuelType', label: `Alimentazione: ${getTranslatedFuelType(localFilters.fuelType[0])}` });
+    }
+    if (localFilters.transmission?.length) {
+      tags.push({ key: 'transmission', label: `Cambio: ${getTranslatedTransmission(localFilters.transmission[0])}` });
+    }
+    if (localFilters.priceMin) {
+      tags.push({ key: 'priceMin', label: `Da: ${localFilters.priceMin.toLocaleString()}€` });
+    }
+    if (localFilters.priceMax) {
+      tags.push({ key: 'priceMax', label: `Fino a: ${localFilters.priceMax.toLocaleString()}€` });
+    }
+    if (localFilters.mileageMax) {
+      tags.push({ key: 'mileageMax', label: `Km: max ${localFilters.mileageMax.toLocaleString()}` });
+    }
+    if (localFilters.location) {
+      tags.push({ key: 'location', label: `Località: ${localFilters.location}` });
+    }
+    if (localFilters.isLuxury) {
+      tags.push({ key: 'isLuxury', label: 'Solo Luxury' });
+    }
+    
+    return tags;
   };
 
   return (
@@ -519,118 +764,218 @@ const CatalogPage: React.FC = () => {
       <Container>
         <MainContainer>
           <FiltersSection>   
+            {getActiveFilterTags().length > 0 && (
+              <ActiveFiltersContainer>
+                {getActiveFilterTags().map(tag => (
+                  <ActiveFilterTag key={tag.key}>
+                    {tag.label}
+                    <FaTimes onClick={() => removeFilter(tag.key as keyof CarFilters)} />
+                  </ActiveFilterTag>
+                ))}
+              </ActiveFiltersContainer>
+            )}
+
             <FiltersGrid>
+              {/* Marca */}
               <FilterGroup>
-                <FilterLabel>
-                  Marca
-                  <FaChevronDown />
+                <FilterLabel onClick={(e) => toggleDropdown('make', e)}>
+                  {getDisplayValue('make')}
+                  <FaChevronDown style={{ transform: openDropdown === 'make' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </FilterLabel>
-                <HiddenSelect 
-                  id="make"
-                  value={localFilters.make?.[0] || ''}
-                  onChange={(e) => handleFilterChange('make', e.target.value ? [e.target.value] : undefined)}
-                >
-                  <option value="">Tutte le marche</option>
-                  <option value="Audi">Audi</option>
-                  <option value="BMW">BMW</option>
-                  <option value="Mercedes-Benz">Mercedes-Benz</option>
-                  <option value="Volkswagen">Volkswagen</option>
-                  <option value="Ford">Ford</option>
-                  <option value="Fiat">Fiat</option>
-                  <option value="Abarth">Abarth</option>
-                  <option value="Alfa Romeo">Alfa Romeo</option>
-                  <option value="Ferrari">Ferrari</option>
-                  <option value="Lamborghini">Lamborghini</option>
-                  <option value="Porsche">Porsche</option>
-                </HiddenSelect>
+                <DropdownContainer isOpen={openDropdown === 'make'}>
+                  <DropdownItem onClick={() => selectDropdownValue('make', '')}>
+                    Tutte le marche
+                  </DropdownItem>
+                  {availableMakes.map(make => (
+                    <DropdownItem key={make} onClick={() => selectDropdownValue('make', make)}>
+                      {make}
+                    </DropdownItem>
+                  ))}
+                </DropdownContainer>
               </FilterGroup>
 
+              {/* Modello */}
               <FilterGroup>
-                <FilterLabel>
-                  Modello
-                  <FaChevronDown />
+                <FilterLabel onClick={(e) => localFilters.make?.length ? toggleDropdown('model', e) : null}>
+                  {getDisplayValue('model')}
+                  <FaChevronDown style={{ 
+                    transform: openDropdown === 'model' ? 'rotate(180deg)' : 'rotate(0deg)',
+                    opacity: localFilters.make?.length ? 1 : 0.5
+                  }} />
                 </FilterLabel>
+                <DropdownContainer isOpen={openDropdown === 'model' && !!localFilters.make?.length}>
+                  <DropdownItem onClick={() => selectDropdownValue('model', '')}>
+                    Tutti i modelli
+                  </DropdownItem>
+                  {availableModels.map(model => (
+                    <DropdownItem key={model} onClick={() => selectDropdownValue('model', model)}>
+                      {model}
+                    </DropdownItem>
+                  ))}
+                </DropdownContainer>
               </FilterGroup>
 
+              {/* Alimentazione */}
               <FilterGroup>
-                <FilterLabel>
-                  Alimentazione
-                  <FaChevronDown />
+                <FilterLabel onClick={(e) => toggleDropdown('fuelType', e)}>
+                  {getDisplayValue('fuelType')}
+                  <FaChevronDown style={{ transform: openDropdown === 'fuelType' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </FilterLabel>
-                <HiddenSelect 
-                  id="fuelType"
-                  value={localFilters.fuelType?.[0] || ''}
-                  onChange={(e) => handleFilterChange('fuelType', e.target.value ? [e.target.value as FuelType] : undefined)}
-                >
-                  <option value="">Tutti</option>
-                  <option value="petrol">Benzina</option>
-                  <option value="diesel">Diesel</option>
-                  <option value="hybrid">Ibrido</option>
-                  <option value="electric">Elettrico</option>
-                  <option value="lpg">GPL</option>
-                </HiddenSelect>
+                <DropdownContainer isOpen={openDropdown === 'fuelType'}>
+                  <DropdownItem onClick={() => selectDropdownValue('fuelType', '')}>
+                    Tutte
+                  </DropdownItem>
+                  <DropdownItem onClick={() => selectDropdownValue('fuelType', 'petrol')}>
+                    Benzina
+                  </DropdownItem>
+                  <DropdownItem onClick={() => selectDropdownValue('fuelType', 'diesel')}>
+                    Diesel
+                  </DropdownItem>
+                  <DropdownItem onClick={() => selectDropdownValue('fuelType', 'hybrid')}>
+                    Ibrido
+                  </DropdownItem>
+                  <DropdownItem onClick={() => selectDropdownValue('fuelType', 'electric')}>
+                    Elettrico
+                  </DropdownItem>
+                  <DropdownItem onClick={() => selectDropdownValue('fuelType', 'lpg')}>
+                    GPL
+                  </DropdownItem>
+                  <DropdownItem onClick={() => selectDropdownValue('fuelType', 'cng')}>
+                    Metano
+                  </DropdownItem>
+                </DropdownContainer>
               </FilterGroup>
 
+              {/* Cambio */}
               <FilterGroup>
-                <FilterLabel>
-                  Chilometraggio
-                  <FaChevronDown />
+                <FilterLabel onClick={(e) => toggleDropdown('transmission', e)}>
+                  {getDisplayValue('transmission')}
+                  <FaChevronDown style={{ transform: openDropdown === 'transmission' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </FilterLabel>
+                <DropdownContainer isOpen={openDropdown === 'transmission'}>
+                  <DropdownItem onClick={() => selectDropdownValue('transmission', '')}>
+                    Tutti
+                  </DropdownItem>
+                  <DropdownItem onClick={() => selectDropdownValue('transmission', 'manual')}>
+                    Manuale
+                  </DropdownItem>
+                  <DropdownItem onClick={() => selectDropdownValue('transmission', 'automatic')}>
+                    Automatico
+                  </DropdownItem>
+                  <DropdownItem onClick={() => selectDropdownValue('transmission', 'semi_automatic')}>
+                    Semiautomatico
+                  </DropdownItem>
+                </DropdownContainer>
               </FilterGroup>
 
+              {/* Chilometraggio */}
               <FilterGroup>
-                <FilterLabel>
-                  Cambio
-                  <FaChevronDown />
+                <FilterLabel onClick={(e) => toggleDropdown('mileage', e)}>
+                  {getDisplayValue('mileageMax')}
+                  <FaChevronDown style={{ transform: openDropdown === 'mileage' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </FilterLabel>
-                <HiddenSelect 
-                  id="transmission"
-                  value={localFilters.transmission?.[0] || ''}
-                  onChange={(e) => handleFilterChange('transmission', e.target.value ? [e.target.value as TransmissionType] : undefined)}
-                >
-                  <option value="">Tutti</option>
-                  <option value="manual">Manuale</option>
-                  <option value="automatic">Automatico</option>
-                  <option value="semi_automatic">Semiautomatico</option>
-                </HiddenSelect>
+                <DropdownContainer isOpen={openDropdown === 'mileage'}>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, mileageMax: undefined })); setOpenDropdown(null); }}>
+                    Tutti i km
+                  </DropdownItem>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, mileageMax: 30000 })); setOpenDropdown(null); }}>
+                    Fino a 30.000 km
+                  </DropdownItem>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, mileageMax: 50000 })); setOpenDropdown(null); }}>
+                    Fino a 50.000 km
+                  </DropdownItem>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, mileageMax: 100000 })); setOpenDropdown(null); }}>
+                    Fino a 100.000 km
+                  </DropdownItem>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, mileageMax: 150000 })); setOpenDropdown(null); }}>
+                    Fino a 150.000 km
+                  </DropdownItem>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, mileageMax: 200000 })); setOpenDropdown(null); }}>
+                    Fino a 200.000 km
+                  </DropdownItem>
+                </DropdownContainer>
               </FilterGroup>
 
+              {/* Prezzo */}
+              <FilterGroup style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                <FilterLabel>Prezzo</FilterLabel>
+                <PriceInputsRow>
+                  <FilterInput 
+                    type="text"
+                    placeholder="Da €"
+                    onChange={(e) => handlePriceChange('priceMin', e.target.value)}
+                    value={localFilters.priceMin ? formatPrice(localFilters.priceMin.toString()) : ''}
+                  />
+                  <FilterInput 
+                    type="text"
+                    placeholder="A €"
+                    onChange={(e) => handlePriceChange('priceMax', e.target.value)}
+                    value={localFilters.priceMax ? formatPrice(localFilters.priceMax.toString()) : ''}
+                  />
+                </PriceInputsRow>
+              </FilterGroup>
+
+              {/* Località */}
               <FilterGroup>
-                <FilterLabel>
-                  Dove si trova
-                  <FaChevronDown />
+                <FilterLabel onClick={(e) => toggleDropdown('location', e)}>
+                  {getDisplayValue('location')}
+                  <FaChevronDown style={{ transform: openDropdown === 'location' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </FilterLabel>
-              </FilterGroup>
-
-              <FilterGroup>
-                <FilterLabel>Da</FilterLabel>
-                <FilterInput 
-                  type="text"
-                  placeholder="0€"
-                  onChange={(e) => handlePriceChange('priceMin', e.target.value)}
-                  value={localFilters.priceMin ? formatPrice(localFilters.priceMin.toString()) : ''}
-                />
-              </FilterGroup>
-
-              <FilterGroup>
-                <FilterLabel>A</FilterLabel>
-                <FilterInput 
-                  type="text"
-                  placeholder="200.000€"
-                  onChange={(e) => handlePriceChange('priceMax', e.target.value)}
-                  value={localFilters.priceMax ? formatPrice(localFilters.priceMax.toString()) : ''}
-                />
+                <DropdownContainer isOpen={openDropdown === 'location'}>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, location: undefined })); setOpenDropdown(null); }}>
+                    Tutte le sedi
+                  </DropdownItem>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, location: 'Pistoia' })); setOpenDropdown(null); }}>
+                    Pistoia
+                  </DropdownItem>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, location: 'Via Bottaia' })); setOpenDropdown(null); }}>
+                    Via Bottaia, 2
+                  </DropdownItem>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, location: 'Via Galvani' })); setOpenDropdown(null); }}>
+                    Via Luigi Galvani, 2
+                  </DropdownItem>
+                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, location: 'Via Fiorentina' })); setOpenDropdown(null); }}>
+                    Via Fiorentina, 331
+                  </DropdownItem>
+                </DropdownContainer>
               </FilterGroup>
             </FiltersGrid>
 
             <FiltersActions>
-              <FullWidthActionButton onClick={handleApplyFilters} variant="primary">
+              <ApplyButton onClick={handleApplyFilters} variant="primary">
                 Applica Filtri
-              </FullWidthActionButton>
+              </ApplyButton>
+              {getActiveFilterTags().length > 0 && (
+                <ClearButton onClick={handleClearFilters} variant="outline">
+                  Cancella Filtri
+                </ClearButton>
+              )}
             </FiltersActions>
           </FiltersSection>
 
           <ResultsSection>
+            {searchResult && (
+              <ResultsHeader>
+                <ResultsCount>
+                  <strong>{searchResult.total}</strong> auto trovate
+                  {filters.isLuxury && ' nella categoria Luxury'}
+                </ResultsCount>
+                
+                <SortingSelect 
+                  value={`${sorting.field}-${sorting.direction}`}
+                  onChange={(e) => {
+                    const [field, direction] = e.target.value.split('-');
+                    setSorting({ field: field as any, direction: direction as any });
+                  }}
+                >
+                  <option value="createdAt-desc">Più recenti</option>
+                  <option value="price-asc">Prezzo crescente</option>
+                  <option value="price-desc">Prezzo decrescente</option>
+                  <option value="year-desc">Anno decrescente</option>
+                  <option value="mileage-asc">Km crescenti</option>
+                </SortingSelect>
+              </ResultsHeader>
+            )}
 
             {isLoading && (
               <LoadingContainer>
@@ -733,7 +1078,7 @@ const CatalogPage: React.FC = () => {
                             </CarSpecs>
 
                             <CarActions>
-                              <ActionButton 
+                              <CarActionButton 
                                 variant="primary"
                                 onClick={(e) => {
                                   e?.stopPropagation();
@@ -741,7 +1086,7 @@ const CatalogPage: React.FC = () => {
                                 }}
                               >
                                 Scopri di più <FaArrowRight />
-                              </ActionButton>
+                              </CarActionButton>
                             </CarActions>
                           </CarContent>
                         </CarCard>
