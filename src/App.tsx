@@ -34,9 +34,11 @@ const LuxuryRedirect: React.FC = () => {
 
 const AppContent: React.FC = () => {
   const location = useLocation();
-  const { data: featuredCars } = useFeaturedCars();
+  const { data: featuredCars } = useFeaturedCars(1);
   const isHomePage = location.pathname === '/';
-  const heroFeaturedCar = featuredCars?.cars?.find(car => car.isLuxury) || featuredCars?.cars?.[0];
+  
+  // Prendi la prima auto in evidenza dal database se disponibile
+  const heroFeaturedCar = featuredCars?.cars?.[0];
 
   const heroCarData = heroFeaturedCar ? {
     make: heroFeaturedCar.make.toUpperCase(),
@@ -66,7 +68,7 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/auto" element={<CatalogPage />} />
-          <Route path="/auto/:id" element={<CarDetailPage />} /> {/* FIXED: Usa il vero componente */}
+          <Route path="/auto/:id" element={<CarDetailPage />} />
           <Route path="/luxury" element={<LuxuryRedirect />} />
           <Route path="/sedi" element={<Navigate to="/#sedi" replace />} />
           <Route path="/acquistiamo" element={<AcquistiPage />} />

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { FaArrowRight, FaMapMarkerAlt } from 'react-icons/fa';
 import { useFeaturedCars } from '../../hooks/useCars';
 import ActionButton from '../common/ActionButton';
+import Loading from '../common/Loading';
 
 const FeaturedGrid = styled.div`
   padding: 80px 0;
@@ -238,178 +239,174 @@ const CarActions = styled.div`
   justify-content: flex-end;
 `;
 
+const LoadingContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+`;
+
+const EmptyState = styled.div`
+  text-align: center;
+  padding: ${({ theme }) => theme.spacing.xxl};
+  color: ${({ theme }) => theme.colors.text.primary};
+`;
+
 const FeaturedHighlightSection: React.FC = () => {
   const navigate = useNavigate();
-  const { data: featuredResult, isLoading } = useFeaturedCars(1);
+  const { data: featuredResult, isLoading, error } = useFeaturedCars(3);
   
-  const featuredCar = {
-	id: 'featured-abarth',
-	make: 'ABARTH',
-	model: '595 Turismo 1.4',
-	price: 15400,
-	year: 2015,
-	mileage: 68000,
-	fuelType: 'petrol',
-	transmission: 'manual',
-	power: 118,
-	images: [{
-	  id: '1',
-	  url: '/car.jpg',
-	  altText: 'ABARTH 595 Turismo',
-	  isPrimary: true,
-	  order: 0
-	}],
-    location: {
-      address: 'via Empoli 19/21',
-      city: 'Firenze',
-      region: 'TM',
-      postalCode: '50121',
-      country: 'Italia'
-    },
-    doors: 3,
-    seats: 4,
-    color: 'Nero',
-    bodyType: 'coupe' as any,
-    engineSize: 1400,
-    horsepower: 160,
-    condition: 'used' as any,
-    availability: 'available' as any,
-    features: ['Coupé'],
-    description: '',
-    previousOwners: 1,
-    currency: 'EUR',
-    dealer: {
-      id: '1',
-      name: 'RD Group',
-      phone: '+39 057 318 7467',
-      email: 'info@rdgroup.it',
-      location: {
-        address: 'Via Bottaia, 2',
-        city: 'Pistoia',
-        region: 'Toscana',
-        postalCode: '51100',
-        country: 'Italia'
-      }
-    },
-    isLuxury: false,
-    createdAt: new Date(),
-    updatedAt: new Date()
+  const handleCarClick = (carId: string) => {
+    navigate(`/auto/${carId}`);
   };
 
-  const handleCarClick = () => {
-    navigate(`/auto/${featuredCar.id}`);
+  const getTranslatedFuelType = (fuelType: string) => {
+    const translations: Record<string, string> = {
+      'petrol': 'Benzina',
+      'diesel': 'Diesel',
+      'electric': 'Elettrico',
+      'hybrid': 'Ibrido',
+      'plugin_hybrid': 'Ibrido Plugin',
+      'lpg': 'GPL',
+      'cng': 'Metano'
+    };
+    return translations[fuelType] || fuelType;
+  };
+
+  const getTranslatedTransmission = (transmission: string) => {
+    const translations: Record<string, string> = {
+      'manual': 'Manuale',
+      'automatic': 'Automatico',
+      'semi_automatic': 'Semiautomatico',
+      'cvt': 'CVT'
+    };
+    return translations[transmission] || transmission;
   };
 
   if (isLoading) {
-    return null;
+    return (
+      <LoadingContainer>
+        <Loading type="spinner" size="md" text="Caricamento auto in evidenza..." />
+      </LoadingContainer>
+    );
   }
 
+  if (error || !featuredResult?.cars?.length) {
+    return (
+      <EmptyState>
+        <h3>Nessuna auto in evidenza disponibile</h3>
+        <p>Non ci sono auto da mostrare al momento. Torna più tardi!</p>
+      </EmptyState>
+    );
+  }
+
+  // Prendiamo la prima auto dalla lista
+  const featuredCar = featuredResult.cars[0];
+
   return (
-        <FeaturedGrid>
-          <PromotionalContainer>
-            <PromotionalBox>
-              <div>
-                <PromoTitle>In evidenza</PromoTitle>
-                <PromoText>
-                  Questa auto è arrivata nelle ultime 24 ore, dai un'occhiata, 
-                  potrebbe essere la tua occasione
-                </PromoText>
+    <FeaturedGrid>
+      <PromotionalContainer>
+        <PromotionalBox>
+          <div>
+            <PromoTitle>In evidenza</PromoTitle>
+            <PromoText>
+              Questa auto è arrivata nelle ultime 24 ore, dai un'occhiata, 
+              potrebbe essere la tua occasione
+            </PromoText>
+          </div>
+          <PromoLink to="/auto?recent=true">
+            Gli ultimi arrivi <FaArrowRight />
+          </PromoLink>
+        </PromotionalBox>
+      </PromotionalContainer>
+
+      <FeaturedCarContainer>
+        <CarCard onClick={() => handleCarClick(featuredCar.id)}>
+          <CarImageContainer>
+            {featuredCar.images?.[0] ? (
+              <img 
+                src={featuredCar.images[0].url} 
+                alt={featuredCar.images[0].altText}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = 'flex';
+                  target.style.alignItems = 'center';
+                  target.style.justifyContent = 'center';
+                  target.style.fontSize = '4rem';
+                  target.innerHTML = '🚗';
+                }}
+              />
+            ) : (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                height: '100%',
+                background: '#f5f5f5',
+                fontSize: '4rem',
+                opacity: 0.8
+              }}>
+                🚗
               </div>
-              <PromoLink to="/auto?recent=true">
-                Gli ultimi arrivi <FaArrowRight />
-              </PromoLink>
-            </PromotionalBox>
-          </PromotionalContainer>
+            )}
+            <LocationBadge>
+              <FaMapMarkerAlt />
+              {featuredCar.location.city}
+            </LocationBadge>
+          </CarImageContainer>
 
-          <FeaturedCarContainer>
-            <CarCard onClick={handleCarClick}>
-              <CarImageContainer>
-                {featuredCar.images?.[0] ? (
-					<img 
-						src={featuredCar.images[0].url} 
-						alt={featuredCar.images[0].altText}
-					/>
-                ) : (
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    height: '100%',
-                    background: 'white',
-                    color: 'white',
-                    fontSize: '4rem',
-                    opacity: 0.8
-                  }}>
-                    🚗
-                  </div>
-                )}
-              </CarImageContainer>
+          <CarInfo>
+            <CarHeader>
+              <CarBrand>{featuredCar.make}</CarBrand>
+              <CarModel>{featuredCar.model}</CarModel>
+              <CarPrice>{featuredCar.price.toLocaleString('it-IT')}€</CarPrice>
+            </CarHeader>
 
-              <CarInfo>
+            <CarSpecs>
+              {featuredCar.features && featuredCar.features.length > 0 && (
+                <CarTags>
+                  {featuredCar.features.slice(0, 3).map((feature, index) => (
+                    <CarTag key={index}>{feature}</CarTag>
+                  ))}
+                </CarTags>
+              )}
 
-				<LocationBadge style={{ position: 'relative', top: 'auto', right: 'auto', marginBottom: '16px' }}>
-					<FaMapMarkerAlt />
-					{featuredCar.location.address} Wagen {featuredCar.location.city}
-				</LocationBadge>
+              <CarDivider />
 
-                <CarHeader>
-                  <CarBrand>{featuredCar.make}</CarBrand>
-                  <CarModel>{featuredCar.model}</CarModel>
-                  <CarPrice>{featuredCar.price.toLocaleString('it-IT')}€</CarPrice>
-                </CarHeader>
+              <CarDetails>
+                <CarDetail>
+                  <strong>{featuredCar.mileage.toLocaleString()}Km</strong>
+                </CarDetail>
+                <CarDetail>
+                  <strong>{getTranslatedFuelType(featuredCar.fuelType)}</strong>
+                </CarDetail>
+                <CarDetail>
+                  <strong>{featuredCar.year}</strong>
+                </CarDetail>
+                <CarDetail>
+                  <strong>{getTranslatedTransmission(featuredCar.transmission)}</strong>
+                </CarDetail>
+                <CarDetail>
+                  <strong>{featuredCar.power}KW</strong>
+                </CarDetail>
+              </CarDetails>
+            </CarSpecs>
 
-                <CarSpecs>
-                  <CarTags>
-                    {featuredCar.features.map((feature, index) => (
-                      <CarTag key={index}>{feature}</CarTag>
-                    ))}
-                  </CarTags>
-
-				  <CarDivider />
-
-                  <CarDetails>
-                    <CarDetail>
-                      <strong>{featuredCar.mileage.toLocaleString()}Km</strong>
-                    </CarDetail>
-                    <CarDetail>
-                      <strong>
-                        {featuredCar.fuelType === 'petrol' ? 'Benzina' :
-                         featuredCar.fuelType === 'diesel' ? 'Diesel' :
-                         featuredCar.fuelType === 'electric' ? 'Elettrico' :
-                         featuredCar.fuelType === 'hybrid' ? 'Ibrido' : 'Benzina'}
-                      </strong>
-                    </CarDetail>
-                    <CarDetail>
-                      <strong>{featuredCar.year}</strong>
-                    </CarDetail>
-                    <CarDetail>
-                      <strong>
-                        {featuredCar.transmission === 'manual' ? 'Manuale' :
-                         featuredCar.transmission === 'automatic' ? 'Automatico' :
-                         featuredCar.transmission === 'semi_automatic' ? 'Semiautomatico' : 'Manuale'}
-                      </strong>
-                    </CarDetail>
-                    <CarDetail>
-                      <strong>{featuredCar.power}KW</strong>
-                    </CarDetail>
-                  </CarDetails>
-                </CarSpecs>
-
-                <CarActions>
-                <ActionButton 
-                  variant="primary"
-                  onClick={(e) => {
-                    e?.stopPropagation();
-                    handleCarClick();
-                  }}
-                  >
-                    Scopri di più <FaArrowRight />
-                  </ActionButton>
-                </CarActions>
-              </CarInfo>
-            </CarCard>
-          </FeaturedCarContainer>
-        </FeaturedGrid>
+            <CarActions>
+              <ActionButton 
+                variant="primary"
+                onClick={(e) => {
+                  e?.stopPropagation();
+                  handleCarClick(featuredCar.id);
+                }}
+              >
+                Scopri di più <FaArrowRight />
+              </ActionButton>
+            </CarActions>
+          </CarInfo>
+        </CarCard>
+      </FeaturedCarContainer>
+    </FeaturedGrid>
   );
 };
 

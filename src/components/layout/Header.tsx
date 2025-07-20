@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaArrowRight } from 'react-icons/fa';
 import Button from '../common/Button';
+import { useFeaturedCars } from '../../hooks/useCars';
 
 interface HeaderProps {
   featuredCar?: {
@@ -373,7 +374,28 @@ const DiscoverButton = styled(Button)`
 const Header: React.FC<HeaderProps> = ({ 
   showHero = false,
   backgroundImage,
-  featuredCar = {
+  featuredCar: propFeaturedCar
+}) => {
+  const location = useLocation();
+  const { data: featuredResult } = useFeaturedCars(1);
+
+  // Se viene passata una featuredCar come prop, la usa, altrimenti prende dal database
+  const dbFeaturedCar = featuredResult?.cars?.[0];
+  const featuredCar = propFeaturedCar || (dbFeaturedCar ? {
+    make: dbFeaturedCar.make.toUpperCase(),
+    model: dbFeaturedCar.model.toUpperCase(),
+    price: dbFeaturedCar.price,
+    year: dbFeaturedCar.year,
+    mileage: dbFeaturedCar.mileage,
+    fuelType: dbFeaturedCar.fuelType === 'diesel' ? 'Diesel' : 
+              dbFeaturedCar.fuelType === 'petrol' ? 'Benzina' : 
+              dbFeaturedCar.fuelType === 'electric' ? 'Elettrico' : 
+              dbFeaturedCar.fuelType === 'hybrid' ? 'Ibrido' : 'Benzina',
+    transmission: dbFeaturedCar.transmission === 'automatic' ? 'Automatico' : 
+                  dbFeaturedCar.transmission === 'manual' ? 'Manuale' : 
+                  dbFeaturedCar.transmission === 'semi_automatic' ? 'Semiautomatico' : 'Automatico',
+    power: `${dbFeaturedCar.power}KW`,
+  } : {
     make: "MERCEDES",
     model: "G63 AMG",
     price: 69800,
@@ -382,9 +404,7 @@ const Header: React.FC<HeaderProps> = ({
     fuelType: "Benzina",
     transmission: "Semiautomatico",
     power: "400KW"
-  }
-}) => {
-  const location = useLocation();
+  });
 
   const isActiveRoute = (path: string) => {
     if (path === '/luxury') {
@@ -538,7 +558,7 @@ const Header: React.FC<HeaderProps> = ({
 
             <DiscoverButton 
               as={Link} 
-              to="/auto/featured-luxury"
+              to={dbFeaturedCar ? `/auto/${dbFeaturedCar.id}` : "/auto?luxury=true"}
               variant="primary"
             >
               Scopri di più <FaArrowRight />

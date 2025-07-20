@@ -7,6 +7,7 @@ import Container from '../components/layout/Container';
 import ActionButton from '../components/common/ActionButton';
 import Header from '../components/layout/Header';
 import LocationsSection from '@/components/sections/ServicesMapsSection';
+import { useFeaturedCars } from '../hooks/useCars';
 
 const AcquistiPageContainer = styled.div`
   background: ${({ theme }) => theme.colors.background.default};
@@ -217,6 +218,7 @@ const SectionMaps = styled.div`
 `
 
 const AcquistiPage: React.FC = () => {
+  const { data: featuredResult } = useFeaturedCars(1);
   const [formData, setFormData] = useState({
     nome: '',
     cognome: '',
@@ -245,9 +247,27 @@ const AcquistiPage: React.FC = () => {
   };
 
   const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Logic to handle form submission
   };
 
-  const featuredCarForContacts = {
+  // Usa auto reale dal database se disponibile, altrimenti fallback
+  const heroFeaturedCar = featuredResult?.cars?.[0];
+  const featuredCarForContacts = heroFeaturedCar ? {
+    make: heroFeaturedCar.make.toUpperCase(),
+    model: heroFeaturedCar.model.toUpperCase(),
+    price: heroFeaturedCar.price,
+    year: heroFeaturedCar.year,
+    mileage: heroFeaturedCar.mileage,
+    fuelType: heroFeaturedCar.fuelType === 'diesel' ? 'Diesel' : 
+              heroFeaturedCar.fuelType === 'petrol' ? 'Benzina' : 
+              heroFeaturedCar.fuelType === 'electric' ? 'Elettrico' : 
+              heroFeaturedCar.fuelType === 'hybrid' ? 'Ibrido' : 'Benzina',
+    transmission: heroFeaturedCar.transmission === 'automatic' ? 'Automatico' : 
+                  heroFeaturedCar.transmission === 'manual' ? 'Manuale' : 
+                  heroFeaturedCar.transmission === 'semi_automatic' ? 'Semiautomatico' : 'Automatico',
+    power: `${heroFeaturedCar.power}KW`,
+  } : {
     make: "MERCEDES",
     model: "G63 AMG",
     price: 69800,
