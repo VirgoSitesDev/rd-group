@@ -1,6 +1,5 @@
 /// <reference types="vite/client" />
 
-// FIXED: Definizioni di tipo per Vite
 interface ImportMetaEnv {
 	readonly VITE_API_BASE_URL: string
 	readonly VITE_AUTOSCOUT24_API_URL: string

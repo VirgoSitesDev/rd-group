@@ -328,7 +328,6 @@ const CarDetailPage: React.FC = () => {
         </BackButton>
 
         <DetailGrid>
-          {/* Sezione Immagini */}
           <ImageSection>
             <MainImage>
               <img 
@@ -345,7 +344,6 @@ const CarDetailPage: React.FC = () => {
               />
             </MainImage>
 
-            {/* 🔥 MIGLIORATO: Gestione immagini dal database */}
             {car.images && car.images.length > 1 && (
               <ImageGallery>
                 {car.images.map((image, index) => (
@@ -374,8 +372,7 @@ const CarDetailPage: React.FC = () => {
             <DescriptionSection>
               <SectionTitle>Descrizione</SectionTitle>
               <Description>{car.description}</Description>
-              
-              {/* 🔥 MIGLIORATO: Mostra features solo se esistono */}
+
               {car.features && car.features.length > 0 && (
                 <>
                   <SectionTitle>Equipaggiamenti</SectionTitle>
@@ -389,7 +386,6 @@ const CarDetailPage: React.FC = () => {
             </DescriptionSection>
           </ImageSection>
 
-          {/* Sezione Info */}
           <InfoSection>
             <CarHeader>
               <CarTitle>{car.model}</CarTitle>

@@ -4,25 +4,20 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from 'react-error-boundary';
 import { ThemeProvider } from 'styled-components';
 
-// Layout components
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import ErrorFallback from './components/common/ErrorFallback';
 
-// Pages
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
 import AcquistiPage from './pages/AcquistiPage';
-import CarDetailPage from './pages/CarDetailPage'; // FIXED: Import del vero componente
+import CarDetailPage from './pages/CarDetailPage';
 
-// Styles
 import { GlobalStyles } from './styles/GlobalStyles';
 import { theme } from './styles/theme';
 
-// Hooks
 import { useFeaturedCars } from './hooks/useCars';
 
-// Create a client for React Query
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -33,23 +28,16 @@ const queryClient = new QueryClient({
   },
 });
 
-// Componente per reindirizzare luxury al catalogo con filtro
 const LuxuryRedirect: React.FC = () => {
   return <Navigate to="/auto?luxury=true" replace />;
 };
 
-// Componente interno per gestire l'header con i dati
 const AppContent: React.FC = () => {
   const location = useLocation();
   const { data: featuredCars } = useFeaturedCars();
-  
-  // Determina se mostrare l'header con hero (solo homepage)
   const isHomePage = location.pathname === '/';
-  
-  // Ottieni l'auto in evidenza per la hero (prima auto luxury se disponibile)
   const heroFeaturedCar = featuredCars?.cars?.find(car => car.isLuxury) || featuredCars?.cars?.[0];
 
-  // Prepara i dati per la hero section
   const heroCarData = heroFeaturedCar ? {
     make: heroFeaturedCar.make.toUpperCase(),
     model: heroFeaturedCar.model.toUpperCase(),

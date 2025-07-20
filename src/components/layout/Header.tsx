@@ -406,8 +406,7 @@ const Header: React.FC<HeaderProps> = ({
     <HeaderContainer showHero={showHero}>
       {showHero && <BackgroundOverlay showHero={showHero} backgroundImage={backgroundImage} />}
       {showHero && <GradientOverlay showHero={showHero} />}
-      
-      {/* Navigation Bar - SEMPRE VISIBILE */}
+
       <NavigationBar showHero={showHero}>
         <LogoSection to="/">
           <LogoVector>
@@ -483,7 +482,6 @@ const Header: React.FC<HeaderProps> = ({
         </NavigationSection>
       </NavigationBar>
 
-      {/* Hero Content - SOLO HOMEPAGE */}
       {showHero && (
         <HeroContentContainer showHero={showHero}>
           <LeftSection>
@@ -538,7 +536,6 @@ const Header: React.FC<HeaderProps> = ({
               </CarSpecs>
             </CarDetails>
 
-            {/* FIXED: Ora il pulsante va alla Mercedes G63 AMG */}
             <DiscoverButton 
               as={Link} 
               to="/auto/featured-luxury"

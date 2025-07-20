@@ -1,4 +1,3 @@
-/* FIXED: CSS Reset minimo - GlobalStyles gestisce tutto il resto */
 * {
   box-sizing: border-box;
 }
@@ -24,7 +23,6 @@ body {
   flex-direction: column;
 }
 
-/* Remove default focus outline - styled-components handles this */
 *:focus {
   outline: none;
 }
