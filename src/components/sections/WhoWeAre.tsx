@@ -44,7 +44,7 @@ const ImageContainer = styled.div`
   
   img {
     width: 100%;
-    height: 100vh;
+    height: 80vh;
     object-fit: cover;
     display: block;
   }
@@ -65,8 +65,8 @@ const ContentContainer = styled.div`
 `;
 
 const MainText = styled.p`
-  font-size: 1.1rem;
-  line-height: 1.6;
+  font-size: 1rem;
+  line-height: 1.3;
   padding: 0 20px;
   color: ${({ theme }) => theme.colors.text.primary};
   margin: 0;
@@ -135,7 +135,7 @@ const FormGroup = styled.div`
 const FormLabel = styled.label`
   font-size: 0.9rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  color: ${({ theme }) => theme.colors.text.primary};
+  color: black;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
@@ -144,8 +144,9 @@ const FormInput = styled.input`
   padding: ${({ theme }) => theme.spacing.sm};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.md};
+  height: 28px;
   background: #F9F9F9;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.light};
   color: ${({ theme }) => theme.colors.text.primary};
   transition: border-color 0.2s ease, background-color 0.2s ease;
@@ -167,7 +168,7 @@ const FormTextArea = styled.textarea`
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   background: #F9F9F9;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   color: ${({ theme }) => theme.colors.text.primary};
   min-height: 320px;
@@ -215,15 +216,15 @@ const PromotionalBox = styled.div`
 
 const PromoTitle = styled.h3`
   color: #d32f2f;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin-bottom: ${({ theme }) => theme.spacing.lg};
 `;
 
 const PromoText = styled.p`
   color: #cb1618;
-  font-size: 1.2rem;
-  line-height: 1.5;
+  font-size: 1.1rem;
+  line-height: 1.3;
   margin-bottom: ${({ theme }) => theme.spacing.xl};
   flex: 1;
 `;

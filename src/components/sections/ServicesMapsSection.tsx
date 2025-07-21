@@ -74,12 +74,12 @@ const LocationInfo = styled.div`
 `;
 
 const LocationAddress = styled.div`
-  color: ${({ theme }) => theme.colors.text.primary};
-  font-size: 1.2rem;
+  color: black;
+  font-size: 0.9rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   padding-top: 3px;
   text-align: start;
-  line-height: 1.1;
+  line-height: 1.2;
 `;
 
 const LocationsSection: React.FC = () => {

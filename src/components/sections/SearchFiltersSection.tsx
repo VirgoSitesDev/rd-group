@@ -78,8 +78,8 @@ const FilterGroup = styled.div`
 `;
 
 const FilterLabel = styled.label`
-  font-size: 1.2rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  font-size: 1rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: #000000;
   cursor: pointer;
   display: flex;
@@ -130,6 +130,7 @@ const DropdownItem = styled.div`
 
 const FilterInput = styled.input`
   padding: ${({ theme }) => theme.spacing.sm};
+  height: 28px;
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   background: #F9F9F9;

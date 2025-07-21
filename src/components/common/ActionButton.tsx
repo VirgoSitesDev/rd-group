@@ -3,10 +3,11 @@ import styled from 'styled-components';
 import Button from './Button';
 
 const ActionButton = styled(Button)`
+  background: ${({ theme }) => theme.colors.primary.main};
   align-self: flex-end;
   border-radius: ${({ theme }) => theme.borderRadius.md};
   padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   text-transform: none;
 

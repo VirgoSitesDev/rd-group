@@ -217,7 +217,7 @@ const LuxurySection = styled.div`
 const LuxuryTitle = styled.h2`
   color: white;
   font-family: ${({ theme }) => theme.typography.fontFamily};
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   letter-spacing: 2px;
   margin: 0;
@@ -226,7 +226,7 @@ const LuxuryTitle = styled.h2`
 
 const LuxuryDescription = styled.p`
   color: white;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.regular};
   line-height: 1.2;
   margin: 0;
@@ -239,7 +239,7 @@ const LuxuryButton = styled(Button)`
   color: white;
   text-decoration: underline;
   padding: 0;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   
   &:hover {
@@ -248,8 +248,9 @@ const LuxuryButton = styled(Button)`
   }
 
   svg {
-    font-size: 0.9rem;
-    margin-top: 4px;
+    font-size: 1.1rem;
+    padding-top: 6px;
+    margin-top: 6px;
     margin-left: 8px;
   }
 `;
@@ -283,7 +284,7 @@ const CarHeader = styled.div`
 const CarMake = styled.h3`
   color: white;
   font-family: ${({ theme }) => theme.typography.fontFamily};
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin: 0;
   text-align: right;
@@ -292,7 +293,7 @@ const CarMake = styled.h3`
 const CarModel = styled.h4`
   color: white;
   font-family: ${({ theme }) => theme.typography.fontFamily};
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   margin: -2px 0 ${({ theme }) => theme.spacing.sm} 0;
   text-align: left;
@@ -324,25 +325,23 @@ const CarDetailsDivider = styled.hr`
 const CarSpecs = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: ${({ theme }) => theme.spacing.md};
+  gap: ${({ theme }) => theme.spacing.xs};
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     flex-direction: column;
-    gap: ${({ theme }) => theme.spacing.lg};
+    gap: ${({ theme }) => theme.spacing.xs};
   }
 `;
 
 const SpecColumn = styled.div`
   display: flex;
   flex-direction: column;
-  gap: ${({ theme }) => theme.spacing.xs};
   flex: 1;
 `;
 
 const SpecItem = styled.div`
   display: flex;
   align-items: center;
-  gap: ${({ theme }) => theme.spacing.xs};
   color: white;
   font-size: 1rem;
   font-weight: 600;
@@ -354,8 +353,8 @@ const DiscoverButton = styled(Button)`
   border-radius: ${({ theme }) => theme.borderRadius.md};
   padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
   color: white;
-  font-size: 1.25rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-size: 1.1rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   
   &:hover:not(:disabled) {
     background-color: ${({ theme }) => theme.colors.primary.main};

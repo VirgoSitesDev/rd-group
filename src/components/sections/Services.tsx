@@ -52,7 +52,7 @@ const ServiceCard = styled(Link)`
   display: block;
   overflow: hidden;
   position: relative;
-  height: 400px;
+  height: 320px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 
@@ -79,22 +79,23 @@ const ServiceImage = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background: 'white';
+    background-color: rgba(0,0,0,0.15);
+    z-index: 2;
   }
 `;
 
 const ServiceInfo = styled.div`
   position: absolute;
-  bottom: ${({ theme }) => theme.spacing.lg};
-  left: ${({ theme }) => theme.spacing.lg};
-  right: ${({ theme }) => theme.spacing.lg};
+  bottom: ${({ theme }) => theme.spacing.sm};
+  left: ${({ theme }) => theme.spacing.sm};
+  right: ${({ theme }) => theme.spacing.sm};
   z-index: 2;
   color: white;
 `;
 
 const ServiceTitle = styled.h4`
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 1.4rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: white;
   letter-spacing: 0.4px;

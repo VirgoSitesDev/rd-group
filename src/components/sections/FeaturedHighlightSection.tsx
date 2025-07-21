@@ -54,27 +54,27 @@ const PromotionalBox = styled.div`
 
 const PromoTitle = styled.h3`
   color: #d32f2f;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   margin-bottom: ${({ theme }) => theme.spacing.lg};
 `;
 
 const PromoText = styled.p`
   color: ${({ theme }) => theme.colors.primary.main};
-  font-size: 1.2rem;
-  line-height: 1.5;
+  font-size: 1.1rem;
+  line-height: 1.3;
   margin-bottom: ${({ theme }) => theme.spacing.xl};
   flex: 1;
 `;
 
 const PromoLink = styled(Link)`
   color: ${({ theme }) => theme.colors.primary.main};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: ${({ theme }) => theme.spacing.sm};
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   text-decoration: underline;
   align-self: flex-start;
 

@@ -50,13 +50,13 @@ const PromotionalBox = styled.div`
 
 const PromoLink = styled(Link)`
   color: ${({ theme }) => theme.colors.primary.main};
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   text-decoration: underline;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: ${({ theme }) => theme.spacing.sm};
-  font-size: 1.4rem;
+  font-size: 1.1rem;
   align-self: center;
 
   &:hover {

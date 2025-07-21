@@ -34,7 +34,7 @@ const ContactGrid = styled.div`
 
 const MainTitle = styled.h2`
   color: ${({ theme }) => theme.colors.primary.main};
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.regular};
   margin: 50px 30px;
   text-align: left;
@@ -82,9 +82,9 @@ const FormGroup = styled.div`
 `;
 
 const FormLabel = styled.label`
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
-  color: #000000; 
+  color: black; 
   text-transform: uppercase;
   letter-spacing: 0.4px;
 `;
@@ -93,8 +93,9 @@ const FormInput = styled.input`
   padding: ${({ theme }) => theme.spacing.sm};
   border: 1px solid ${({ theme }) => theme.colors.border};
   border-radius: ${({ theme }) => theme.borderRadius.md};
+  height: 28px;
   background: #F9F9F9;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.light};
   color: ${({ theme }) => theme.colors.text.primary};
   transition: border-color 0.2s ease, background-color 0.2s ease;
@@ -201,13 +202,12 @@ const ImageUpload = styled.div`
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-  margin-top: ${({ theme }) => theme.spacing.lg};
 `;
 
 const LegalText = styled.p`
   color: #656565;
-  font-size: 1.2rem;
-  line-height: 1.5;
+  font-size: 1rem;
+  line-height: 1.3;
   text-align: left;
   margin: 30px 50px;
 `;
@@ -425,12 +425,13 @@ const AcquistiPage: React.FC = () => {
                       ))}
                     </GalleryGrid>
 
-                    <ButtonContainer>
-                      <ActionButton type="submit">
-                        Richiedi informazioni<FaArrowRight />
-                      </ActionButton>
-                    </ButtonContainer>
                   </GallerySection>
+                  <div></div>
+                  <ButtonContainer>
+                    <ActionButton type="submit">
+                      Richiedi informazioni<FaArrowRight />
+                    </ActionButton>
+                  </ButtonContainer>
                 </FormInnerGrid>
               </form>
             </FormSection>
