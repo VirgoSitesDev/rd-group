@@ -463,50 +463,53 @@ const CatalogPage: React.FC = () => {
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-  const filters = useMemo(() => {
-    const urlFilters: CarFilters = {};
-    
-    const make = searchParams.get('make');
-    if (make) urlFilters.make = make.split(',');
-    
-    const model = searchParams.get('model');
-    if (model) urlFilters.model = model.split(',');
-    
-    const priceMin = searchParams.get('priceMin');
-    if (priceMin) urlFilters.priceMin = parseInt(priceMin);
-    
-    const priceMax = searchParams.get('priceMax');
-    if (priceMax) urlFilters.priceMax = parseInt(priceMax);
-    
-    const yearMin = searchParams.get('yearMin');
-    if (yearMin) urlFilters.yearMin = parseInt(yearMin);
-    
-    const yearMax = searchParams.get('yearMax');
-    if (yearMax) urlFilters.yearMax = parseInt(yearMax);
-    
-    const mileageMin = searchParams.get('mileageMin');
-    if (mileageMin) urlFilters.mileageMin = parseInt(mileageMin);
-    
-    const mileageMax = searchParams.get('mileageMax');
-    if (mileageMax) urlFilters.mileageMax = parseInt(mileageMax);
-    
-    const fuelType = searchParams.get('fuelType');
-    if (fuelType) urlFilters.fuelType = fuelType.split(',') as FuelType[];
-    
-    const transmission = searchParams.get('transmission');
-    if (transmission) urlFilters.transmission = transmission.split(',') as TransmissionType[];
-    
-    const bodyType = searchParams.get('bodyType');
-    if (bodyType) urlFilters.bodyType = bodyType.split(',') as BodyType[];
-    
-    const isLuxury = searchParams.get('luxury');
-    if (isLuxury === 'true') urlFilters.isLuxury = true;
-    
-    const location = searchParams.get('location');
-    if (location) urlFilters.location = location;
-    
-    return urlFilters;
-  }, [searchParams]);
+// Nel file src/pages/CatalogPage.tsx, sostituisci la sezione filters con:
+
+const filters = useMemo(() => {
+  const urlFilters: CarFilters = {};
+  
+  const make = searchParams.get('make');
+  if (make) urlFilters.make = make.split(',');
+  
+  const model = searchParams.get('model');
+  if (model) urlFilters.model = model.split(',');
+  
+  const priceMin = searchParams.get('priceMin');
+  if (priceMin) urlFilters.priceMin = parseInt(priceMin);
+  
+  const priceMax = searchParams.get('priceMax');
+  if (priceMax) urlFilters.priceMax = parseInt(priceMax);
+  
+  const yearMin = searchParams.get('yearMin');
+  if (yearMin) urlFilters.yearMin = parseInt(yearMin);
+  
+  const yearMax = searchParams.get('yearMax');
+  if (yearMax) urlFilters.yearMax = parseInt(yearMax);
+  
+  const mileageMin = searchParams.get('mileageMin');
+  if (mileageMin) urlFilters.mileageMin = parseInt(mileageMin);
+  
+  const mileageMax = searchParams.get('mileageMax');
+  if (mileageMax) urlFilters.mileageMax = parseInt(mileageMax);
+  
+  const fuelType = searchParams.get('fuelType');
+  if (fuelType) urlFilters.fuelType = fuelType.split(',') as FuelType[];
+  
+  const transmission = searchParams.get('transmission');
+  if (transmission) urlFilters.transmission = transmission.split(',') as TransmissionType[];
+  
+  const bodyType = searchParams.get('bodyType');
+  if (bodyType) urlFilters.bodyType = bodyType.split(',') as BodyType[];
+  
+  // MODIFICA PRINCIPALE: imposta sempre isLuxury basandosi sul parametro URL
+  const isLuxury = searchParams.get('luxury');
+  urlFilters.isLuxury = isLuxury === 'true'; // true solo se luxury=true, altrimenti false
+  
+  const location = searchParams.get('location');
+  if (location) urlFilters.location = location;
+  
+  return urlFilters;
+}, [searchParams]);
 
   const { data: searchResult, isLoading, error } = useCars(filters, page, 20);
   const { data: allCarsResult } = useCars({}, 1, 1000);
