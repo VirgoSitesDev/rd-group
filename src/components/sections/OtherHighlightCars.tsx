@@ -153,6 +153,19 @@ const CarPrice = styled.div`
   color: ${({ theme }) => theme.colors.primary.main};
 `;
 
+const CarBodyType = styled.div`
+  background: #000000;
+  color: white;
+  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
+  border-radius: 2px;
+  font-size: 0.8rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  text-transform: uppercase;
+  width: fit-content;
+  margin-top: ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.sm};
+`;
+
 const CarSpecs = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing.lg};
 `;
@@ -249,6 +262,22 @@ const OtherHighlightCars: React.FC = () => {
     return translations[transmission] || transmission;
   };
 
+  const getTranslatedBodyType = (bodyType: string) => {
+    const translations: Record<string, string> = {
+      'sedan': 'Berlina',
+      'hatchback': 'Berlina',
+      'estate': 'Station Wagon',
+      'suv': 'SUV',
+      'coupe': 'Coupé',
+      'convertible': 'Cabrio',
+      'pickup': 'Pick-up',
+      'van': 'Furgone',
+      'minivan': 'Monovolume',
+      'other': 'Berlina'
+    };
+    return translations[bodyType] || bodyType;
+  };
+
   if (isLoading) {
     return (
       <FeaturedGrid>
@@ -316,6 +345,9 @@ const OtherHighlightCars: React.FC = () => {
               <CarBrand>{car.make}</CarBrand>
               <CarModel>{car.model}</CarModel>
               <CarPrice>{car.price.toLocaleString('it-IT')}€</CarPrice>
+              <CarBodyType>
+                {getTranslatedBodyType(car.bodyType)}
+              </CarBodyType>
             </CarHeader>
 
             <CarSpecs>
