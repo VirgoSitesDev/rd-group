@@ -22,7 +22,7 @@ interface HeaderProps {
 }
 
 const HeaderContainer = styled.header<{ showHero: boolean }>`
-  height: ${({ showHero }) => showHero ? '100vh' : '280px'};
+  height: ${({ showHero }) => showHero ? '100vh' : '240px'};
   overflow: ${({ showHero }) => showHero ? 'hidden' : 'visible'};
   position: ${({ showHero }) => showHero ? 'relative' : 'relative'};
   top: 0;
@@ -62,8 +62,8 @@ const NavigationBar = styled.div<{ showHero: boolean }>`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 60px;
-  padding: 40px 10px;
+  gap: 33px;
+  padding: 30px 10px;
 `;
 
 const LogoSection = styled(Link)`
@@ -112,7 +112,7 @@ const NavigationSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 33px;
   padding: 0px 20px;
   width: 100%;
   max-width: 100vw;
@@ -138,7 +138,7 @@ const NavLinksContainer = styled.div`
 const NavLink = styled(Link)<{ isActive: boolean; showHero: boolean }>`
   color: ${({ showHero, theme }) => showHero ? '#ffffff' : '#ffffff'};
   font-family: ${({ theme }) => theme.typography.fontFamily};
-  font-size: ${({ showHero }) => showHero ? '20px' : '20px'};
+  font-size: ${({ showHero }) => showHero ? '1rem' : '1rem'};
   font-weight: 700;
   letter-spacing: 0;
   line-height: normal;

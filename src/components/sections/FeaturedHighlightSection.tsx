@@ -127,14 +127,15 @@ const CarImageContainer = styled.div`
 `;
 
 const LocationBadge = styled.div`
-  position: absolute;
   top: ${({ theme }) => theme.spacing.md};
   right: ${({ theme }) => theme.spacing.md};
   background: #000000;
   color: white;
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
+  padding: 2px ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: 2px;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -156,7 +157,7 @@ const CarInfo = styled.div`
 `;
 
 const CarBrand = styled.div`
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   margin-bottom: 0px;
@@ -165,24 +166,25 @@ const CarBrand = styled.div`
 `;
 
 const CarModel = styled.h4`
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text.primary};
+  color: black;
   margin: 0 0 ${({ theme }) => theme.spacing.xs} 0;
 `;
 
 const CarPrice = styled.div`
-  font-size: 1.7rem;
+  font-size: 1.5rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.primary.main};
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
 `;
 
 const CarBodyType = styled.div`
   background: #000000;
   color: white;
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
-  border-radius: 2px;
-  font-size: 0.8rem;
+  padding: 2px ${({ theme }) => theme.spacing.sm};
+  border-radius: 3px;
+  font-size: 0.7rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   text-transform: uppercase;
   width: fit-content;
@@ -224,8 +226,8 @@ const CarDetails = styled.div`
   grid-template-columns: repeat(2, 1fr);
   gap: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.lg};
   font-size: 1rem;
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
-  line-height: 1.2;
+  margin-bottom: ${({ theme }) => theme.spacing.xxl};
+  line-height: 1;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
@@ -234,12 +236,11 @@ const CarDetails = styled.div`
 `;
 
 const CarDetail = styled.div`
-  color: ${({ theme }) => theme.colors.text.primary};
-  line-height: 1.1;
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
+  color: black;
+  line-height: 1;
   
   strong {
-    color: ${({ theme }) => theme.colors.text.primary};
+    color: black;
   }
 `;
 
@@ -373,13 +374,13 @@ const FeaturedHighlightSection: React.FC = () => {
                 🚗
               </div>
             )}
+          </CarImageContainer>
+
+          <CarInfo>
             <LocationBadge>
               <FaMapMarkerAlt />
               {featuredCar.location.city}
             </LocationBadge>
-          </CarImageContainer>
-
-          <CarInfo>
             {/* Sezione superiore - solo marca e modello */}
             <div>
               <CarBrand>{featuredCar.make}</CarBrand>

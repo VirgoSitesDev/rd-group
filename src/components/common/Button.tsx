@@ -31,7 +31,6 @@ const getButtonStyles = (variant: ButtonProps['variant'], theme: any) => {
           color: white;
           text-decoration: none;
           transform: translateY(-1px);
-          box-shadow: ${theme.shadows.md};
         }
 
         &:focus:not(:disabled), &:active:not(:disabled) {
@@ -102,7 +101,6 @@ const getButtonStyles = (variant: ButtonProps['variant'], theme: any) => {
           color: white;
           text-decoration: none;
           transform: translateY(-1px);
-          box-shadow: ${theme.shadows.md};
         }
 
         &:focus:not(:disabled), &:active:not(:disabled) {
@@ -178,12 +176,10 @@ const StyledButton = styled.button<ButtonProps>`
     opacity: 0.6;
     cursor: not-allowed;
     transform: none !important;
-    box-shadow: none !important;
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px ${({ theme }) => theme.colors.primary.main}40;
   }
 
   /* Loading state */

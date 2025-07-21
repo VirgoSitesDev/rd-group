@@ -72,11 +72,14 @@ const PromoLink = styled(Link)`
 const CarCard = styled.div`
   background: white;
   border-radius: ${({ theme }) => theme.borderRadius.lg};
+  border: 1px solid #e0e0e0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   display: flex;
+  padding: 0;
+  margin: 0;
   flex-direction: column;
 
   &:hover {
@@ -87,7 +90,7 @@ const CarCard = styled.div`
 
 const CarImageContainer = styled.div`
   position: relative;
-  height: 380px;
+  height: 280px;
   background: #f5f5f5;
   overflow: hidden;
 
@@ -104,13 +107,16 @@ const LocationBadge = styled.div`
   left: ${({ theme }) => theme.spacing.md};
   background: #000000;
   color: white;
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
+  padding: 2px ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: 2px;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   display: flex;
   align-items: center;
   gap: 4px;
   width: fit-content;
+  z-index: 10;
 
   svg {
     font-size: 0.7rem;
@@ -118,7 +124,7 @@ const LocationBadge = styled.div`
 `;
 
 const CarInfo = styled.div`
-  padding: ${({ theme }) => theme.spacing.xl};
+  padding: ${({ theme }) => theme.spacing.md};
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -126,7 +132,7 @@ const CarInfo = styled.div`
 `;
 
 const CarBrand = styled.div`
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   margin-bottom: 0px;
@@ -135,24 +141,26 @@ const CarBrand = styled.div`
 `;
 
 const CarModel = styled.h4`
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text.primary};
+  color: black;
   margin: 0 0 ${({ theme }) => theme.spacing.xs} 0;
+  line-height: 1.2;
 `;
 
 const CarPrice = styled.div`
-  font-size: 1.7rem;
+  font-size: 1.5rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.primary.main};
+  padding-bottom: ${({ theme }) => theme.spacing.md};
 `;
 
 const CarBodyType = styled.div`
   background: #000000;
   color: white;
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
-  border-radius: 2px;
-  font-size: 0.8rem;
+  padding: 2px ${({ theme }) => theme.spacing.sm};
+  border-radius: 4px;
+  font-size: 0.7rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   text-transform: uppercase;
   width: fit-content;
@@ -192,9 +200,9 @@ const CarDivider = styled.hr`
 const CarDetails = styled.div`
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.lg};
+  gap: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.xs};
   font-size: 1rem;
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  margin-bottom: ${({ theme }) => theme.spacing.xs};
   line-height: 1.2;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
@@ -206,10 +214,9 @@ const CarDetails = styled.div`
 const CarDetail = styled.div`
   color: ${({ theme }) => theme.colors.text.primary};
   line-height: 1.1;
-  margin-bottom: ${({ theme }) => theme.spacing.xs};
-  
+
   strong {
-    color: ${({ theme }) => theme.colors.text.primary};
+    color: black;
   }
 `;
 

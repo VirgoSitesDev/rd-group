@@ -21,12 +21,12 @@ const SearchTitle = styled.h2`
   border: 1px solid #d0d0d0;
   border-radius: ${({ theme }) => theme.borderRadius.md};
   width: 50vw;
-  padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.lg};
   margin: 0 auto ${({ theme }) => theme.spacing.xl} auto;
   text-align: center;
   color: #656565;
-  font-size: 1.3rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  font-size: 1.1rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -54,7 +54,7 @@ const FiltersSection = styled.div`
   background: white;
   padding: ${({ theme }) => theme.spacing.xl};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
-  box-shadow: ${({ theme }) => theme.shadows.sm};
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid #e0e0e0;
   position: sticky;
   top: ${({ theme }) => theme.spacing.md};
@@ -166,12 +166,19 @@ const FiltersActions = styled.div`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.sm};
   padding-top: ${({ theme }) => theme.spacing.md};
-  border-top: 1px solid ${({ theme }) => theme.colors.border};
 `;
 
 const ApplyButton = styled(Button)`
-  width: 100%;
-  font-size: 0.9rem;
+  background: ${({ theme }) => theme.colors.primary.main};
+  color: white;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.sm};
+  font-size: 1.1rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  text-transform: none;
+  text-decoration: underline;
+  letter-spacing: normal;
+  display: flex;
+  border: none;
 `;
 
 const ClearButton = styled(Button)`
@@ -272,7 +279,7 @@ const CarCard = styled.div`
 const CarImageContainer = styled.div`
   position: relative;
   width: 100%;
-  height: 320px;
+  height: 280px;
   background: #f5f5f5;
   overflow: hidden;
   
@@ -289,9 +296,11 @@ const CarLocationBadge = styled.div`
   left: ${({ theme }) => theme.spacing.md};
   background: #000000;
   color: white;
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
+  padding: 2px ${({ theme }) => theme.spacing.sm};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   border-radius: 2px;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -303,7 +312,7 @@ const CarLocationBadge = styled.div`
 `;
 
 const CarContent = styled.div`
-  padding: ${({ theme }) => theme.spacing.xl};
+  padding: ${({ theme }) => theme.spacing.md};
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -311,7 +320,7 @@ const CarContent = styled.div`
 `;
 
 const CarMake = styled.div`
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
   margin-bottom: 0px;
@@ -320,7 +329,7 @@ const CarMake = styled.div`
 `;
 
 const CarModel = styled.h3`
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: black;
   margin: 0 0 ${({ theme }) => theme.spacing.xs} 0;
@@ -328,17 +337,18 @@ const CarModel = styled.h3`
 `;
 
 const CarPrice = styled.div`
-  font-size: 1.7rem;
+  font-size: 1.5rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.primary.main};
+  padding-bottom: ${({ theme }) => theme.spacing.md};
 `;
 
 const CarBodyType = styled.div`
   background: #000000;
   color: white;
-  padding: ${({ theme }) => theme.spacing.xs} ${({ theme }) => theme.spacing.sm};
-  border-radius: 2px;
-  font-size: 0.8rem;
+  padding: 2px ${({ theme }) => theme.spacing.sm};
+  border-radius: 4px;
+  font-size: 0.7rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
   text-transform: uppercase;
   width: fit-content;
@@ -377,7 +387,7 @@ const CarSpec = styled.div`
   line-height: 1.1;
 
   strong {
-    color: ${({ theme }) => theme.colors.text.primary};
+    color: black;
   }
 `;
 
@@ -692,7 +702,7 @@ const CatalogPage: React.FC = () => {
         if (localFilters.mileageMax <= 150000) return 'Fino a 150.000 km';
         return 'Fino a 200.000 km';
       case 'location':
-        return localFilters.location || 'Località';
+        return localFilters.location || 'Dove si trova';
       default:
         return '';
     }
@@ -912,28 +922,6 @@ const CatalogPage: React.FC = () => {
                 </DropdownContainer>
               </FilterGroup>
 
-              <FilterGroup style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                <FilterLabel>Da</FilterLabel>
-                <FilterInput 
-                  type="text"
-                  style={{ width: '100%' }}
-                  placeholder="0€"
-                  onChange={(e) => handlePriceChange('priceMin', e.target.value)}
-                  value={localFilters.priceMin ? formatPrice(localFilters.priceMin.toString()) : ''}
-                />
-              </FilterGroup>
-
-              <FilterGroup style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                <FilterLabel>A</FilterLabel>
-                <FilterInput 
-                  type="text"
-                  style={{ width: '100%' }}
-                  placeholder="200.000€"
-                  onChange={(e) => handlePriceChange('priceMax', e.target.value)}
-                  value={localFilters.priceMax ? formatPrice(localFilters.priceMax.toString()) : ''}
-                />
-              </FilterGroup>
-
               <FilterGroup>
                 <FilterLabel onClick={(e) => toggleDropdown('location', e)}>
                   {getDisplayValue('location')}
@@ -956,6 +944,28 @@ const CatalogPage: React.FC = () => {
                     Via Fiorentina, 331
                   </DropdownItem>
                 </DropdownContainer>
+              </FilterGroup>
+
+              <FilterGroup style={{ flexDirection: 'row', alignItems: 'flex-start'}}>
+                <FilterLabel>Da</FilterLabel>
+                <FilterInput 
+                  type="text"
+                  style={{ width: '100%', height: '28px' }}
+                  placeholder="0€"
+                  onChange={(e) => handlePriceChange('priceMin', e.target.value)}
+                  value={localFilters.priceMin ? formatPrice(localFilters.priceMin.toString()) : ''}
+                />
+              </FilterGroup>
+
+              <FilterGroup style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                <FilterLabel>A</FilterLabel>
+                <FilterInput 
+                  type="text"
+                  style={{ width: '100%', height: '28px' }}
+                  placeholder="200.000€"
+                  onChange={(e) => handlePriceChange('priceMax', e.target.value)}
+                  value={localFilters.priceMax ? formatPrice(localFilters.priceMax.toString()) : ''}
+                />
               </FilterGroup>
             </FiltersGrid>
 

@@ -33,12 +33,12 @@ const SearchTitle = styled.h2`
   border: 1px solid #d0d0d0;
   border-radius: ${({ theme }) => theme.borderRadius.md};
   width: 50vw;
-  padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.lg};
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.lg};
   margin: 0 auto ${({ theme }) => theme.spacing.xl} auto;
   text-align: center;
   color: #656565;
-  font-size: 1.3rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  font-size: 1.1rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -156,9 +156,9 @@ const ApplyFiltersButton = styled(Button)`
   color: ${({ theme }) => theme.colors.primary.main} !important;
   padding: ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.md};
   font-size: 1.1rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   text-transform: none;
-  text-decoration: underline;
+  text-decoration: underline !important;
   letter-spacing: normal;
   margin-left: auto;
   display: flex;
@@ -166,8 +166,8 @@ const ApplyFiltersButton = styled(Button)`
   justify-content: flex-end;
   
   &:hover {
-    background: transparent;
-    color: white !important;
+    background: transparent !important;
+    color: ${({ theme }) => theme.colors.primary.main} !important;
   }
 `;
 
