@@ -161,14 +161,6 @@ const FilterInput = styled.input`
   }
 `;
 
-
-
-const PriceInputsRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: ${({ theme }) => theme.spacing.sm};
-`;
-
 const FiltersActions = styled.div`
   display: flex;
   flex-direction: column;
@@ -327,7 +319,7 @@ const CarMake = styled.div`
 const CarModel = styled.h3`
   font-size: 1.8rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  color: ${({ theme }) => theme.colors.text.primary};
+  color: black;
   margin: 0 0 ${({ theme }) => theme.spacing.xs} 0;
   line-height: 1.2;
 `;
@@ -896,25 +888,29 @@ const CatalogPage: React.FC = () => {
                 </DropdownContainer>
               </FilterGroup>
 
-              {/* Prezzo */}
+              {/* Prezzo Da */}
               <FilterGroup style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                <FilterLabel>Prezzo</FilterLabel>
-                <PriceInputsRow>
-                  <FilterInput 
-                    type="text"
-                    placeholder="Da €"
-                    onChange={(e) => handlePriceChange('priceMin', e.target.value)}
-                    value={localFilters.priceMin ? formatPrice(localFilters.priceMin.toString()) : ''}
-                  />
-                  <FilterInput 
-                    type="text"
-                    placeholder="A €"
-                    onChange={(e) => handlePriceChange('priceMax', e.target.value)}
-                    value={localFilters.priceMax ? formatPrice(localFilters.priceMax.toString()) : ''}
-                  />
-                </PriceInputsRow>
+                <FilterLabel>Da</FilterLabel>
+                <FilterInput 
+                  type="text"
+                  style={{ width: '100%' }}
+                  placeholder="0€"
+                  onChange={(e) => handlePriceChange('priceMin', e.target.value)}
+                  value={localFilters.priceMin ? formatPrice(localFilters.priceMin.toString()) : ''}
+                />
               </FilterGroup>
 
+              {/* Prezzo A */}
+              <FilterGroup style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                <FilterLabel>A</FilterLabel>
+                <FilterInput 
+                  type="text"
+                  style={{ width: '100%' }}
+                  placeholder="200.000€"
+                  onChange={(e) => handlePriceChange('priceMax', e.target.value)}
+                  value={localFilters.priceMax ? formatPrice(localFilters.priceMax.toString()) : ''}
+                />
+              </FilterGroup>
               {/* Località */}
               <FilterGroup>
                 <FilterLabel onClick={(e) => toggleDropdown('location', e)}>

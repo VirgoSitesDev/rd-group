@@ -7,6 +7,12 @@ export const GlobalStyles = createGlobalStyle`
     box-sizing: border-box;
   }
 
+  *, 
+  *::before, 
+  *::after {
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+  }
+
   html {
     scroll-behavior: smooth;
   }
