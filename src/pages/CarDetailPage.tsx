@@ -16,6 +16,8 @@ const PageContainer = styled.div`
 `;
 
 const BackButton = styled(Button)`
+  padding: 0;
+  margin: 0;
   margin-bottom: ${({ theme }) => theme.spacing.lg};
   background: transparent;
   color: ${({ theme }) => theme.colors.text.primary};
@@ -26,9 +28,9 @@ const BackButton = styled(Button)`
   border: none;
   
   &:hover {
-    background: ${({ theme }) => theme.colors.background.paper};
+    background: transparent !important;
+    color: ${({ theme }) => theme.colors.text.primary} !important;
     transform: none;
-    text-decoration: none;
   }
 
   svg {
