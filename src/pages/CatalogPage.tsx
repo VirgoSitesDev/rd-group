@@ -237,7 +237,7 @@ const SortingSelect = styled.select`
 
 const CarsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: ${({ theme }) => theme.spacing.md};
   padding: 0;
   margin: 0;
