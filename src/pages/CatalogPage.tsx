@@ -40,7 +40,7 @@ const SearchTitle = styled.h2`
 
 const MainContainer = styled.div`
   display: grid;
-  grid-template-columns: 25% 75%;
+  grid-template-columns: 20% 80%;
   gap: ${({ theme }) => theme.spacing.xl};
   align-items: start;
 
