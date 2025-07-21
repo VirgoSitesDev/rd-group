@@ -294,7 +294,7 @@ class DatabaseService {
       const standardCars = (standardResult.data || []).map(car => transformDBCarToAppCar(car, false));
 
       const cars = [...luxuryCars, ...standardCars]
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime()).filter((v) => v.model.includes('G63 AMG Lungo Auto R22'));
 
       return {
         cars,
