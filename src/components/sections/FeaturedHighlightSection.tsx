@@ -155,15 +155,11 @@ const CarInfo = styled.div`
   max-width: 340px;
 `;
 
-const CarHeader = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
-`;
-
 const CarBrand = styled.div`
   font-size: 1.1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
-  margin-bottom: 0px;;
+  margin-bottom: 0px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
@@ -329,7 +325,6 @@ const FeaturedHighlightSection: React.FC = () => {
     );
   }
 
-  // Prendiamo la prima auto dalla lista
   const featuredCar = featuredResult.cars[0];
 
   return (
@@ -385,56 +380,62 @@ const FeaturedHighlightSection: React.FC = () => {
           </CarImageContainer>
 
           <CarInfo>
-            <CarHeader>
+            {/* Sezione superiore - solo marca e modello */}
+            <div>
               <CarBrand>{featuredCar.make}</CarBrand>
               <CarModel>{featuredCar.model}</CarModel>
+            </div>
+
+            {/* Sezione inferiore - dal prezzo in giù */}
+            <div>
               <CarPrice>{featuredCar.price.toLocaleString('it-IT')}€</CarPrice>
+              
               <CarBodyType>
                 {getTranslatedBodyType(featuredCar.bodyType)}
               </CarBodyType>
-            </CarHeader>
 
-            <CarSpecs>
-              {featuredCar.features && featuredCar.features.length > 0 && (
-                <CarTags>
-                  {featuredCar.features.slice(0, 3).map((feature, index) => (
-                    <CarTag key={index}>{feature}</CarTag>
-                  ))}
-                </CarTags>
-              )}
+              <CarSpecs>
+                {featuredCar.features && featuredCar.features.length > 0 && (
+                  <CarTags>
+                    {featuredCar.features.slice(0, 3).map((feature, index) => (
+                      <CarTag key={index}>{feature}</CarTag>
+                    ))}
+                  </CarTags>
+                )}
 
-              <CarDivider />
+                <CarDivider />
 
-              <CarDetails>
-                <CarDetail>
-                  <strong>{featuredCar.mileage.toLocaleString()}Km</strong>
-                </CarDetail>
-                <CarDetail>
-                  <strong>{getTranslatedFuelType(featuredCar.fuelType)}</strong>
-                </CarDetail>
-                <CarDetail>
-                  <strong>{featuredCar.year}</strong>
-                </CarDetail>
-                <CarDetail>
-                  <strong>{getTranslatedTransmission(featuredCar.transmission)}</strong>
-                </CarDetail>
-                <CarDetail>
-                  <strong>{featuredCar.power}KW</strong>
-                </CarDetail>
-              </CarDetails>
-            </CarSpecs>
+                <CarDetails>
+                  <CarDetail>
+                    <strong>{featuredCar.mileage.toLocaleString()}Km</strong>
+                  </CarDetail>
+                  <CarDetail>
+                    <strong>{getTranslatedFuelType(featuredCar.fuelType)}</strong>
+                  </CarDetail>
+                  <CarDetail>
+                    <strong>{featuredCar.year}</strong>
+                  </CarDetail>
+                  <CarDetail>
+                    <strong>{getTranslatedTransmission(featuredCar.transmission)}</strong>
+                  </CarDetail>
+                  <CarDetail>
+                    <strong>{featuredCar.power}KW</strong>
+                  </CarDetail>
+                </CarDetails>
+              </CarSpecs>
 
-            <CarActions>
-              <ActionButton 
-                variant="primary"
-                onClick={(e) => {
-                  e?.stopPropagation();
-                  handleCarClick(featuredCar.id);
-                }}
-              >
-                Scopri di più <FaArrowRight />
-              </ActionButton>
-            </CarActions>
+              <CarActions>
+                <ActionButton 
+                  variant="primary"
+                  onClick={(e) => {
+                    e?.stopPropagation();
+                    handleCarClick(featuredCar.id);
+                  }}
+                >
+                  Scopri di più <FaArrowRight />
+                </ActionButton>
+              </CarActions>
+            </div>
           </CarInfo>
         </CarCard>
       </FeaturedCarContainer>

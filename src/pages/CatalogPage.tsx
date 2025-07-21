@@ -177,6 +177,7 @@ const ApplyButton = styled(Button)`
 const ClearButton = styled(Button)`
   width: 100%;
   font-size: 0.9rem;
+  color: ${({ theme }) => theme.colors.primary.main};
 `;
 
 const ActiveFiltersContainer = styled.div`
@@ -259,6 +260,8 @@ const CarCard = styled.div`
   cursor: pointer;
   padding: 0;
   margin: 0;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     transform: translateY(-4px);
@@ -301,10 +304,10 @@ const CarLocationBadge = styled.div`
 
 const CarContent = styled.div`
   padding: ${({ theme }) => theme.spacing.xl};
-`;
-
-const CarHeader = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
 `;
 
 const CarMake = styled.div`
@@ -500,7 +503,6 @@ const CatalogPage: React.FC = () => {
 
   const [localFilters, setLocalFilters] = useState<CarFilters>(filters);
 
-  // Estrai marche e modelli unici dal database
   const availableMakes = useMemo(() => {
     if (!allCarsResult?.cars) return [];
     const makes = [...new Set(allCarsResult.cars.map(car => car.make))];
@@ -511,7 +513,6 @@ const CatalogPage: React.FC = () => {
     setLocalFilters(filters);
   }, [filters]);
 
-  // Aggiorna modelli quando cambia la marca
   useEffect(() => {
     if (!localFilters.make?.length || !allCarsResult?.cars) {
       setAvailableModels([]);
@@ -526,7 +527,6 @@ const CatalogPage: React.FC = () => {
     setAvailableModels(uniqueModels);
   }, [localFilters.make, allCarsResult]);
 
-  // Chiudi dropdown quando clicchi fuori
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (openDropdown) {
@@ -558,7 +558,7 @@ const CatalogPage: React.FC = () => {
       setLocalFilters(prev => ({
         ...prev,
         make: value ? [value] : undefined,
-        model: undefined // Reset model quando cambia marca
+        model: undefined
       }));
     } else {
       setLocalFilters(prev => ({
@@ -574,7 +574,7 @@ const CatalogPage: React.FC = () => {
       setLocalFilters(prev => ({
         ...prev,
         make: value ? [value] : undefined,
-        model: undefined // Reset model quando cambia marca
+        model: undefined
       }));
     } else {
       setLocalFilters(prev => ({
@@ -724,7 +724,7 @@ const CatalogPage: React.FC = () => {
   const getTranslatedBodyType = (bodyType: string) => {
     const translations: Record<string, string> = {
       'sedan': 'Berlina',
-      'hatchback': 'Berlina', 
+      'hatchback': 'Berlina',
       'estate': 'Station Wagon',
       'suv': 'SUV',
       'coupe': 'Coupé',
@@ -797,7 +797,6 @@ const CatalogPage: React.FC = () => {
             )}
 
             <FiltersGrid>
-              {/* Marca */}
               <FilterGroup>
                 <FilterLabel onClick={(e) => toggleDropdown('make', e)}>
                   {getDisplayValue('make')}
@@ -815,7 +814,6 @@ const CatalogPage: React.FC = () => {
                 </DropdownContainer>
               </FilterGroup>
 
-              {/* Modello */}
               <FilterGroup>
                 <FilterLabel onClick={(e) => localFilters.make?.length ? toggleDropdown('model', e) : null}>
                   {getDisplayValue('model')}
@@ -836,7 +834,6 @@ const CatalogPage: React.FC = () => {
                 </DropdownContainer>
               </FilterGroup>
 
-              {/* Alimentazione */}
               <FilterGroup>
                 <FilterLabel onClick={(e) => toggleDropdown('fuelType', e)}>
                   {getDisplayValue('fuelType')}
@@ -867,7 +864,6 @@ const CatalogPage: React.FC = () => {
                 </DropdownContainer>
               </FilterGroup>
 
-              {/* Cambio */}
               <FilterGroup>
                 <FilterLabel onClick={(e) => toggleDropdown('transmission', e)}>
                   {getDisplayValue('transmission')}
@@ -889,7 +885,6 @@ const CatalogPage: React.FC = () => {
                 </DropdownContainer>
               </FilterGroup>
 
-              {/* Chilometraggio */}
               <FilterGroup>
                 <FilterLabel onClick={(e) => toggleDropdown('mileage', e)}>
                   {getDisplayValue('mileageMax')}
@@ -917,7 +912,6 @@ const CatalogPage: React.FC = () => {
                 </DropdownContainer>
               </FilterGroup>
 
-              {/* Prezzo Da */}
               <FilterGroup style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                 <FilterLabel>Da</FilterLabel>
                 <FilterInput 
@@ -929,7 +923,6 @@ const CatalogPage: React.FC = () => {
                 />
               </FilterGroup>
 
-              {/* Prezzo A */}
               <FilterGroup style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                 <FilterLabel>A</FilterLabel>
                 <FilterInput 
@@ -940,7 +933,7 @@ const CatalogPage: React.FC = () => {
                   value={localFilters.priceMax ? formatPrice(localFilters.priceMax.toString()) : ''}
                 />
               </FilterGroup>
-              {/* Località */}
+
               <FilterGroup>
                 <FilterLabel onClick={(e) => toggleDropdown('location', e)}>
                   {getDisplayValue('location')}
@@ -1066,56 +1059,62 @@ const CatalogPage: React.FC = () => {
                           </CarImageContainer>
 
                           <CarContent>
-                            <CarHeader>
+                            {/* Sezione superiore - solo marca e modello */}
+                            <div>
                               <CarMake>{car.make}</CarMake>
                               <CarModel>{car.model}</CarModel>
+                            </div>
+
+                            {/* Sezione inferiore - dal prezzo in giù */}
+                            <div>
                               <CarPrice>{car.price.toLocaleString('it-IT')}€</CarPrice>
+
                               <CarBodyType>
                                 {getTranslatedBodyType(car.bodyType)}
                               </CarBodyType>
-                            </CarHeader>
 
-                            <CarSpecs>
-                              {car.features && car.features.length > 0 && (
-                                <CarTags>
-                                  {car.features.slice(0, 2).map((feature, index) => (
-                                    <CarTag key={index}>{feature}</CarTag>
-                                  ))}
-                                </CarTags>
-                              )}
+                              <CarSpecs>
+                                {car.features && car.features.length > 0 && (
+                                  <CarTags>
+                                    {car.features.slice(0, 2).map((feature, index) => (
+                                      <CarTag key={index}>{feature}</CarTag>
+                                    ))}
+                                  </CarTags>
+                                )}
 
-                              <CarDivider />
+                                <CarDivider />
 
-                              <CarSpecsGrid>
-                                <CarSpec>
-                                  <strong>{car.mileage.toLocaleString()}Km</strong>
-                                </CarSpec>
-                                <CarSpec>
-                                  <strong>{getTranslatedFuelType(car.fuelType)}</strong>
-                                </CarSpec>
-                                <CarSpec>
-                                  <strong>{car.year}</strong>
-                                </CarSpec>
-                                <CarSpec>
-                                  <strong>{getTranslatedTransmission(car.transmission)}</strong>
-                                </CarSpec>
-                                <CarSpec>
-                                  <strong>{car.power}KW</strong>
-                                </CarSpec>
-                              </CarSpecsGrid>
-                            </CarSpecs>
+                                <CarSpecsGrid>
+                                  <CarSpec>
+                                    <strong>{car.mileage.toLocaleString()}Km</strong>
+                                  </CarSpec>
+                                  <CarSpec>
+                                    <strong>{getTranslatedFuelType(car.fuelType)}</strong>
+                                  </CarSpec>
+                                  <CarSpec>
+                                    <strong>{car.year}</strong>
+                                  </CarSpec>
+                                  <CarSpec>
+                                    <strong>{getTranslatedTransmission(car.transmission)}</strong>
+                                  </CarSpec>
+                                  <CarSpec>
+                                    <strong>{car.power}KW</strong>
+                                  </CarSpec>
+                                </CarSpecsGrid>
+                              </CarSpecs>
 
-                            <CarActions>
-                              <CarActionButton 
-                                variant="primary"
-                                onClick={(e) => {
-                                  e?.stopPropagation();
-                                  handleCarClick(car.id);
-                                }}
-                              >
-                                Scopri di più <FaArrowRight />
-                              </CarActionButton>
-                            </CarActions>
+                              <CarActions>
+                                <CarActionButton 
+                                  variant="primary"
+                                  onClick={(e) => {
+                                    e?.stopPropagation();
+                                    handleCarClick(car.id);
+                                  }}
+                                >
+                                  Scopri di più <FaArrowRight />
+                                </CarActionButton>
+                              </CarActions>
+                            </div>
                           </CarContent>
                         </CarCard>
                       ))}

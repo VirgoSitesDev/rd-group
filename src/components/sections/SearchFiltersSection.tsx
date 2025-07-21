@@ -162,6 +162,7 @@ const ApplyFiltersButton = styled(Button)`
   letter-spacing: normal;
   margin-left: auto;
   display: flex;
+  border: none;
   justify-content: flex-end;
   
   &:hover {

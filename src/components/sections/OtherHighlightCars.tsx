@@ -76,6 +76,8 @@ const CarCard = styled.div`
   overflow: hidden;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
+  display: flex;
+  flex-direction: column;
 
   &:hover {
     transform: translateY(-4px);
@@ -117,25 +119,17 @@ const LocationBadge = styled.div`
 
 const CarInfo = styled.div`
   padding: ${({ theme }) => theme.spacing.xl};
-`;
-
-const CarHeader = styled.div`
-  margin-bottom: ${({ theme }) => theme.spacing.lg};
-`;
-
-const CarDivider = styled.hr`
-  width: 100%;
-  height: 0.8px;
-  background-color: #000000;
-  border: none;
-  margin: ${({ theme }) => theme.spacing.md} 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
 `;
 
 const CarBrand = styled.div`
   font-size: 1.1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   color: ${({ theme }) => theme.colors.text.primary};
-  margin-bottom: 0px;;
+  margin-bottom: 0px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
@@ -185,6 +179,14 @@ const CarTag = styled.span`
   font-size: 0.8rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.regular};
   text-transform: uppercase;
+`;
+
+const CarDivider = styled.hr`
+  width: 100%;
+  height: 0.8px;
+  background-color: #000000;
+  border: none;
+  margin: ${({ theme }) => theme.spacing.md} 0;
 `;
 
 const CarDetails = styled.div`
@@ -299,9 +301,7 @@ const OtherHighlightCars: React.FC = () => {
     );
   }
 
-  // Prendiamo le auto dalla seconda in poi (la prima è già usata in FeaturedHighlightSection)
-  // e aggiungiamo il promotional box alla fine
-  const otherCars = featuredResult.cars.slice(1, 3); // Prendiamo 2 auto
+  const otherCars = featuredResult.cars.slice(1, 3);
 
   return (
     <FeaturedGrid>
@@ -341,56 +341,62 @@ const OtherHighlightCars: React.FC = () => {
           </CarImageContainer>
 
           <CarInfo>
-            <CarHeader>
+            {/* Sezione superiore - solo marca e modello */}
+            <div>
               <CarBrand>{car.make}</CarBrand>
               <CarModel>{car.model}</CarModel>
+            </div>
+
+            {/* Sezione inferiore - dal prezzo in giù */}
+            <div>
               <CarPrice>{car.price.toLocaleString('it-IT')}€</CarPrice>
+              
               <CarBodyType>
                 {getTranslatedBodyType(car.bodyType)}
               </CarBodyType>
-            </CarHeader>
 
-            <CarSpecs>
-              {car.features && car.features.length > 0 && (
-                <CarTags>
-                  {car.features.slice(0, 2).map((feature, featureIndex) => (
-                    <CarTag key={featureIndex}>{feature}</CarTag>
-                  ))}
-                </CarTags>
-              )}
-              
-              <CarDivider />
+              <CarSpecs>
+                {car.features && car.features.length > 0 && (
+                  <CarTags>
+                    {car.features.slice(0, 2).map((feature, featureIndex) => (
+                      <CarTag key={featureIndex}>{feature}</CarTag>
+                    ))}
+                  </CarTags>
+                )}
+                
+                <CarDivider />
 
-              <CarDetails>
-                <CarDetail>
-                  <strong>{car.mileage.toLocaleString()}Km</strong>
-                </CarDetail>
-                <CarDetail>
-                  <strong>{getTranslatedFuelType(car.fuelType)}</strong>
-                </CarDetail>
-                <CarDetail>
-                  <strong>{car.year}</strong>
-                </CarDetail>
-                <CarDetail>
-                  <strong>{getTranslatedTransmission(car.transmission)}</strong>
-                </CarDetail>
-                <CarDetail>
-                  <strong>{car.power}KW</strong>
-                </CarDetail>
-              </CarDetails>
-            </CarSpecs>
+                <CarDetails>
+                  <CarDetail>
+                    <strong>{car.mileage.toLocaleString()}Km</strong>
+                  </CarDetail>
+                  <CarDetail>
+                    <strong>{getTranslatedFuelType(car.fuelType)}</strong>
+                  </CarDetail>
+                  <CarDetail>
+                    <strong>{car.year}</strong>
+                  </CarDetail>
+                  <CarDetail>
+                    <strong>{getTranslatedTransmission(car.transmission)}</strong>
+                  </CarDetail>
+                  <CarDetail>
+                    <strong>{car.power}KW</strong>
+                  </CarDetail>
+                </CarDetails>
+              </CarSpecs>
 
-            <CarActions>
-              <ActionButton 
-                variant="primary"
-                onClick={(e) => {
-                  e?.stopPropagation();
-                  handleCarClick(car.id);
-                }}
-              >
-                Scopri di più <FaArrowRight />
-              </ActionButton>
-            </CarActions>
+              <CarActions>
+                <ActionButton 
+                  variant="primary"
+                  onClick={(e) => {
+                    e?.stopPropagation();
+                    handleCarClick(car.id);
+                  }}
+                >
+                  Scopri di più <FaArrowRight />
+                </ActionButton>
+              </CarActions>
+            </div>
           </CarInfo>
         </CarCard>
       ))}
