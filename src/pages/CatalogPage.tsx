@@ -183,8 +183,15 @@ const ApplyButton = styled(Button)`
 
 const ClearButton = styled(Button)`
   width: 100%;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   color: ${({ theme }) => theme.colors.primary.main};
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.sm};
+  text-transform: none;
+
+  &:hover {
+    background: white !important;
+    color: ${({ theme }) => theme.colors.primary.main} !important;
+  }
 `;
 
 const ActiveFiltersContainer = styled.div`

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaArrowLeft, FaPhone, FaEnvelope, FaMapMarkerAlt, FaHeart, FaShare, FaCalendar, FaCar, FaGasPump, FaCog, FaTachometerAlt, FaPalette } from 'react-icons/fa';
+import { FaArrowLeft, FaPhone, FaEnvelope, FaMapMarkerAlt, FaHeart, FaShare, FaCalendar, FaCar, FaGasPump, FaTachometerAlt, FaPalette, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { GiGearStickPattern } from "react-icons/gi";
 
 import Container from '../components/layout/Container';
 import Button from '../components/common/Button';
@@ -70,14 +71,87 @@ const MainImage = styled.div`
   }
 `;
 
-const ImageGallery = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+const ImageNavButton = styled.button`
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    
+    &:hover {
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  svg {
+    font-size: 18px;
+  }
+`;
+
+const PrevButton = styled(ImageNavButton)`
+  left: 20px;
+`;
+
+const NextButton = styled(ImageNavButton)`
+  right: 20px;
+`;
+
+const ImageCounter = styled.div`
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+`;
+
+const ThumbnailCarousel = styled.div`
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+`;
+
+const ThumbnailContainer = styled.div`
+  overflow: hidden;
+  border-radius: ${({ theme }) => theme.borderRadius.md};
+  width: 100%;
+  max-width: 60vw;
+`;
+
+const ThumbnailSlider = styled.div<{ $translateX: number; $totalWidth: number }>`
+  display: flex;
   gap: ${({ theme }) => theme.spacing.sm};
+  transition: transform 0.3s ease;
+  transform: translateX(${({ $translateX }) => $translateX}px);
+  width: ${({ $totalWidth }) => $totalWidth}px; /* Larghezza esatta calcolata */
 `;
 
 const ThumbnailImage = styled.div<{ $isActive: boolean }>`
-  height: 200px;
+  flex: 0 0 120px;
+  height: 120px;
   background: #f5f5f5;
   border-radius: ${({ theme }) => theme.borderRadius.md};
   overflow: hidden;
@@ -112,7 +186,7 @@ const CarHeader = styled.div`
 `;
 
 const CarTitle = styled.h1`
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: #000000;
   margin: 0 0 ${({ theme }) => theme.spacing.xs} 0;
@@ -121,17 +195,17 @@ const CarTitle = styled.h1`
 const CarMake = styled.h3`
   color: #656565;
   font-family: ${({ theme }) => theme.typography.fontFamily};
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
-  margin: 0;
+  margin-bottom:  ${({ theme }) => theme.spacing.md};
   text-align: left;
 `;
 
 const CarPrice = styled.div`
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.primary.main};
-  margin-bottom: ${({ theme }) => theme.spacing.md};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
 `;
 
 const ActionButtons = styled.div`
@@ -146,10 +220,26 @@ const ActionButtons = styled.div`
 
 const PrimaryButton = styled(Button)`
   flex: 1;
+  padding: 0;
+  span svg {
+    margin-right: 10px;
+  }
+  span {
+    font-size: 0.9rem;
+    text-transform: none;
+  }
 `;
 
 const SecondaryButton = styled(Button)`
   flex: 1;
+  padding: 0;
+  span svg {
+    margin-right: 10px;
+  }
+  span {
+    font-size: 0.9rem;
+    text-transform: none;
+  }
 `;
 
 const CarDivider = styled.hr`
@@ -254,7 +344,12 @@ const CarDetailPage: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [thumbnailStartIndex, setThumbnailStartIndex] = useState(0);
   const { data: car, isLoading, error } = useCar(slug || '');
+
+  const THUMBNAILS_VISIBLE = 4; // Numero di thumbnails visibili
+  const THUMBNAIL_WIDTH = 120; // Larghezza thumbnail
+  const THUMBNAIL_GAP = 8; // Gap tra thumbnails
 
   useEffect(() => {
     if (car) {
@@ -290,6 +385,61 @@ const CarDetailPage: React.FC = () => {
     return translations[key]?.[value] || value;
   };
 
+  const handlePrevImage = () => {
+    if (!car?.images || car.images.length <= 1) return;
+    const newIndex = activeImageIndex === 0 ? car.images.length - 1 : activeImageIndex - 1;
+    setActiveImageIndex(newIndex);
+    updateThumbnailView(newIndex);
+  };
+
+  const handleNextImage = () => {
+    if (!car?.images || car.images.length <= 1) return;
+    const newIndex = activeImageIndex === car.images.length - 1 ? 0 : activeImageIndex + 1;
+    setActiveImageIndex(newIndex);
+    updateThumbnailView(newIndex);
+  };
+
+  const handleThumbnailClick = (index: number) => {
+    setActiveImageIndex(index);
+    updateThumbnailView(index);
+  };
+
+  const updateThumbnailView = (activeIndex: number) => {
+    if (!car?.images) return;
+    
+    // Se l'immagine attiva è fuori dalla vista corrente, aggiorna la vista
+    if (activeIndex < thumbnailStartIndex) {
+      setThumbnailStartIndex(activeIndex);
+    } else if (activeIndex >= thumbnailStartIndex + THUMBNAILS_VISIBLE) {
+      setThumbnailStartIndex(Math.max(0, activeIndex - THUMBNAILS_VISIBLE + 1));
+    }
+  };
+
+  const getTotalSliderWidth = () => {
+    if (!car?.images) return 0;
+    return (car.images.length * THUMBNAIL_WIDTH) + ((car.images.length - 1) * THUMBNAIL_GAP);
+  };
+
+  const getTranslateX = () => {
+    return -(thumbnailStartIndex * (THUMBNAIL_WIDTH + THUMBNAIL_GAP));
+  };
+
+  // Gestione tasti freccia
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        handlePrevImage();
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        handleNextImage();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeImageIndex, car?.images]);
+
   if (isLoading) {
     return (
       <PageContainer>
@@ -320,6 +470,7 @@ const CarDetailPage: React.FC = () => {
   }
 
   if (!car) return 'Nessuna macchina trovata';
+  
   return (
     <PageContainer>
       <Container>
@@ -342,31 +493,52 @@ const CarDetailPage: React.FC = () => {
                   target.innerHTML = '🚗';
                 }}
               />
+              
+              {car.images && car.images.length > 1 && (
+                <>
+                  <PrevButton onClick={handlePrevImage}>
+                    <FaChevronLeft />
+                  </PrevButton>
+                  <NextButton onClick={handleNextImage}>
+                    <FaChevronRight />
+                  </NextButton>
+                  <ImageCounter>
+                    {activeImageIndex + 1} / {car.images.length}
+                  </ImageCounter>
+                </>
+              )}
             </MainImage>
 
             {car.images && car.images.length > 1 && (
-              <ImageGallery>
-                {car.images.map((image, index) => (
-                  <ThumbnailImage
-                    key={image.id}
-                    $isActive={activeImageIndex === index}
-                    onClick={() => setActiveImageIndex(index)}
+              <ThumbnailCarousel>
+                <ThumbnailContainer>
+                  <ThumbnailSlider 
+                    $translateX={getTranslateX()} 
+                    $totalWidth={getTotalSliderWidth()}
                   >
-                    <img 
-                      src={image.url} 
-                      alt={image.altText}
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'flex';
-                        target.style.alignItems = 'center';
-                        target.style.justifyContent = 'center';
-                        target.style.fontSize = '2rem';
-                        target.innerHTML = '🚗';
-                      }}
-                    />
-                  </ThumbnailImage>
-                ))}
-              </ImageGallery>
+                    {car.images.map((image, index) => (
+                      <ThumbnailImage
+                        key={image.id}
+                        $isActive={activeImageIndex === index}
+                        onClick={() => handleThumbnailClick(index)}
+                      >
+                        <img 
+                          src={image.url} 
+                          alt={image.altText}
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = 'flex';
+                            target.style.alignItems = 'center';
+                            target.style.justifyContent = 'center';
+                            target.style.fontSize = '2rem';
+                            target.innerHTML = '🚗';
+                          }}
+                        />
+                      </ThumbnailImage>
+                    ))}
+                  </ThumbnailSlider>
+                </ThumbnailContainer>
+              </ThumbnailCarousel>
             )}
 
             <DescriptionSection>
@@ -418,7 +590,7 @@ const CarDetailPage: React.FC = () => {
                 <span>{getTranslatedSpec('fuelType', car.fuelType)}</span>
               </SpecItem>
               <SpecItem>
-                <FaCog />
+                <GiGearStickPattern />
                 <span>{getTranslatedSpec('transmission', car.transmission)}</span>
               </SpecItem>
               <SpecItem>
