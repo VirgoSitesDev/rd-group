@@ -97,9 +97,13 @@ function generateSlug(marca: string, modello: string, id: number): string {
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-')
         .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
         .trim();
 
-  return `${cleanText(marca)}-${cleanText(modello)}-${id}`;
+  const marcaClean = cleanText(marca);
+  const modelloClean = cleanText(modello);
+  
+  return `${marcaClean}-${modelloClean}-${id}`;
 }
 
 export function transformDBCarToAppCar(dbCar: RDGroupRow | RDGroupLuxuryRow, isLuxury: boolean): Car {

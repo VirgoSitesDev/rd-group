@@ -5,26 +5,26 @@ import type { AutoScout24SyncStatus, SyncOperation } from '../types/api/api';
 import type { RDGroupRow, RDGroupLuxuryRow } from '../types/supabase/database';
 
 class DatabaseService {
-  private extractNumericId(id: string): number | null {
-    if (/^\d+$/.test(id)) {
-      return parseInt(id);
+  private extractNumericId(slug: string): number | null {
+    // Se è già un numero
+    if (/^\d+$/.test(slug)) {
+      return parseInt(slug);
     }
 
-    const carMatch = id.match(/^car-(\d+)$/);
-    if (carMatch) {
-      return parseInt(carMatch[1]);
-    }
-
-    const slugMatch = id.match(/-(\d+)$/);
+    // Se è un slug nel formato marca-modello-id
+    const slugMatch = slug.match(/-(\d+)$/);
     if (slugMatch) {
       return parseInt(slugMatch[1]);
     }
 
-    if (id === 'featured-luxury') {
-      return null;
+    // Backward compatibility per vecchi formati
+    const carMatch = slug.match(/^car-(\d+)$/);
+    if (carMatch) {
+      return parseInt(carMatch[1]);
     }
-    
-    if (id.startsWith('featured-')) {
+
+    // Per slug speciali
+    if (slug === 'featured-luxury' || slug.startsWith('featured-')) {
       return null;
     }
     
@@ -173,9 +173,10 @@ class DatabaseService {
     return query;
   }
 
-  async getVehicle(id: string): Promise<Car | null> {
+  async getVehicle(slug: string): Promise<Car | null> {
     try {
-      if (id === 'featured-luxury') {
+      // Gestione casi speciali
+      if (slug === 'featured-luxury') {
         const { data, error } = await supabase
           .from('rd_group_luxury')
           .select('*')
@@ -188,7 +189,7 @@ class DatabaseService {
         }
       }
 
-      if (id.startsWith('featured-')) {
+      if (slug.startsWith('featured-')) {
         const { data, error } = await supabase
           .from('rd_group')
           .select('*')
@@ -201,68 +202,66 @@ class DatabaseService {
         }
       }
 
-      const numericId = this.extractNumericId(id);
+      const numericId = this.extractNumericId(slug);
       
-      let luxuryQuery = supabase
-        .from('rd_group_luxury')
-        .select('*')
-        .eq('stato_annuncio', 'attivo');
-
-      if (numericId !== null) {
-        luxuryQuery = luxuryQuery.or(`id.eq.${numericId},slug.eq.${id}`);
-      } else {
-        luxuryQuery = luxuryQuery.eq('slug', id);
-      }
-
-      const { data: luxuryData, error: luxuryError } = await luxuryQuery.maybeSingle();
-
-      if (luxuryData && !luxuryError) {
-        return transformDBCarToAppCar(luxuryData, true);
-      }
-      
-      let standardQuery = supabase
-        .from('rd_group')
-        .select('*')
-        .eq('stato_annuncio', 'attivo');
-
-      if (numericId !== null) {
-        standardQuery = standardQuery.or(`id.eq.${numericId},slug.eq.${id}`);
-      } else {
-        standardQuery = standardQuery.eq('slug', id);
-      }
-
-      const { data: standardData, error: standardError } = await standardQuery.maybeSingle();
-
-      if (standardData && !standardError) {
-        return transformDBCarToAppCar(standardData, false);
-      }
-
-      if (numericId !== null) {
-        const { data: luxuryById, error: luxuryByIdError } = await supabase
+      // Prima cerca per slug esatto nelle due tabelle
+      const [luxuryBySlug, standardBySlug] = await Promise.all([
+        supabase
           .from('rd_group_luxury')
           .select('*')
-          .eq('id', numericId)
+          .eq('slug', slug)
           .eq('stato_annuncio', 'attivo')
-          .maybeSingle();
-
-        if (luxuryById && !luxuryByIdError) {
-          return transformDBCarToAppCar(luxuryById, true);
-        }
-
-        const { data: standardById, error: standardByIdError } = await supabase
+          .maybeSingle(),
+        
+        supabase
           .from('rd_group')
           .select('*')
-          .eq('id', numericId)
+          .eq('slug', slug)
           .eq('stato_annuncio', 'attivo')
-          .maybeSingle();
+          .maybeSingle()
+      ]);
 
-        if (standardById && !standardByIdError) {
-          return transformDBCarToAppCar(standardById, false);
+      // Se trova per slug, restituisci quello
+      if (luxuryBySlug.data && !luxuryBySlug.error) {
+        return transformDBCarToAppCar(luxuryBySlug.data, true);
+      }
+
+      if (standardBySlug.data && !standardBySlug.error) {
+        return transformDBCarToAppCar(standardBySlug.data, false);
+      }
+
+      // Se non trova per slug ma ha un ID numerico, cerca per ID
+      if (numericId !== null) {
+        const [luxuryById, standardById] = await Promise.all([
+          supabase
+            .from('rd_group_luxury')
+            .select('*')
+            .eq('id', numericId)
+            .eq('stato_annuncio', 'attivo')
+            .maybeSingle(),
+          
+          supabase
+            .from('rd_group')
+            .select('*')
+            .eq('id', numericId)
+            .eq('stato_annuncio', 'attivo')
+            .maybeSingle()
+        ]);
+
+        // Preferenza: prima luxury, poi standard  
+        if (luxuryById.data && !luxuryById.error) {
+          return transformDBCarToAppCar(luxuryById.data, true);
+        }
+
+        if (standardById.data && !standardById.error) {
+          return transformDBCarToAppCar(standardById.data, false);
         }
       }
+
       return null;
 
     } catch (error) {
+      console.error('Errore nel recupero veicolo:', error);
       return null;
     }
   }

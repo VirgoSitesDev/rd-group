@@ -26,12 +26,12 @@ export function useCars(
   });
 }
 
-export function useCar(id: string): UseQueryResult<Car | null, Error> {
+export function useCar(slug: string): UseQueryResult<Car | null, Error> {
   return useQuery({
-    queryKey: carQueryKeys.detail(id),
-    queryFn: () => databaseService.getVehicle(id),
-    enabled: !!id,
-    staleTime: 10 * 60 * 1000, // 10 minuti
+    queryKey: carQueryKeys.detail(slug),
+    queryFn: () => databaseService.getVehicle(slug),
+    enabled: !!slug,
+    staleTime: 10 * 60 * 1000,
   });
 }
 

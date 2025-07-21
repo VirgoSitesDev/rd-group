@@ -251,10 +251,10 @@ const FeatureItem = styled.div`
 `;
 
 const CarDetailPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const { data: car, isLoading, error } = useCar(id || '');
+  const { data: car, isLoading, error } = useCar(slug || '');
 
   useEffect(() => {
     if (car) {
