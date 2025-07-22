@@ -17,6 +17,7 @@ import { GlobalStyles } from './styles/GlobalStyles';
 import { theme } from './styles/theme';
 
 import { useFeaturedCars } from './hooks/useCars';
+import AdminPage from './pages/AdminPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,6 +68,7 @@ const AppContent: React.FC = () => {
       <main className={`main-content ${!isHomePage ? 'with-normal-header' : ''}`}>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/admin" element={<AdminPage />} />
           <Route path="/auto" element={<CatalogPage />} />
           <Route path="/auto/:slug" element={<CarDetailPage />} />
           <Route path="/luxury" element={<LuxuryRedirect />} />

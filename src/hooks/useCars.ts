@@ -1,8 +1,11 @@
 import { useQuery, useMutation, useQueryClient, UseQueryResult, UseMutationResult, UseMutateFunction } from '@tanstack/react-query';
 import type { Car, CarFilters, CarSearchResult } from '../types/car/car';
 import type { AutoScout24SyncStatus, SyncOperation } from '../types/api/api';
+import type { ExportOptions } from '../components/admin/ExportControls';
 import databaseService from '../services/databaseService';
+import adminService from '../services/adminService';
 
+// Query keys per caching
 export const carQueryKeys = {
   all: ['cars'] as const,
   lists: () => [...carQueryKeys.all, 'list'] as const,
@@ -12,6 +15,62 @@ export const carQueryKeys = {
   sync: () => [...carQueryKeys.all, 'sync'] as const,
   syncStatus: () => [...carQueryKeys.sync(), 'status'] as const,
 };
+
+// Query keys per admin
+export const adminQueryKeys = {
+  stats: () => [...carQueryKeys.all, 'admin', 'stats'] as const,
+};
+
+// Tipi per le operazioni admin
+interface CreateVehicleData {
+  make: string;
+  model: string;
+  variant?: string;
+  year: number;
+  mileage: number;
+  price: number;
+  fuelType: string;
+  transmission: string;
+  bodyType: string;
+  doors: number;
+  seats: number;
+  color: string;
+  previousOwners: number;
+  engineSize: number;
+  power: number;
+  horsepower: number;
+  description: string;
+  features: string[];
+  isLuxury: boolean;
+  images: Array<{
+    id: string;
+    url: string;
+    altText: string;
+    isPrimary: boolean;
+    order: number;
+  }>;
+  location: {
+    address: string;
+    city: string;
+    region: string;
+    postalCode: string;
+    country: string;
+  };
+  dealer: {
+    id: string;
+    name: string;
+    phone: string;
+    email: string;
+  };
+}
+
+interface UpdateVehicleData extends CreateVehicleData {
+  id: string;
+}
+
+// =====================================
+// HOOKS PRINCIPALI (ESISTENTI)
+// =====================================
 
 export function useCars(
   filters: CarFilters, 
@@ -147,7 +206,158 @@ export function useCarStats() {
   });
 }
 
+// =====================================
+// HOOKS ADMIN (NUOVI)
+// =====================================
+
+/**
+ * Hook per creare un nuovo veicolo
+ */
+export function useCreateVehicle(): UseMutationResult<string, Error, CreateVehicleData, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (vehicleData: CreateVehicleData) => adminService.createVehicle(vehicleData),
+    onSuccess: (vehicleId) => {
+      // Invalida tutte le query dei veicoli per refreshare i dati
+      queryClient.invalidateQueries({ queryKey: carQueryKeys.all });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.stats() });
+      console.log('✅ Veicolo creato con successo:', vehicleId);
+    },
+    onError: (error) => {
+      console.error('❌ Errore creazione veicolo:', error);
+    },
+  });
+}
+
+/**
+ * Hook per aggiornare un veicolo esistente
+ */
+export function useUpdateVehicle(): UseMutationResult<void, Error, UpdateVehicleData, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (vehicleData: UpdateVehicleData) => adminService.updateVehicle(vehicleData),
+    onSuccess: (_, variables) => {
+      // Invalida le query specifiche del veicolo e tutte le liste
+      queryClient.invalidateQueries({ queryKey: carQueryKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: carQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.stats() });
+      console.log('✅ Veicolo aggiornato con successo:', variables.id);
+    },
+    onError: (error) => {
+      console.error('❌ Errore aggiornamento veicolo:', error);
+    },
+  });
+}
+
+/**
+ * Hook per eliminare un veicolo
+ */
+export function useDeleteVehicle(): UseMutationResult<void, Error, string, unknown> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (vehicleId: string) => adminService.deleteVehicle(vehicleId),
+    onSuccess: (_, vehicleId) => {
+      // Rimuovi il veicolo specifico dalla cache
+      queryClient.removeQueries({ queryKey: carQueryKeys.detail(vehicleId) });
+      // Invalida tutte le liste per aggiornare i contatori
+      queryClient.invalidateQueries({ queryKey: carQueryKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: adminQueryKeys.stats() });
+      console.log('✅ Veicolo eliminato con successo:', vehicleId);
+    },
+    onError: (error) => {
+      console.error('❌ Errore eliminazione veicolo:', error);
+    },
+  });
+}
+
+/**
+ * Hook per esportare il catalogo
+ */
+export function useExportCatalog(): UseMutationResult<Blob, Error, ExportOptions, unknown> {
+  return useMutation({
+    mutationFn: (options: ExportOptions) => adminService.exportCatalog(options),
+    onSuccess: (blob, variables) => {
+      // Crea un link di download automatico
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `catalogo_auto_${timestamp}.${variables.format}`;
+      link.download = filename;
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Pulisci l'URL creato
+      window.URL.revokeObjectURL(url);
+      
+      console.log('✅ Catalogo esportato con successo:', filename);
+    },
+    onError: (error) => {
+      console.error('❌ Errore esportazione catalogo:', error);
+    },
+  });
+}
+
+/**
+ * Hook per ottenere statistiche admin
+ */
+export function useAdminStats() {
+  return useQuery({
+    queryKey: adminQueryKeys.stats(),
+    queryFn: () => adminService.getAdminStats(),
+    staleTime: 5 * 60 * 1000, // 5 minuti
+    gcTime: 10 * 60 * 1000, // 10 minuti
+  });
+}
+
+/**
+ * Hook composito per tutte le operazioni admin
+ */
+export function useAdminOperations() {
+  const createVehicle = useCreateVehicle();
+  const updateVehicle = useUpdateVehicle();
+  const deleteVehicle = useDeleteVehicle();
+  const exportCatalog = useExportCatalog();
+  const stats = useAdminStats();
+
+  return {
+    // Operazioni CRUD
+    createVehicle: createVehicle.mutate,
+    updateVehicle: updateVehicle.mutate,
+    deleteVehicle: deleteVehicle.mutate,
+    exportCatalog: exportCatalog.mutate,
+    
+    // Stati di caricamento
+    isCreating: createVehicle.isPending,
+    isUpdating: updateVehicle.isPending,
+    isDeleting: deleteVehicle.isPending,
+    isExporting: exportCatalog.isPending,
+    
+    // Errori
+    createError: createVehicle.error,
+    updateError: updateVehicle.error,
+    deleteError: deleteVehicle.error,
+    exportError: exportCatalog.error,
+    
+    // Statistiche
+    stats: stats.data,
+    isStatsLoading: stats.isLoading,
+    statsError: stats.error,
+  };
+}
+
+// =====================================
+// EXPORT DEFAULT
+// =====================================
+
 export default {
+  // Hook principali (esistenti)
   useCars,
   useCar,
   useSyncStatus,
@@ -158,4 +368,12 @@ export default {
   useRecentCars,
   useFeaturedCars,
   useCarStats,
+  
+  // Hook admin (nuovi)
+  useCreateVehicle,
+  useUpdateVehicle,
+  useDeleteVehicle,
+  useExportCatalog,
+  useAdminStats,
+  useAdminOperations,
 };
