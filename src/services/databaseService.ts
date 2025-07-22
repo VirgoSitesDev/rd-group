@@ -121,6 +121,16 @@ class DatabaseService {
   }
 
   private applyFiltersToQuery(query: any, filters: CarFilters) {
+    // NUOVO: Ricerca testuale su marca e modello
+    if (filters.search && filters.search.trim()) {
+      const searchTerm = filters.search.trim();
+      
+      // Usa or() per cercare in marca O modello, con ilike per ricerca case-insensitive e parziale
+      query = query.or(
+        `marca.ilike.%${searchTerm}%,modello.ilike.%${searchTerm}%`
+      );
+    }
+
     if (filters.make?.length) {
       query = query.in('marca', filters.make);
     }

@@ -28,25 +28,60 @@ const SearchContainer = styled.div`
   z-index: 300;
 `;
 
-const SearchTitle = styled.h2`
+// Trasformo il SearchTitle esistente in un input funzionante
+const SearchInputContainer = styled.div`
   background: #F9F9F9;
   border: 1px solid #d0d0d0;
   border-radius: ${({ theme }) => theme.borderRadius.md};
   width: 50vw;
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.lg};
   margin: 0 auto ${({ theme }) => theme.spacing.xl} auto;
-  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.2s ease;
+
+  &:focus-within {
+    border-color: ${({ theme }) => theme.colors.primary.main};
+    background: white;
+  }
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.primary.main};
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    width: 80vw;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 90vw;
+  }
+`;
+
+const SearchIcon = styled(FaSearch)`
+  margin-left: ${({ theme }) => theme.spacing.lg};
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: 1rem;
+  pointer-events: none;
+`;
+
+const SearchInput = styled.input`
+  background: transparent;
+  border: none;
+  flex: 1;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
   color: #656565;
   font-size: 1.1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: ${({ theme }) => theme.spacing.sm};
-
-  svg {
+  
+  &:focus {
+    outline: none;
     color: ${({ theme }) => theme.colors.text.primary};
-    font-size: 1rem;
+  }
+
+  &::placeholder {
+    color: #656565;
+    font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   }
 `;
 
@@ -187,6 +222,7 @@ interface SearchFiltersProps {
 const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
   const navigate = useNavigate();
   const [filters, setFilters] = useState<CarFilters>({});
+  const [searchQuery, setSearchQuery] = useState(''); // NUOVO: stato per la ricerca
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   
@@ -256,12 +292,24 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
     }));
   };
 
+  // NUOVO: gestione Enter nel campo di ricerca
+  const handleSearchKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      handleApplyFilters();
+    }
+  };
+
   const handleApplyFilters = () => {
+    const finalFilters = {
+      ...filters,
+      search: searchQuery.trim() || undefined
+    };
+    
     if (onSearch) {
-      onSearch(filters);
+      onSearch(finalFilters);
     } else {
       const searchParams = new URLSearchParams();
-      Object.entries(filters).forEach(([key, value]) => {
+      Object.entries(finalFilters).forEach(([key, value]) => {
         if (value !== undefined && value !== '') {
           if (Array.isArray(value)) {
             if (value.length > 0) {
@@ -322,10 +370,17 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
     <SearchSection>
       <Container>
         <SearchContainer>
-          <SearchTitle>
-            <FaSearch />
-            Cerca la tua prossima auto
-          </SearchTitle>
+          {/* Campo di ricerca esistente trasformato in input funzionante */}
+          <SearchInputContainer>
+            <SearchIcon />
+            <SearchInput
+              type="text"
+              placeholder="Cerca la tua prossima auto"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleSearchKeyPress}
+            />
+          </SearchInputContainer>
 
           <FiltersGrid>
             {/* Marca */}

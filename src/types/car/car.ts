@@ -148,6 +148,7 @@ export interface Car {
   }
 
   export interface CarFilters {
+	search?: string; // NUOVO: ricerca testuale per marca e modello
 	make?: string[];
 	model?: string[];
 	priceMin?: number;

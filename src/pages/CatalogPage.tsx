@@ -16,25 +16,59 @@ const CatalogHeader = styled.div`
   padding: ${({ theme }) => theme.spacing.xxl} 0 ${({ theme }) => theme.spacing.xl} 0;
 `;
 
-const SearchTitle = styled.h2`
+// Trasformo il SearchTitle esistente in un input funzionante
+const SearchInputContainer = styled.div`
   background: white;
   border: 1px solid #d0d0d0;
   border-radius: ${({ theme }) => theme.borderRadius.md};
   width: 50vw;
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.lg};
   margin: 0 auto ${({ theme }) => theme.spacing.xl} auto;
-  text-align: center;
+  position: relative;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.2s ease;
+
+  &:focus-within {
+    border-color: ${({ theme }) => theme.colors.primary.main};
+  }
+
+  &:hover {
+    border-color: ${({ theme }) => theme.colors.primary.main};
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    width: 80vw;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    width: 90vw;
+  }
+`;
+
+const SearchIconHeader = styled(FaSearch)`
+  margin-left: ${({ theme }) => theme.spacing.lg};
+  color: ${({ theme }) => theme.colors.text.primary};
+  font-size: 1rem;
+  pointer-events: none;
+`;
+
+const SearchInputHeader = styled.input`
+  background: transparent;
+  border: none;
+  flex: 1;
+  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
   color: #656565;
   font-size: 1.1rem;
   font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: ${({ theme }) => theme.spacing.sm};
-
-  svg {
+  
+  &:focus {
+    outline: none;
     color: ${({ theme }) => theme.colors.text.primary};
-    font-size: 1rem;
+  }
+
+  &::placeholder {
+    color: #656565;
+    font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   }
 `;
 
@@ -470,10 +504,12 @@ const CatalogPage: React.FC = () => {
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
-// Nel file src/pages/CatalogPage.tsx, sostituisci la sezione filters con:
-
 const filters = useMemo(() => {
   const urlFilters: CarFilters = {};
+  
+  // NUOVO: aggiungi il parametro search
+  const search = searchParams.get('search');
+  if (search) urlFilters.search = search;
   
   const make = searchParams.get('make');
   if (make) urlFilters.make = make.split(',');
@@ -508,9 +544,8 @@ const filters = useMemo(() => {
   const bodyType = searchParams.get('bodyType');
   if (bodyType) urlFilters.bodyType = bodyType.split(',') as BodyType[];
   
-  // MODIFICA PRINCIPALE: imposta sempre isLuxury basandosi sul parametro URL
   const isLuxury = searchParams.get('luxury');
-  urlFilters.isLuxury = isLuxury === 'true'; // true solo se luxury=true, altrimenti false
+  urlFilters.isLuxury = isLuxury === 'true';
   
   const location = searchParams.get('location');
   if (location) urlFilters.location = location;
@@ -560,6 +595,7 @@ const filters = useMemo(() => {
 
   useEffect(() => {
     const getPageTitle = () => {
+      if (filters.search) return `Cerca "${filters.search}" - RD Group Pistoia`;
       if (filters.isLuxury) return 'Auto di Lusso - RD Group Pistoia';
       if (filters.make?.length === 1) return `${filters.make[0]} Usate - RD Group Pistoia`;
       return 'Catalogo Auto Usate - RD Group Pistoia';
@@ -633,6 +669,21 @@ const filters = useMemo(() => {
       ...prev,
       mileageMax: ranges[value as keyof typeof ranges]
     }));
+  };
+
+  // NUOVO: gestione ricerca testuale
+  const handleSearchChange = (value: string) => {
+    setLocalFilters(prev => ({
+      ...prev,
+      search: value || undefined
+    }));
+  };
+
+  // NUOVO: gestione Enter nel campo di ricerca
+  const handleSearchKeyPress = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      handleApplyFilters();
+    }
   };
 
   const handleApplyFilters = () => {
@@ -760,6 +811,9 @@ const filters = useMemo(() => {
   const getActiveFilterTags = () => {
     const tags = [];
     
+    if (localFilters.search) {
+      tags.push({ key: 'search', label: `Ricerca: "${localFilters.search}"` });
+    }
     if (localFilters.make?.length) {
       tags.push({ key: 'make', label: `Marca: ${localFilters.make[0]}` });
     }
@@ -795,10 +849,17 @@ const filters = useMemo(() => {
     <>
       <CatalogHeader>
         <Container>
-          <SearchTitle>
-            <FaSearch />
-            Cerca la tua prossima auto
-          </SearchTitle>
+          {/* Campo di ricerca esistente trasformato in input funzionante */}
+          <SearchInputContainer>
+            <SearchIconHeader />
+            <SearchInputHeader
+              type="text"
+              placeholder="Cerca la tua prossima auto"
+              value={localFilters.search || ''}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              onKeyPress={handleSearchKeyPress}
+            />
+          </SearchInputContainer>
         </Container>
       </CatalogHeader>
 
@@ -996,6 +1057,7 @@ const filters = useMemo(() => {
               <ResultsHeader>
                 <ResultsCount>
                   <strong>{searchResult.total}</strong> auto trovate
+                  {filters.search && ` per "${filters.search}"`}
                   {filters.isLuxury && ' nella categoria Luxury'}
                 </ResultsCount>
                 
@@ -1036,7 +1098,12 @@ const filters = useMemo(() => {
                 {searchResult.cars.length === 0 ? (
                   <NoResults>
                     <h3>Nessuna auto trovata</h3>
-                    <p>Prova a modificare i filtri di ricerca per trovare più risultati.</p>
+                    <p>
+                      {filters.search 
+                        ? `Nessun risultato per "${filters.search}". Prova con altri termini di ricerca.`
+                        : 'Prova a modificare i filtri di ricerca per trovare più risultati.'
+                      }
+                    </p>
                     <Button onClick={handleClearFilters}>
                       Rimuovi Filtri
                     </Button>
