@@ -209,6 +209,18 @@ export function transformAppFiltersToDBFilters(filters: CarFilters): DBCarFilter
     dbFilters.anno_max = `12/${filters.yearMax}`;
   }
 
+  if (filters.horsepowerMin) {
+    dbFilters.potenza_cv_min = filters.horsepowerMin;
+  }
+
+  if (filters.powerMin) {
+    dbFilters.potenza_kw_min = filters.powerMin;
+  }
+
+  if (filters.color?.length) {
+    dbFilters.colore = filters.color[0];
+  }
+
   if (filters.fuelType?.length) {
     dbFilters.alimentazione = mapAppToDBTypes.fuelType(filters.fuelType[0]);
   }

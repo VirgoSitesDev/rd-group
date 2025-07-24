@@ -112,6 +112,9 @@ export interface Database {
 	prezzo_max?: number;
 	anno_min?: string;
 	anno_max?: string;
+	potenza_cv_min?: number; // NUOVO
+	potenza_kw_min?: number; // NUOVO
+	colore?: string;
 	alimentazione?: DBAlimentazione;
 	cambio?: DBCambio;
 	carrozzeria?: DBCarrozzeria;

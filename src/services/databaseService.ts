@@ -121,11 +121,9 @@ class DatabaseService {
   }
 
   private applyFiltersToQuery(query: any, filters: CarFilters) {
-    // NUOVO: Ricerca testuale su marca e modello
     if (filters.search && filters.search.trim()) {
       const searchTerm = filters.search.trim();
-      
-      // Usa or() per cercare in marca O modello, con ilike per ricerca case-insensitive e parziale
+
       query = query.or(
         `marca.ilike.%${searchTerm}%,modello.ilike.%${searchTerm}%`
       );
@@ -153,6 +151,18 @@ class DatabaseService {
 
     if (filters.mileageMax) {
       query = query.lte('chilometri', filters.mileageMax);
+    }
+
+    if (filters.horsepowerMin) {
+      query = query.gte('potenza_cv', filters.horsepowerMin);
+    }
+
+    if (filters.powerMin) {
+      query = query.gte('potenza_kw', filters.powerMin);
+    }
+
+    if (filters.color?.length) {
+      query = query.in('colore', filters.color);
     }
 
     if (filters.fuelType?.length) {

@@ -157,6 +157,9 @@ export interface Car {
 	yearMax?: number;
 	mileageMin?: number;
 	mileageMax?: number;
+	horsepowerMin?: number;
+	powerMin?: number;
+	color?: string[];
 	fuelType?: FuelType[];
 	transmission?: TransmissionType[];
 	bodyType?: BodyType[];

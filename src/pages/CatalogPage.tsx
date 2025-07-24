@@ -568,6 +568,15 @@ const filters = useMemo(() => {
     return makes.sort();
   }, [allCarsResult]);
 
+  const availableColors = useMemo(() => {
+    if (!allCarsResult?.cars) return [];
+    const colors = [...new Set(allCarsResult.cars
+      .map(car => car.color)
+      .filter(color => color && color.trim() !== '' && color !== 'Non specificato')
+    )];
+    return colors.sort();
+  }, [allCarsResult]);
+
   useEffect(() => {
     setLocalFilters(filters);
   }, [filters]);
@@ -620,7 +629,13 @@ const filters = useMemo(() => {
         make: value ? [value] : undefined,
         model: undefined
       }));
-    } else {
+    } else if (field === 'color') {
+      setLocalFilters(prev => ({
+        ...prev,
+        color: value ? [value] : undefined
+      }));
+    } 
+    else {
       setLocalFilters(prev => ({
         ...prev,
         [field]: value ? [value] : undefined
@@ -822,6 +837,15 @@ const filters = useMemo(() => {
     if (localFilters.mileageMax) {
       tags.push({ key: 'mileageMax', label: `Km: max ${localFilters.mileageMax.toLocaleString()}` });
     }
+    if (localFilters.color?.length) {
+      tags.push({ key: 'color', label: `Colore: ${localFilters.color[0]}` });
+    }
+    if (localFilters.horsepowerMin) {
+      tags.push({ key: 'horsepowerMin', label: `CV da: ${localFilters.horsepowerMin}` });
+    }
+    if (localFilters.powerMin) {
+      tags.push({ key: 'powerMin', label: `KW da: ${localFilters.powerMin}` });
+    }
     if (localFilters.location) {
       tags.push({ key: 'location', label: `Località: ${localFilters.location}` });
     }
@@ -981,27 +1005,48 @@ const filters = useMemo(() => {
               </FilterGroup>
 
               <FilterGroup>
-                <FilterLabel onClick={(e) => toggleDropdown('location', e)}>
-                  {getDisplayValue('location')}
-                  <FaChevronDown style={{ transform: openDropdown === 'location' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
+                <FilterLabel onClick={(e) => toggleDropdown('color', e)}>
+                  {localFilters.color?.[0] || 'Colore'}
+                  <FaChevronDown style={{ transform: openDropdown === 'color' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
                 </FilterLabel>
-                <DropdownContainer isOpen={openDropdown === 'location'}>
-                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, location: undefined })); setOpenDropdown(null); }}>
-                    Tutte le sedi
+                <DropdownContainer isOpen={openDropdown === 'color'}>
+                  <DropdownItem onClick={() => selectDropdownValue('color', '')}>
+                    Tutti i colori
                   </DropdownItem>
-                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, location: 'Pistoia' })); setOpenDropdown(null); }}>
-                    Pistoia
-                  </DropdownItem>
-                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, location: 'Via Bottaia' })); setOpenDropdown(null); }}>
-                    Via Bottaia, 2
-                  </DropdownItem>
-                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, location: 'Via Galvani' })); setOpenDropdown(null); }}>
-                    Via Luigi Galvani, 2
-                  </DropdownItem>
-                  <DropdownItem onClick={() => { setLocalFilters(prev => ({ ...prev, location: 'Via Fiorentina' })); setOpenDropdown(null); }}>
-                    Via Fiorentina, 331
-                  </DropdownItem>
+                  {availableColors.map(color => (
+                    <DropdownItem key={color} onClick={() => selectDropdownValue('color', color)}>
+                      {color}
+                    </DropdownItem>
+                  ))}
                 </DropdownContainer>
+              </FilterGroup>
+
+              <FilterGroup style={{ flexDirection: 'row', alignItems: 'flex-start'}}>
+                <FilterLabel>CV da</FilterLabel>
+                <FilterInput 
+                  type="number"
+                  style={{ width: '100%', height: '28px' }}
+                  placeholder="0"
+                  onChange={(e) => setLocalFilters(prev => ({ 
+                    ...prev, 
+                    horsepowerMin: e.target.value ? parseInt(e.target.value) : undefined 
+                  }))}
+                  value={localFilters.horsepowerMin || ''}
+                />
+              </FilterGroup>
+
+              <FilterGroup style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
+                <FilterLabel>KW da</FilterLabel>
+                <FilterInput 
+                  type="number"
+                  style={{ width: '100%', height: '28px' }}
+                  placeholder="0"
+                  onChange={(e) => setLocalFilters(prev => ({ 
+                    ...prev, 
+                    powerMin: e.target.value ? parseInt(e.target.value) : undefined 
+                  }))}
+                  value={localFilters.powerMin || ''}
+                />
               </FilterGroup>
 
               <FilterGroup style={{ flexDirection: 'row', alignItems: 'flex-start'}}>

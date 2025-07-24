@@ -502,31 +502,6 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
               </DropdownContainer>
             </FilterGroup>
 
-            {/* Dove si trova */}
-            <FilterGroup>
-              <FilterLabel onClick={(e) => toggleDropdown('location', e)}>
-                {getDisplayValue('location')}
-                <FaChevronDown style={{ transform: openDropdown === 'location' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
-              </FilterLabel>
-              <DropdownContainer isOpen={openDropdown === 'location'}>
-                <DropdownItem onClick={() => setFilters(prev => ({ ...prev, location: undefined }))}>
-                  Tutte le sedi
-                </DropdownItem>
-                <DropdownItem onClick={() => setFilters(prev => ({ ...prev, location: 'Pistoia' }))}>
-                  Pistoia
-                </DropdownItem>
-                <DropdownItem onClick={() => setFilters(prev => ({ ...prev, location: 'Via Bottaia' }))}>
-                  Via Bottaia, 2
-                </DropdownItem>
-                <DropdownItem onClick={() => setFilters(prev => ({ ...prev, location: 'Via Galvani' }))}>
-                  Via Luigi Galvani, 2
-                </DropdownItem>
-                <DropdownItem onClick={() => setFilters(prev => ({ ...prev, location: 'Via Fiorentina' }))}>
-                  Via Fiorentina, 331
-                </DropdownItem>
-              </DropdownContainer>
-            </FilterGroup>
-
             {/* Prezzo A */}
             <FilterGroup>
               <FilterLabel>A</FilterLabel>
