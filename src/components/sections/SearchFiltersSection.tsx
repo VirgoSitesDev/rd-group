@@ -308,6 +308,14 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
       onSearch(finalFilters);
     } else {
       const searchParams = new URLSearchParams();
+      
+      // Preserva il parametro luxury dall'URL corrente
+      const currentParams = new URLSearchParams(window.location.search);
+      const isLuxury = currentParams.get('luxury');
+      if (isLuxury === 'true') {
+        searchParams.set('luxury', 'true');
+      }
+      
       Object.entries(finalFilters).forEach(([key, value]) => {
         if (value !== undefined && value !== '') {
           if (Array.isArray(value)) {

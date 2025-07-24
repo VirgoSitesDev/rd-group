@@ -699,6 +699,11 @@ const filters = useMemo(() => {
 
   const handleApplyFilters = () => {
     const newSearchParams = new URLSearchParams();
+
+    const currentLuxury = searchParams.get('luxury');
+    if (currentLuxury === 'true') {
+      newSearchParams.set('luxury', 'true');
+    }
     
     Object.entries(localFilters).forEach(([key, value]) => {
       if (value !== undefined && value !== '') {
@@ -718,11 +723,21 @@ const filters = useMemo(() => {
 
   const handleClearFilters = () => {
     setLocalFilters({});
-    setSearchParams(new URLSearchParams());
+    
+    const newSearchParams = new URLSearchParams();
+    const currentLuxury = searchParams.get('luxury');
+    if (currentLuxury === 'true') {
+      newSearchParams.set('luxury', 'true');
+    }
+    
+    setSearchParams(newSearchParams);
     setPage(1);
   };
 
   const removeFilter = (field: keyof CarFilters) => {
+    // Non permettere la rimozione del filtro luxury tramite questo metodo
+    if (field === 'isLuxury') return;
+    
     setLocalFilters(prev => {
       const newFilters = { ...prev };
       delete newFilters[field];
@@ -858,9 +873,7 @@ const filters = useMemo(() => {
     if (localFilters.location) {
       tags.push({ key: 'location', label: `Località: ${localFilters.location}` });
     }
-    if (localFilters.isLuxury) {
-      tags.push({ key: 'isLuxury', label: 'Solo Luxury' });
-    }
+    // Non mostrare il filtro luxury come tag rimovibile
     
     return tags;
   };
