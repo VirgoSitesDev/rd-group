@@ -1114,20 +1114,6 @@ const filters = useMemo(() => {
                   {filters.search && ` per "${filters.search}"`}
                   {filters.isLuxury && ' nella categoria Luxury'}
                 </ResultsCount>
-                
-                <SortingSelect 
-                  value={`${sorting.field}-${sorting.direction}`}
-                  onChange={(e) => {
-                    const [field, direction] = e.target.value.split('-');
-                    setSorting({ field: field as any, direction: direction as any });
-                  }}
-                >
-                  <option value="createdAt-desc">Più recenti</option>
-                  <option value="price-asc">Prezzo crescente</option>
-                  <option value="price-desc">Prezzo decrescente</option>
-                  <option value="year-desc">Anno decrescente</option>
-                  <option value="mileage-asc">Km crescenti</option>
-                </SortingSelect>
               </ResultsHeader>
             )}
 
