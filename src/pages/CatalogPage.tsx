@@ -553,6 +553,15 @@ const filters = useMemo(() => {
   
   const location = searchParams.get('location');
   if (location) urlFilters.location = location;
+
+  const color = searchParams.get('color');
+  if (color) urlFilters.color = color.split(',');
+  
+  const horsepowerMin = searchParams.get('horsepowerMin');
+  if (horsepowerMin) urlFilters.horsepowerMin = parseInt(horsepowerMin);
+  
+  const powerMin = searchParams.get('powerMin');
+  if (powerMin) urlFilters.powerMin = parseInt(powerMin);
   
   return urlFilters;
 }, [searchParams]);
