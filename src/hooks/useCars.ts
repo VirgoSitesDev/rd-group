@@ -75,7 +75,7 @@ interface UpdateVehicleData extends CreateVehicleData {
 export function useCars(
   filters: CarFilters, 
   page = 1, 
-  limit = 20
+  limit = 21
 ): UseQueryResult<CarSearchResult, Error> {
   return useQuery({
     queryKey: carQueryKeys.list({ ...filters, page, limit } as CarFilters & { page: number; limit: number }),

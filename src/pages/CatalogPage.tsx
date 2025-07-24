@@ -16,7 +16,6 @@ const CatalogHeader = styled.div`
   padding: ${({ theme }) => theme.spacing.xxl} 0 ${({ theme }) => theme.spacing.xl} 0;
 `;
 
-// Trasformo il SearchTitle esistente in un input funzionante
 const SearchInputContainer = styled.div`
   background: white;
   border: 1px solid #d0d0d0;
@@ -285,7 +284,7 @@ const SortingSelect = styled.select`
 
 const CarsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: ${({ theme }) => theme.spacing.md};
   padding: 0;
   margin: 0;
@@ -494,6 +493,11 @@ const PaginationButton = styled(Button)`
   text-decoration: underline;
   text-transform: none;
   margin-top: -4px;
+
+  &:hover {
+    background: transparent !important;
+    color: ${({theme}) => theme.colors.primary.main} !important;
+  }
 `;
 
 const CatalogPage: React.FC = () => {
@@ -553,7 +557,7 @@ const filters = useMemo(() => {
   return urlFilters;
 }, [searchParams]);
 
-  const { data: searchResult, isLoading, error } = useCars(filters, page, 20);
+  const { data: searchResult, isLoading, error } = useCars(filters, page, 21);
   const { data: allCarsResult } = useCars({}, 1, 1000);
 
   const [localFilters, setLocalFilters] = useState<CarFilters>(filters);
@@ -625,21 +629,6 @@ const filters = useMemo(() => {
     setOpenDropdown(null);
   };
 
-  const handleFilterChange = (field: keyof CarFilters, value: string) => {
-    if (field === 'make') {
-      setLocalFilters(prev => ({
-        ...prev,
-        make: value ? [value] : undefined,
-        model: undefined
-      }));
-    } else {
-      setLocalFilters(prev => ({
-        ...prev,
-        [field]: value ? [value] : undefined
-      }));
-    }
-  };
-
   const handlePriceChange = (field: 'priceMin' | 'priceMax', value: string) => {
     const numValue = value ? parseInt(value.replace(/\D/g, '')) : undefined;
     setLocalFilters(prev => ({
@@ -671,7 +660,6 @@ const filters = useMemo(() => {
     }));
   };
 
-  // NUOVO: gestione ricerca testuale
   const handleSearchChange = (value: string) => {
     setLocalFilters(prev => ({
       ...prev,
@@ -679,7 +667,6 @@ const filters = useMemo(() => {
     }));
   };
 
-  // NUOVO: gestione Enter nel campo di ricerca
   const handleSearchKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       handleApplyFilters();
@@ -849,7 +836,7 @@ const filters = useMemo(() => {
     <>
       <CatalogHeader>
         <Container>
-          {/* Campo di ricerca esistente trasformato in input funzionante */}
+          {/* Campo di ricerca */}
           <SearchInputContainer>
             <SearchIconHeader />
             <SearchInputHeader

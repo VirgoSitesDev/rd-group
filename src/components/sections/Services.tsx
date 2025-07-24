@@ -1,6 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import { Link, useNavigate } from 'react-router-dom';
 import Container from '../layout/Container';
 
 const ServicesSection = styled.section`
@@ -43,7 +43,7 @@ const ServicesGrid = styled.div`
   }
 `;
 
-const ServiceCard = styled(Link)`
+const ServiceCard = styled.div`
   background: white;
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   border: 4px solid #d3d3d3;
@@ -55,6 +55,7 @@ const ServiceCard = styled(Link)`
   height: 320px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-8px);
@@ -102,6 +103,8 @@ const ServiceTitle = styled.h4`
 `;
 
 const OurServices: React.FC = () => {
+  const navigate = useNavigate();
+
   const services = [
     {
       title: "Vendita Auto Usate",
@@ -119,7 +122,7 @@ const OurServices: React.FC = () => {
       title: "Officina",
       description: "Servizio completo di manutenzione e riparazione",
       image: '/Servizio_3.jpg',
-      link: "/servizi/officina"
+      link: "contact-scroll"
     },
     {
       title: "Acquisto Auto",
@@ -131,9 +134,21 @@ const OurServices: React.FC = () => {
       title: "Carroattrezzi per i Clienti",
       description: "Servizio di soccorso stradale dedicato",
       image: '/Servizio_5.jpg',
-      link: "/servizi/carroattrezzi"
+      link: "contact-scroll"
     }
   ];
+
+  const handleServiceClick = (service: typeof services[0]) => {
+    if (service.link === "contact-scroll") {
+      const contattiSection = document.getElementById('contatti');
+      if (contattiSection) {
+        contattiSection.scrollIntoView({ behavior: 'smooth' });
+        window.history.replaceState(null, '', window.location.pathname);
+      }
+    } else {
+      navigate(service.link);
+    }
+  };
 
   return (
     <ServicesSection>
@@ -142,7 +157,7 @@ const OurServices: React.FC = () => {
         
         <ServicesGrid>
           {services.map((service, index) => (
-            <ServiceCard key={index} to={service.link}>
+            <ServiceCard key={index} onClick={() => handleServiceClick(service)}> {/* Cambiato da to={service.link} */}
               <ServiceImage 
                 style={{ 
                   backgroundImage: `url(${service.image})`

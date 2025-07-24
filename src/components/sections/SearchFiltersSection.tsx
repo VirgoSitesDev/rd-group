@@ -22,13 +22,12 @@ const SearchContainer = styled.div`
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   padding: ${({ theme }) => theme.spacing.xl};
   margin: 0 auto;
-  margin-top: -150px;
+  margin-top: -180px;
   max-width: 94vw;
   position: relative;
   z-index: 300;
 `;
 
-// Trasformo il SearchTitle esistente in un input funzionante
 const SearchInputContainer = styled.div`
   background: #F9F9F9;
   border: 1px solid #d0d0d0;
@@ -370,17 +369,6 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
     <SearchSection>
       <Container>
         <SearchContainer>
-          {/* Campo di ricerca esistente trasformato in input funzionante */}
-          <SearchInputContainer>
-            <SearchIcon />
-            <SearchInput
-              type="text"
-              placeholder="Cerca la tua prossima auto"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyPress={handleSearchKeyPress}
-            />
-          </SearchInputContainer>
 
           <FiltersGrid>
             {/* Marca */}

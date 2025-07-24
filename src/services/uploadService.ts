@@ -46,7 +46,6 @@ class UploadService {
       const img = new Image();
 
       img.onload = () => {
-        // Calcola le nuove dimensioni mantenendo l'aspect ratio
         const aspectRatio = img.width / img.height;
         let { width, height } = img;
 
@@ -58,10 +57,8 @@ class UploadService {
         canvas.width = width;
         canvas.height = height;
 
-        // Disegna l'immagine ridimensionata
         ctx?.drawImage(img, 0, 0, width, height);
 
-        // Converti in blob con compressione
         canvas.toBlob(
           (blob) => {
             if (blob) {
@@ -75,7 +72,7 @@ class UploadService {
             }
           },
           'image/jpeg',
-          0.85 // Qualità di compressione
+          0.85
         );
       };
 
@@ -89,13 +86,11 @@ class UploadService {
    */
   async uploadSingleImage(file: File, optimize: boolean = true): Promise<string> {
     try {
-      // Valida il file
       const validation = this.validateFile(file);
       if (!validation.valid) {
         throw new Error(validation.error);
       }
 
-      // Ottimizza l'immagine se richiesto
       let fileToUpload = file;
       if (optimize && file.type !== 'image/webp') {
         try {
@@ -106,11 +101,9 @@ class UploadService {
         }
       }
 
-      // Genera nome file unico
       const fileName = this.generateFileName(file.name);
       const filePath = `vehicles/${fileName}`;
 
-      // Carica su Supabase Storage
       const { data, error } = await supabase.storage
         .from(this.BUCKET_NAME)
         .upload(filePath, fileToUpload, {
@@ -122,7 +115,6 @@ class UploadService {
         throw new Error(`Errore upload: ${error.message}`);
       }
 
-      // Ottieni URL pubblico
       const { data: urlData } = supabase.storage
         .from(this.BUCKET_NAME)
         .getPublicUrl(filePath);
@@ -164,7 +156,6 @@ class UploadService {
 
     if (errors.length > 0) {
       console.warn('Alcuni file non sono stati caricati:', errors);
-      // Continua comunque con i file caricati con successo
     }
 
     if (urls.length === 0) {
@@ -179,7 +170,6 @@ class UploadService {
    */
   async deleteImage(imageUrl: string): Promise<boolean> {
     try {
-      // Estrai il path dal URL pubblico
       const url = new URL(imageUrl);
       const pathParts = url.pathname.split('/');
       const filePath = pathParts.slice(pathParts.indexOf('vehicles')).join('/');
@@ -264,10 +254,8 @@ class UploadService {
   }
 }
 
-// Istanza singleton del servizio
 const uploadService = new UploadService();
 
-// Export delle funzioni principali per uso diretto
 export const uploadVehicleImages = (files: File[], onProgress?: (completed: number, total: number) => void) =>
   uploadService.uploadMultipleImages(files, true, onProgress);
 
