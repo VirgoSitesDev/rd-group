@@ -406,6 +406,14 @@ const CarDetailPage: React.FC = () => {
     updateThumbnailView(index);
   };
 
+  const handleBackClick = () => {
+    if (car?.isLuxury) {
+      navigate('/auto?luxury=true');
+    } else {
+      navigate('/auto');
+    }
+  };
+
   const updateThumbnailView = (activeIndex: number) => {
     if (!car?.images) return;
     
@@ -456,7 +464,7 @@ const CarDetailPage: React.FC = () => {
     return (
       <PageContainer>
         <Container>
-          <BackButton variant="outline" onClick={() => navigate('/auto')}>
+          <BackButton variant="outline" onClick={handleBackClick}>
             <FaArrowLeft /> Torna al Catalogo
           </BackButton>
           <div style={{ textAlign: 'center', padding: '2rem' }}>
@@ -476,7 +484,7 @@ const CarDetailPage: React.FC = () => {
   return (
     <PageContainer>
       <Container>
-        <BackButton variant="outline" onClick={() => navigate('/auto')}>
+        <BackButton variant="outline" onClick={handleBackClick}>
           <FaArrowLeft /> Torna al Catalogo
         </BackButton>
 
