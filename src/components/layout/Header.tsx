@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaArrowRight } from 'react-icons/fa';
+import { FaArrowRight, FaBars, FaTimes } from 'react-icons/fa';
 import Button from '../common/Button';
 import { useFeaturedCars } from '../../hooks/useCars';
 
@@ -31,6 +31,10 @@ const HeaderContainer = styled.header<{ showHero: boolean }>`
   z-index: 1;
   width: 100%;
   background: ${({ showHero }) => showHero ? 'transparent' : '#000000'};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    height: ${({ showHero }) => showHero ? '100vh' : '80px'};
+  }
 `;
 
 const BackgroundOverlay = styled.div<{ showHero: boolean; backgroundImage?: string }>`
@@ -42,6 +46,16 @@ const BackgroundOverlay = styled.div<{ showHero: boolean; backgroundImage?: stri
   bottom: 0;
   background: url('${({ backgroundImage }) => backgroundImage || '/hero-car-background.jpg'}') center/cover;
   z-index: 1;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+  }
 `;
 
 const GradientOverlay = styled.div<{ showHero: boolean }>`
@@ -64,6 +78,14 @@ const NavigationBar = styled.div<{ showHero: boolean }>`
   align-items: center;
   gap: 33px;
   padding: 30px 10px;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    flex-direction: row;
+    justify-content: center;
+    padding: 20px;
+    gap: 0;
+    position: relative;
+  }
 `;
 
 const LogoSection = styled(Link)`
@@ -94,6 +116,16 @@ const LogoVector = styled.div`
     object-fit: contain;
     filter: brightness(0) invert(1);
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    width: 70px;
+    height: 70px;
+    
+    img {
+      width: 70px;
+      height: 70px;
+    }
+  }
 `;
 
 const CompanyDescription = styled.p`
@@ -106,6 +138,10 @@ const CompanyDescription = styled.p`
   white-space: nowrap;
   width: fit-content;
   margin: 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: none;
+  }
 `;
 
 const NavigationSection = styled.div`
@@ -116,6 +152,10 @@ const NavigationSection = styled.div`
   padding: 0px 20px;
   width: 100%;
   max-width: 100vw;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: none;
+  }
 `;
 
 const NavLinksContainer = styled.div`
@@ -126,12 +166,7 @@ const NavLinksContainer = styled.div`
   justify-content: center;
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    gap: 20px;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    flex-direction: column;
-    gap: 15px;
+    display: none;
   }
 `;
 
@@ -153,14 +188,6 @@ const NavLink = styled(Link)<{ isActive: boolean; showHero: boolean }>`
     color: #D9D9D9;
     text-decoration: none;
   }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    font-size: ${({ showHero }) => showHero ? '18px' : '18px'};
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    font-size: ${({ showHero }) => showHero ? '16px' : '16px'};
-  }
 `;
 
 const NavigationDivider = styled.div`
@@ -168,6 +195,90 @@ const NavigationDivider = styled.div`
   height: 1px;
   background-color: rgba(255, 255, 255, 0.7);
   margin-bottom: -1px;
+`;
+
+const MobileMenuButton = styled.button`
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: ${({ theme }) => theme.spacing.sm};
+  z-index: 1001;
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: block;
+  }
+`;
+
+const MobileMenuOverlay = styled.div<{ isOpen: boolean }>`
+  display: none;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: ${({ isOpen }) => isOpen ? 1 : 0};
+    visibility: ${({ isOpen }) => isOpen ? 'visible' : 'hidden'};
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 999;
+  }
+`;
+
+const MobileMenu = styled.div<{ isOpen: boolean }>`
+  display: none;
+  
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 280px;
+    background: #000;
+    transform: translateX(${({ isOpen }) => isOpen ? '0' : '100%'});
+    transition: transform 0.3s ease;
+    z-index: 1000;
+    padding: ${({ theme }) => theme.spacing.xl};
+    overflow-y: auto;
+  }
+`;
+
+const MobileMenuHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: ${({ theme }) => theme.spacing.xl};
+`;
+
+const MobileNavLinks = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${({ theme }) => theme.spacing.lg};
+`;
+
+const MobileNavLink = styled(Link)<{ isActive: boolean }>`
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: ${({ theme }) => theme.spacing.sm} 0;
+  border-bottom: 2px solid ${({ isActive }) => isActive ? '#cb1618' : 'transparent'};
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #cb1618;
+  }
 `;
 
 const HeroContentContainer = styled.div<{ showHero: boolean }>`
@@ -188,9 +299,10 @@ const HeroContentContainer = styled.div<{ showHero: boolean }>`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     flex-direction: column;
     justify-content: flex-end;
-    gap: ${({ theme }) => theme.spacing.xl};
-    padding: 0 ${({ theme }) => theme.spacing.md} ${({ theme }) => theme.spacing.xl};
-    height: calc(100% - 320px);
+    align-items: flex-start;
+    padding: 0 ${({ theme }) => theme.spacing.lg};
+    padding-bottom: 60px;
+    height: auto;
   }
 `;
 
@@ -204,7 +316,8 @@ const LeftSection = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     max-width: 100%;
-    padding: ${({ theme }) => theme.spacing.lg};
+    padding: 0;
+    gap: ${({ theme }) => theme.spacing.lg};
   }
 `;
 
@@ -212,6 +325,10 @@ const LuxurySection = styled.div`
   display: flex;
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.xl};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    gap: ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const LuxuryTitle = styled.h2`
@@ -222,6 +339,11 @@ const LuxuryTitle = styled.h2`
   letter-spacing: 2px;
   margin: 0;
   text-transform: uppercase;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 1.2rem;
+    letter-spacing: 3px;
+  }
 `;
 
 const LuxuryDescription = styled.p`
@@ -230,6 +352,11 @@ const LuxuryDescription = styled.p`
   font-weight: ${({ theme }) => theme.typography.fontWeight.regular};
   line-height: 1.2;
   margin: 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 1.1rem;
+    line-height: 1.4;
+  }
 `;
 
 const LuxuryButton = styled(Button)`
@@ -237,10 +364,13 @@ const LuxuryButton = styled(Button)`
   background: transparent;
   border: none;
   color: white;
-  text-decoration: underline;
+  text-decoration: none;
   padding: 0;
   font-size: 1.1rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
+  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
+  display: flex;
+  align-items: center;
+  gap: ${({ theme }) => theme.spacing.sm};
   
   &:hover {
     background: transparent;
@@ -248,10 +378,12 @@ const LuxuryButton = styled(Button)`
   }
 
   svg {
+    font-size: 1rem;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     font-size: 1.1rem;
-    padding-top: 6px;
-    margin-top: 6px;
-    margin-left: 8px;
+    margin-top: ${({ theme }) => theme.spacing.md};
   }
 `;
 
@@ -263,7 +395,7 @@ const RightSection = styled.div`
   gap: ${({ theme }) => theme.spacing.xl};
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    width: 100%;
+    display: none;
   }
 `;
 
@@ -326,11 +458,6 @@ const CarSpecs = styled.div`
   display: flex;
   justify-content: space-between;
   gap: ${({ theme }) => theme.spacing.xs};
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    flex-direction: column;
-    gap: ${({ theme }) => theme.spacing.xs};
-  }
 `;
 
 const SpecColumn = styled.div`
@@ -377,6 +504,15 @@ const Header: React.FC<HeaderProps> = ({
 }) => {
   const location = useLocation();
   const { data: featuredResult } = useFeaturedCars(1);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
 
   const featuredCar = {
     id: 16,
@@ -413,13 +549,17 @@ const Header: React.FC<HeaderProps> = ({
 
       <NavigationBar showHero={showHero}>
         <LogoSection to="/">
-          <LogoVector>
+          <LogoVector className="hide-mobile">
             <img src="/logo.svg" alt="RD Group Logo" />
           </LogoVector>
           <CompanyDescription>
             Rivenditore di auto a Pistoia, Italia
           </CompanyDescription>
         </LogoSection>
+
+        <MobileMenuButton onClick={toggleMobileMenu}>
+          <FaBars />
+        </MobileMenuButton>
         
         <NavigationSection>
           <NavLinksContainer>
@@ -486,14 +626,82 @@ const Header: React.FC<HeaderProps> = ({
         </NavigationSection>
       </NavigationBar>
 
+      <MobileMenuOverlay isOpen={isMobileMenuOpen} onClick={closeMobileMenu} />
+      <MobileMenu isOpen={isMobileMenuOpen}>
+        <MobileMenuHeader>
+          <MobileMenuButton onClick={closeMobileMenu}>
+            <FaTimes />
+          </MobileMenuButton>
+        </MobileMenuHeader>
+        
+        <MobileNavLinks>
+          <MobileNavLink 
+            to="/auto" 
+            isActive={isActiveRoute('/auto')}
+            onClick={closeMobileMenu}
+          >
+            Ricerca
+          </MobileNavLink>
+          
+          <MobileNavLink 
+            to="/auto?luxury=true" 
+            isActive={isActiveRoute('/luxury')}
+            onClick={closeMobileMenu}
+          >
+            Luxury
+          </MobileNavLink>
+          
+          <MobileNavLink 
+            to="/#sedi" 
+            isActive={isActiveRoute('/sedi')}
+            onClick={(e) => {
+              closeMobileMenu();
+              if (location.pathname === '/') {
+                e.preventDefault();
+                const sediSection = document.getElementById('sedi');
+                if (sediSection) {
+                  sediSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }
+            }}
+          >
+            Sedi
+          </MobileNavLink>
+          
+          <MobileNavLink 
+            to="/acquistiamo" 
+            isActive={isActiveRoute('/acquistiamo')}
+            onClick={closeMobileMenu}
+          >
+            Acquistiamo la tua auto
+          </MobileNavLink>
+          
+          <MobileNavLink 
+            to="/#contatti" 
+            isActive={isActiveRoute('/contatti')}
+            onClick={(e) => {
+              closeMobileMenu();
+              if (location.pathname === '/') {
+                e.preventDefault();
+                const contattiSection = document.getElementById('contatti');
+                if (contattiSection) {
+                  contattiSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }
+            }}
+          >
+            Contatti
+          </MobileNavLink>
+        </MobileNavLinks>
+      </MobileMenu>
+
       {showHero && (
         <HeroContentContainer showHero={showHero}>
           <LeftSection>
             <LuxurySection>
               <LuxuryTitle>LUXURY</LuxuryTitle>
               <LuxuryDescription>
-                Abbiamo una nuova occasione tra le auto di lusso, sembra
-                perfetta per te
+                Abbiamo una nuova occasione tra le auto di lusso, sembra perfetta per te
               </LuxuryDescription>
             </LuxurySection>
             
