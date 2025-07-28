@@ -7,6 +7,10 @@ import ActionButton from '../common/ActionButton';
 const ServicesSection = styled.section`
   padding: ${({ theme }) => theme.spacing.xl} 35px;
   background: ${({ theme }) => theme.colors.background.default};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => theme.spacing.xs};
+  }
 `;
 
 const ServicesGrid = styled.div`
@@ -14,6 +18,10 @@ const ServicesGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: ${({ theme }) => theme.spacing.xl};
   margin-top: ${({ theme }) => theme.spacing.xl};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -71,6 +79,10 @@ const LocationInfo = styled.div`
   gap: ${({ theme }) => theme.spacing.xs};
   align-items: start;
   justify-content: space-between;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    flex-direction: column;
+  }
 `;
 
 const LocationAddress = styled.div`
@@ -80,6 +92,10 @@ const LocationAddress = styled.div`
   padding-top: 3px;
   text-align: start;
   line-height: 1.2;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding-bottom: ${({ theme }) => theme.spacing.lg};
+  }
 `;
 
 const LocationsSection: React.FC = () => {

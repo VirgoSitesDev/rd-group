@@ -6,6 +6,10 @@ import Container from '../layout/Container';
 const ServicesSection = styled.section`
   padding: ${({ theme }) => theme.spacing.xl} 35px;
   background: ${({ theme }) => theme.colors.background.default};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => theme.spacing.xs};
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -20,6 +24,7 @@ const SectionTitle = styled.h2`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     font-size: 2rem;
     text-align: center;
+    margin-top: 50px;
   }
 `;
 
@@ -40,6 +45,10 @@ const ServicesGrid = styled.div`
       justify-self: stretch;
       max-width: none;
     }
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: repeat(auto-fit, minmax(100%, 1fr));
   }
 `;
 
@@ -62,6 +71,10 @@ const ServiceCard = styled.div`
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
     text-decoration: none;
     color: inherit;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    height: 200px;
   }
 `;
 

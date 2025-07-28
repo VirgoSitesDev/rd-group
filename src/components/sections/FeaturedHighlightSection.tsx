@@ -46,8 +46,8 @@ const PromotionalBox = styled.div`
   justify-content: space-between;
   min-height: 60vh;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    min-height: auto;
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    min-height: 60vh;
     padding: ${({ theme }) => theme.spacing.xl};
   }
 `;
@@ -123,6 +123,7 @@ const CarImageContainer = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     min-height: 200px;
+    max-height: 200px;
   }
 `;
 
@@ -143,6 +144,11 @@ const LocationBadge = styled.div`
 
   svg {
     font-size: 0.7rem;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.7rem !important;
+    letter-spacing: 1px;
   }
 `;
 
@@ -182,6 +188,11 @@ const CarPrice = styled.div`
   font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   color: ${({ theme }) => theme.colors.primary.main};
   margin-bottom: ${({ theme }) => theme.spacing.xl};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin-bottom: ${({ theme }) => theme.spacing.xs};
+    font-size: 1.1rem !important;
+  }
 `;
 
 const CarBodyType = styled.div`
@@ -195,6 +206,11 @@ const CarBodyType = styled.div`
   width: fit-content;
   margin-top: ${({ theme }) => theme.spacing.sm};
   margin-bottom: ${({ theme }) => theme.spacing.sm};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.7rem !important;
+    letter-spacing: 1px;
+  }
 `;
 
 const CarSpecs = styled.div`
@@ -238,6 +254,10 @@ const CarDetails = styled.div`
   font-size: 1rem;
   margin-bottom: ${({ theme }) => theme.spacing.xxl};
   line-height: 1;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin-bottom: ${({ theme }) => theme.spacing.xs};
+  }
 `;
 
 const CarDetail = styled.div`
@@ -246,6 +266,10 @@ const CarDetail = styled.div`
   
   strong {
     color: black;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.8rem !important;
   }
 `;
 

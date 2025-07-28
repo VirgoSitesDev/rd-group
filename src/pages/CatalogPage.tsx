@@ -339,6 +339,11 @@ const CarImageContainer = styled.div`
     height: 100%;
     object-fit: cover;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    min-height: 200px;
+    max-height: 200px;
+  }
 `;
 
 const CarLocationBadge = styled.div`

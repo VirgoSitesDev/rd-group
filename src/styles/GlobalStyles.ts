@@ -195,35 +195,35 @@ export const GlobalStyles = createGlobalStyle`
 
     /* Override ALL elements with maximum specificity */
     * {
-      font-size: 1rem !important; /* 16px default for all */
+      font-size: 1rem; /* 16px default for all */
     }
 
     /* Then allow specific elements to have their sizes */
     h1 { font-size: 1.75rem !important; }
     h2 { font-size: 1.5rem !important; }
-    h3 { font-size: 1.25rem !important; }
+    h3 { font-size: 1.5rem !important; letter-spacing: 0.5px !important; }
     h4 { font-size: 1.125rem !important; }
     h5 { font-size: 1rem !important; }
     h6 { font-size: 0.875rem !important; }
 
     /* Override styled-components with attribute selector */
     [class*="sc-"] {
-      font-size: 1rem !important;
+      font-size: 1rem;
     }
 
     /* Force all divs, spans, and paragraphs */
     div, span, p, li, td, th, label {
-      font-size: 1rem !important;
+      font-size: 1rem;
     }
 
     /* Buttons and form elements */
     button, input, select, textarea {
-      font-size: 1rem !important;
+      font-size: 1rem;
     }
 
     /* Links */
     a {
-      font-size: 1rem !important;
+      font-size: 1rem;
     }
 
     /* Small text exceptions */

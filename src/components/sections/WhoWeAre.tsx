@@ -7,6 +7,10 @@ import ActionButton from '../common/ActionButton';
 const WhoWeAreSection = styled.section`
   padding: ${({ theme }) => theme.spacing.xxl} 35px;
   background: ${({ theme }) => theme.colors.background.default};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => theme.spacing.xs};
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -21,6 +25,7 @@ const SectionTitle = styled.h2`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     text-align: center;
     font-size: 1.2rem;
+    padding-top: 50px;
   }
 `;
 
@@ -34,6 +39,7 @@ const ContentGrid = styled.div`
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     grid-template-columns: 1fr;
     gap: ${({ theme }) => theme.spacing.xl};
+    padding-bottom: 0px;
   }
 `;
 
@@ -97,6 +103,7 @@ const ContactContainer = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     min-width: auto;
+    max-height: 600px;
     width: 100%;
   }
 `;
@@ -187,6 +194,11 @@ const FormTextArea = styled.textarea`
     color: ${({ theme }) => theme.colors.text.primary};
     font-weight: ${({ theme }) => theme.typography.fontWeight.regular};
   }
+
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    min-height: 100px;
+  }
 `;
 
 const PromotionalContainer = styled.div`
@@ -208,8 +220,8 @@ const PromotionalBox = styled.div`
   min-height: 540px;
   margin-top: -20px;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    min-height: auto;
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    min-height: 60vh;
     padding: ${({ theme }) => theme.spacing.xl};
   }
 `;

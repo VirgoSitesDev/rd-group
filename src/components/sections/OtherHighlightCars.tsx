@@ -42,9 +42,10 @@ const PromotionalBox = styled.div`
     pointer-events: none;
   }
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    min-height: auto;
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    min-height: 60vh;
     padding: ${({ theme }) => theme.spacing.xl};
+    order: -1 !important;
   }
 `;
 
@@ -99,6 +100,11 @@ const CarImageContainer = styled.div`
     height: 100%;
     object-fit: cover;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    min-height: 200px;
+    max-height: 200px;
+  }
 `;
 
 const LocationBadge = styled.div`
@@ -120,6 +126,11 @@ const LocationBadge = styled.div`
 
   svg {
     font-size: 0.7rem;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.7rem !important;
+    letter-spacing: 1px;
   }
 `;
 
@@ -166,6 +177,11 @@ const CarBodyType = styled.div`
   width: fit-content;
   margin-top: ${({ theme }) => theme.spacing.sm};
   margin-bottom: ${({ theme }) => theme.spacing.sm};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.7rem !important;
+    letter-spacing: 1px;
+  }
 `;
 
 const CarSpecs = styled.div`
@@ -209,6 +225,10 @@ const CarDetails = styled.div`
   font-size: 1rem;
   margin-bottom: ${({ theme }) => theme.spacing.xs};
   line-height: 1.2;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin-bottom: ${({ theme }) => theme.spacing.xs};
+  }
 `;
 
 const CarDetail = styled.div`
@@ -217,6 +237,10 @@ const CarDetail = styled.div`
 
   strong {
     color: black;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.8rem !important;
   }
 `;
 
