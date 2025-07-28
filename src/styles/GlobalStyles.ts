@@ -159,6 +159,94 @@ export const GlobalStyles = createGlobalStyle`
     }
   }
 
+  /* Mobile Font Size Adjustments */
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    body {
+      font-size: 1rem !important; /* 16px base */
+    }
+
+    h1 {
+      font-size: 1.75rem !important; /* 28px */
+    }
+
+    h2 {
+      font-size: 1.5rem !important; /* 24px */
+    }
+
+    h3 {
+      font-size: 1.25rem !important; /* 20px */
+    }
+
+    h4 {
+      font-size: 1.125rem !important; /* 18px */
+    }
+
+    h5 {
+      font-size: 1rem !important; /* 16px */
+    }
+
+    h6 {
+      font-size: 0.875rem !important; /* 14px */
+    }
+
+    p {
+      font-size: 1rem !important; /* 16px */
+    }
+
+    /* Override ALL elements with maximum specificity */
+    * {
+      font-size: 1rem !important; /* 16px default for all */
+    }
+
+    /* Then allow specific elements to have their sizes */
+    h1 { font-size: 1.75rem !important; }
+    h2 { font-size: 1.5rem !important; }
+    h3 { font-size: 1.25rem !important; }
+    h4 { font-size: 1.125rem !important; }
+    h5 { font-size: 1rem !important; }
+    h6 { font-size: 0.875rem !important; }
+
+    /* Override styled-components with attribute selector */
+    [class*="sc-"] {
+      font-size: 1rem !important;
+    }
+
+    /* Force all divs, spans, and paragraphs */
+    div, span, p, li, td, th, label {
+      font-size: 1rem !important;
+    }
+
+    /* Buttons and form elements */
+    button, input, select, textarea {
+      font-size: 1rem !important;
+    }
+
+    /* Links */
+    a {
+      font-size: 1rem !important;
+    }
+
+    /* Small text exceptions */
+    small, .small-text {
+      font-size: 0.875rem !important;
+    }
+
+    /* Target styled components by common patterns */
+    [class*="Text"], 
+    [class*="text"],
+    [class*="Description"],
+    [class*="description"], {
+      font-size: 1rem !important;
+    }
+
+    /* Target styled components by common patterns */
+    [class*="Title"],
+    [class*="title"] {
+      font-size: 1rem !important;
+      letter-spacing: 1px;
+    }
+  }
+
   /* Utility classes */
   .fade-in {
     animation: fadeIn 0.3s ease-in-out;

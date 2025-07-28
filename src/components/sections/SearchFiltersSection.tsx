@@ -26,6 +26,10 @@ const SearchContainer = styled.div`
   max-width: 94vw;
   position: relative;
   z-index: 300;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin-top: 0px;
+  }
 `;
 
 const SearchInputContainer = styled.div`

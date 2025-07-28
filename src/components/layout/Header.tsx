@@ -213,6 +213,9 @@ const MobileMenuButton = styled.button`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     display: block;
+    svg {
+      font-size: 1.4rem !important;
+    }
   }
 `;
 
