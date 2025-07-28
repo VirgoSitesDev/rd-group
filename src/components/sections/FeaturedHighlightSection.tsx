@@ -103,7 +103,7 @@ const CarCard = styled.div`
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   }
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     flex-direction: column;
   }
 `;

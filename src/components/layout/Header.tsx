@@ -33,7 +33,7 @@ const HeaderContainer = styled.header<{ showHero: boolean }>`
   background: ${({ showHero }) => showHero ? 'transparent' : '#000000'};
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    height: ${({ showHero }) => showHero ? '100vh' : '80px'};
+    height: ${({ showHero }) => showHero ? '100vh' : '110px'};
   }
 `;
 

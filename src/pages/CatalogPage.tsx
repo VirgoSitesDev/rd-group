@@ -36,6 +36,7 @@ const SearchInputContainer = styled.div`
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin-bottom: 0px;
     width: 80vw;
   }
 
@@ -115,7 +116,7 @@ const FiltersGrid = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
     grid-template-columns: 1fr;
-    gap: ${({ theme }) => theme.spacing.sm};
+    gap: ${({ theme }) => theme.spacing.lg};
   }
 `;
 
@@ -284,15 +285,6 @@ const ResultsCount = styled.div`
   }
 `;
 
-const SortingSelect = styled.select`
-  padding: ${({ theme }) => theme.spacing.sm};
-  border: 1px solid ${({ theme }) => theme.colors.border};
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  background: white;
-  font-size: 0.9rem;
-  cursor: pointer;
-`;
-
 const CarsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -324,6 +316,10 @@ const CarCard = styled.div`
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    flex-direction: column;
   }
 `;
 
@@ -365,6 +361,11 @@ const CarLocationBadge = styled.div`
   svg {
     font-size: 0.7rem;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.7rem !important;
+    letter-spacing: 1px;
+  }
 `;
 
 const CarContent = styled.div`
@@ -373,6 +374,11 @@ const CarContent = styled.div`
   flex-direction: column;
   justify-content: space-between;
   flex: 1;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    min-width: 100%;
+    max-width: 100%;
+  }
 `;
 
 const CarMake = styled.div`
@@ -410,6 +416,11 @@ const CarBodyType = styled.div`
   width: fit-content;
   margin-top: ${({ theme }) => theme.spacing.sm};
   margin-bottom: ${({ theme }) => theme.spacing.sm};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.7rem !important;
+    letter-spacing: 1px;
+  }
 `;
 
 const CarDivider = styled.hr`
@@ -432,9 +443,8 @@ const CarSpecsGrid = styled.div`
   font-size: 1rem;
   line-height: 1.2;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    grid-template-columns: 1fr;
-    gap: ${({ theme }) => theme.spacing.sm};
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin-bottom: ${({ theme }) => theme.spacing.xs};
   }
 `;
 
@@ -444,6 +454,10 @@ const CarSpec = styled.div`
 
   strong {
     color: black;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.8rem !important;
   }
 `;
 
@@ -1059,11 +1073,11 @@ const filters = useMemo(() => {
                 </DropdownContainer>
               </FilterGroup>
 
-              <FilterGroup style={{ flexDirection: 'row', alignItems: 'flex-start'}}>
-                <FilterLabel>CV da</FilterLabel>
+              <FilterGroup style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+                <FilterLabel style={{ minWidth: 'fit-content' }}>CV da</FilterLabel>
                 <FilterInput 
                   type="number"
-                  style={{ width: '100%', height: '28px' }}
+                  style={{ height: '28px', flex: 1 }}
                   placeholder="0"
                   onChange={(e) => setLocalFilters(prev => ({ 
                     ...prev, 
@@ -1073,11 +1087,11 @@ const filters = useMemo(() => {
                 />
               </FilterGroup>
 
-              <FilterGroup style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-                <FilterLabel>KW da</FilterLabel>
+              <FilterGroup style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+                <FilterLabel style={{ minWidth: 'fit-content' }}>KW da</FilterLabel>
                 <FilterInput 
                   type="number"
-                  style={{ width: '100%', height: '28px' }}
+                  style={{ height: '28px', flex: 1 }}
                   placeholder="0"
                   onChange={(e) => setLocalFilters(prev => ({ 
                     ...prev, 

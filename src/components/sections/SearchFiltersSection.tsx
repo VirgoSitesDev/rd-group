@@ -29,64 +29,8 @@ const SearchContainer = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     margin-top: 0px;
-    padding: ${({ theme }) => theme.spacing.lg};
+    padding: ${({ theme }) => theme.spacing.md};
 
-  }
-`;
-
-const SearchInputContainer = styled.div`
-  background: #F9F9F9;
-  border: 1px solid #d0d0d0;
-  border-radius: ${({ theme }) => theme.borderRadius.md};
-  width: 50vw;
-  margin: 0 auto ${({ theme }) => theme.spacing.xl} auto;
-  position: relative;
-  display: flex;
-  align-items: center;
-  transition: border-color 0.2s ease;
-
-  &:focus-within {
-    border-color: ${({ theme }) => theme.colors.primary.main};
-    background: white;
-  }
-
-  &:hover {
-    border-color: ${({ theme }) => theme.colors.primary.main};
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    width: 80vw;
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    width: 90vw;
-  }
-`;
-
-const SearchIcon = styled(FaSearch)`
-  margin-left: ${({ theme }) => theme.spacing.lg};
-  color: ${({ theme }) => theme.colors.text.primary};
-  font-size: 1rem;
-  pointer-events: none;
-`;
-
-const SearchInput = styled.input`
-  background: transparent;
-  border: none;
-  flex: 1;
-  padding: ${({ theme }) => theme.spacing.sm} ${({ theme }) => theme.spacing.md};
-  color: #656565;
-  font-size: 1.1rem;
-  font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
-  
-  &:focus {
-    outline: none;
-    color: ${({ theme }) => theme.colors.text.primary};
-  }
-
-  &::placeholder {
-    color: #656565;
-    font-weight: ${({ theme }) => theme.typography.fontWeight.semibold};
   }
 `;
 
@@ -96,12 +40,10 @@ const FiltersGrid = styled.div`
   gap: ${({ theme }) => theme.spacing.lg};
   margin-bottom: ${({ theme }) => theme.spacing.xl};
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    grid-template-columns: 1fr;
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: ${({ theme }) => theme.spacing.xl};
   }
 `;
 
@@ -114,6 +56,10 @@ const FilterGroup = styled.div`
   
   &:hover {
     color: ${({ theme }) => theme.colors.primary.main};
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    gap: ${({ theme }) => theme.spacing.xs};
   }
 `;
 
