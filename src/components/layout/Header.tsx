@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaArrowRight, FaBars, FaTimes } from 'react-icons/fa';
 import Button from '../common/Button';
@@ -506,6 +506,7 @@ const Header: React.FC<HeaderProps> = ({
   featuredCar: propFeaturedCar
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { data: featuredResult } = useFeaturedCars(1);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -665,6 +666,17 @@ const Header: React.FC<HeaderProps> = ({
                 if (sediSection) {
                   sediSection.scrollIntoView({ behavior: 'smooth' });
                 }
+              } else {
+                // Se non siamo sulla home, naviga e poi scrolla
+                e.preventDefault();
+                navigate('/#sedi');
+                // Usa un timeout per permettere alla navigazione di completarsi
+                setTimeout(() => {
+                  const sediSection = document.getElementById('sedi');
+                  if (sediSection) {
+                    sediSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
               }
             }}
           >
@@ -690,6 +702,17 @@ const Header: React.FC<HeaderProps> = ({
                 if (contattiSection) {
                   contattiSection.scrollIntoView({ behavior: 'smooth' });
                 }
+              } else {
+                // Se non siamo sulla home, naviga e poi scrolla
+                e.preventDefault();
+                navigate('/#contatti');
+                // Usa un timeout per permettere alla navigazione di completarsi
+                setTimeout(() => {
+                  const contattiSection = document.getElementById('contatti');
+                  if (contattiSection) {
+                    contattiSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }, 100);
               }
             }}
           >
