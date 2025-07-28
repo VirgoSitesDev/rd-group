@@ -106,6 +106,17 @@ const FiltersGrid = styled.div`
   flex-direction: column;
   gap: ${({ theme }) => theme.spacing.lg};
   margin-bottom: ${({ theme }) => theme.spacing.xl};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: ${({ theme }) => theme.spacing.md};
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    grid-template-columns: 1fr;
+    gap: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const FilterGroup = styled.div`

@@ -154,6 +154,11 @@ const CarInfo = styled.div`
   justify-content: space-between;
   min-width: 340px;
   max-width: 340px;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    min-width: 100%;
+    max-width: 100%;
+  }
 `;
 
 const CarBrand = styled.div`
@@ -194,6 +199,11 @@ const CarBodyType = styled.div`
 
 const CarSpecs = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: 2fr;
+    gap: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const CarTags = styled.div`
@@ -228,11 +238,6 @@ const CarDetails = styled.div`
   font-size: 1rem;
   margin-bottom: ${({ theme }) => theme.spacing.xxl};
   line-height: 1;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    grid-template-columns: 1fr;
-    gap: ${({ theme }) => theme.spacing.sm};
-  }
 `;
 
 const CarDetail = styled.div`

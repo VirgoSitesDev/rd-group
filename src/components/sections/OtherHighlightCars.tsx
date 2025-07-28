@@ -170,6 +170,11 @@ const CarBodyType = styled.div`
 
 const CarSpecs = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    grid-template-columns: 2fr;
+    gap: ${({ theme }) => theme.spacing.sm};
+  }
 `;
 
 const CarTags = styled.div`
@@ -204,11 +209,6 @@ const CarDetails = styled.div`
   font-size: 1rem;
   margin-bottom: ${({ theme }) => theme.spacing.xs};
   line-height: 1.2;
-
-  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
-    grid-template-columns: 1fr;
-    gap: ${({ theme }) => theme.spacing.sm};
-  }
 `;
 
 const CarDetail = styled.div`

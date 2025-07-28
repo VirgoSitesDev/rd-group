@@ -29,6 +29,8 @@ const SearchContainer = styled.div`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     margin-top: 0px;
+    padding: ${({ theme }) => theme.spacing.lg};
+
   }
 `;
 

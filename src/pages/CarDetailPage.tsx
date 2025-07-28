@@ -259,6 +259,10 @@ const SpecsGrid = styled.div`
   grid-template-columns: 1fr 1fr;
   gap: ${({ theme }) => theme.spacing.md};
   margin-bottom: ${({ theme }) => theme.spacing.xl};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.sm}) {
+    grid-template-columns: 2fr 1fr;
+  }
 `;
 
 const SpecItem = styled.div`
