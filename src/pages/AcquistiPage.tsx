@@ -579,13 +579,13 @@ RD Group - Concessionario Auto Pistoia
       alert('⚠️ Aggiungi almeno 2 immagini per procedere');
       return;
     }
-
+  
     e.preventDefault();
     setIsSubmitting(true);
-
+  
     try {
       let imageUrls: string[] = [];
-
+  
       if (images.length > 0) {
         console.log('📤 Caricamento immagini su cloud...');
         
@@ -594,7 +594,7 @@ RD Group - Concessionario Auto Pistoia
           isUploading: true, 
           uploadProgress: 0 
         })));
-
+  
         try {
           const imageFiles = images.map(img => img.file);
           
@@ -605,17 +605,17 @@ RD Group - Concessionario Auto Pistoia
               uploadProgress: progress 
             })));
           });
-
+  
           imageUrls = uploadedUrls;
           console.log('✅ Immagini caricate:', imageUrls);
-
+  
           setImages(prev => prev.map((img, index) => ({ 
             ...img, 
             isUploading: false, 
             uploadProgress: 100,
             url: uploadedUrls[index]
           })));
-
+  
         } catch (uploadError) {
           console.error('❌ Errore caricamento immagini:', uploadError);
           alert('❌ Errore nel caricamento delle immagini. Riprova più tardi.');
@@ -623,7 +623,7 @@ RD Group - Concessionario Auto Pistoia
           return;
         }
       }
-
+  
       const summaryId = `acq_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const currentDate = new Date().toISOString();
       
@@ -644,16 +644,18 @@ RD Group - Concessionario Auto Pistoia
         images: imageUrls,
         createdAt: currentDate
       };
-
+  
       try {
         await saveSummaryToDatabase(summaryData);
         console.log('✅ Riepilogo salvato nel database');
       } catch (dbError) {
         console.warn('⚠️ Impossibile salvare nel database, procedo comunque:', dbError);
       }
-
+  
       const summaryUrl = createSummaryUrl(summaryId);
-
+      const emailContent = createEmailContent(formData, imageUrls, summaryUrl);
+  
+      // ✅ Invio sia i dati originali che il riepilogo completo
       const submitData = new URLSearchParams();
       
       submitData.append('form-name', 'acquisizione');
@@ -664,32 +666,24 @@ RD Group - Concessionario Auto Pistoia
       submitData.append('marca', formData.marca);
       submitData.append('anno', formData.anno);
       submitData.append('km', formData.km);
-      submitData.append('note', formData.note);
-      
-      const emailContent = createEmailContent(formData, imageUrls, summaryUrl);
-      submitData.append('riepilogo-completo', emailContent);
-      
-      submitData.append('numero-immagini', imageUrls.length.toString());
-      submitData.append('link-riepilogo', summaryUrl);
-
-      imageUrls.forEach((url, index) => {
-        submitData.append(`immagine-${index + 1}`, url);
-      });
-
+      submitData.append('note', formData.note); // Note originali dell'utente
+      submitData.append('riepilogo_completo', emailContent); // Contenuto elaborato
+  
       console.log('📤 Invio form a Netlify...');
-
+      console.log('📧 Contenuto email:', emailContent);
+  
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: submitData.toString()
       });
-
+  
       if (response.ok) {
         alert(`✅ Richiesta inviata con successo! 
-
-🔗 Link al riepilogo: ${summaryUrl}
-
-Ti contatteremo presto per la valutazione.`);
+  
+  🔗 Link al riepilogo: ${summaryUrl}
+  
+  Ti contatteremo presto per la valutazione.`);
         
         setFormData({
           nome: '',
@@ -704,7 +698,7 @@ Ti contatteremo presto per la valutazione.`);
         
         images.forEach(image => URL.revokeObjectURL(image.preview));
         setImages([]);
-
+  
         window.open(summaryUrl, '_blank');
         
       } else {
@@ -868,13 +862,7 @@ Ti contatteremo presto per la valutazione.`);
         <input type="text" name="anno" />
         <input type="text" name="km" />
         <textarea name="note"></textarea>
-        <input type="text" name="numero-immagini" />
-        <textarea name="riepilogo-completo"></textarea>
-        <input type="text" name="link-riepilogo" />
-        <input type="text" name="immagine-1" />
-        <input type="text" name="immagine-2" />
-        <input type="text" name="immagine-3" />
-        <input type="text" name="immagine-4" />
+        <textarea name="riepilogo_completo"></textarea>
       </form>
   
       <Header 
