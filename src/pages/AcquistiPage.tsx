@@ -8,6 +8,7 @@ import ActionButton from '../components/common/ActionButton';
 import Header from '../components/layout/Header';
 import LocationsSection from '@/components/sections/ServicesMapsSection';
 import { useFeaturedCars } from '../hooks/useCars';
+import { uploadVehicleImages } from '../services/uploadService';
 
 const AcquistiPageContainer = styled.div`
   background: ${({ theme }) => theme.colors.background.default};
@@ -341,9 +342,11 @@ interface ImageFile {
   isUploading?: boolean;
   uploadProgress?: number;
   error?: string;
+  url?: string;
 }
 
 const AcquistiPage: React.FC = () => {
+
   const { data: featuredResult } = useFeaturedCars(1);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   
@@ -363,7 +366,7 @@ const AcquistiPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const MAX_IMAGES = 4;
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
   useEffect(() => {
@@ -374,7 +377,6 @@ const AcquistiPage: React.FC = () => {
       metaDescription.setAttribute('content', 'Vendi la tua auto a RD Group. Pagamento immediato e passaggio di proprietà a carico nostro. Compila il modulo per una valutazione gratuita.');
     }
 
-    // Cleanup preview URLs on unmount
     return () => {
       images.forEach(image => {
         URL.revokeObjectURL(image.preview);
@@ -432,16 +434,13 @@ const AcquistiPage: React.FC = () => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       if (slotIndex === 0) {
-        // Main image slot - can add multiple images
         addImages(files);
       } else {
-        // Individual small slots - add one image at a time
         if (images.length < MAX_IMAGES) {
           addImages([files[0]]);
         }
       }
     }
-    // Reset input value
     if (e.target) {
       e.target.value = '';
     }
@@ -477,68 +476,59 @@ const AcquistiPage: React.FC = () => {
     }));
   };
 
-  const convertImageToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    // Controllo validazione prima di procedere
     if (images.length < 2) {
       e.preventDefault();
       alert('⚠️ Aggiungi almeno 2 immagini per procedere');
       return;
     }
-
-    // Previene il submit normale mentre elaboriamo le immagini
+  
     e.preventDefault();
     setIsSubmitting(true);
-
+  
     try {
-      // Converte le immagini in base64
-      const imagePromises = images.map(async (image, index) => {
-        setImages(prev => prev.map(img => 
-          img.id === image.id 
-            ? { ...img, isUploading: true, uploadProgress: 0 }
-            : img
-        ));
+      let imageUrls: string[] = [];
+  
+      if (images.length > 0) {
+        console.log('📤 Caricamento immagini in corso...');
         
-        // Simula progress durante la conversione
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-          progress += 20;
-          setImages(prev => prev.map(img => 
-            img.id === image.id 
-              ? { ...img, uploadProgress: Math.min(progress, 90) }
-              : img
-          ));
-        }, 100);
-
-        const base64 = await convertImageToBase64(image.file);
-        
-        clearInterval(progressInterval);
-        setImages(prev => prev.map(img => 
-          img.id === image.id 
-            ? { ...img, isUploading: false, uploadProgress: 100 }
-            : img
-        ));
-
-        return {
-          name: `immagine-${index + 1}`,
-          data: base64
-        };
-      });
-
-      const imageData = await Promise.all(imagePromises);
-
-      // Crea i dati del form manualmente per Netlify
+        setImages(prev => prev.map(img => ({ 
+          ...img, 
+          isUploading: true, 
+          uploadProgress: 0 
+        })));
+  
+        try {
+          const imageFiles = images.map(img => img.file);
+          
+          const uploadedUrls = await uploadVehicleImages(imageFiles, (completed, total) => {
+            const progress = Math.round((completed / total) * 100);
+            setImages(prev => prev.map(img => ({ 
+              ...img, 
+              uploadProgress: progress 
+            })));
+          });
+  
+          imageUrls = uploadedUrls;
+          console.log('✅ Immagini caricate:', imageUrls);
+  
+          setImages(prev => prev.map((img, index) => ({ 
+            ...img, 
+            isUploading: false, 
+            uploadProgress: 100,
+            url: uploadedUrls[index]
+          })));
+  
+        } catch (uploadError) {
+          console.error('❌ Errore caricamento immagini:', uploadError);
+          alert('❌ Errore nel caricamento delle immagini. Riprova più tardi.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+  
       const submitData = new URLSearchParams();
       
-      // Aggiunge i campi del form
       submitData.append('form-name', 'acquisizione');
       submitData.append('nome', formData.nome);
       submitData.append('cognome', formData.cognome);
@@ -548,24 +538,37 @@ const AcquistiPage: React.FC = () => {
       submitData.append('anno', formData.anno);
       submitData.append('km', formData.km);
       submitData.append('note', formData.note);
-      
-      // Aggiunge le immagini
-      submitData.append('numero-immagini', images.length.toString());
-      imageData.forEach((img, index) => {
-        submitData.append(`immagine-${index + 1}`, img.data);
-      });
-
-      // Invia a Netlify
+      submitData.append('numero-immagini', imageUrls.length.toString());
+      submitData.append('immagini-urls', imageUrls.join('|'));
+  
+      console.log('📤 Invio form a Netlify...');
+      console.log('📋 Dati form:', Object.fromEntries(submitData.entries()));
+      console.log('🌐 URL attuale:', window.location.href);
+      console.log('🌐 Origin:', window.location.origin);
+  
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: submitData.toString()
       });
-
+  
+      // DEBUG COMPLETO DELLA RESPONSE
+      console.log('📊 Response status:', response.status);
+      console.log('📊 Response statusText:', response.statusText);
+      console.log('📊 Response ok:', response.ok);
+      console.log('📊 Response type:', response.type);
+      console.log('📊 Response url:', response.url);
+      console.log('📊 Response redirected:', response.redirected);
+      console.log('📊 Response headers:', Object.fromEntries(response.headers.entries()));
+  
+      // Leggi la response come testo per vedere cosa contiene
+      const responseText = await response.text();
+      console.log('📄 Response body length:', responseText.length);
+      console.log('📄 Response body preview:', responseText.substring(0, 500));
+  
       if (response.ok) {
         alert('✅ Richiesta inviata con successo! Ti contatteremo presto per la valutazione.');
         
-        // Reset form
         setFormData({
           nome: '',
           cognome: '',
@@ -577,16 +580,15 @@ const AcquistiPage: React.FC = () => {
           note: ''
         });
         
-        // Clear images
         images.forEach(image => URL.revokeObjectURL(image.preview));
         setImages([]);
       } else {
-        throw new Error(`Errore HTTP: ${response.status}`);
+        console.error('❌ Response non OK');
+        throw new Error(`HTTP ${response.status}: ${response.statusText}\nBody: ${responseText.substring(0, 200)}`);
       }
       
     } catch (error) {
-      console.error('Errore invio form:', error);
-      alert('❌ Errore nell\'invio. Riprova più tardi o contattaci direttamente.');
+      console.error('❌ Errore completo:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -595,7 +597,6 @@ const AcquistiPage: React.FC = () => {
   const getImageSlots = () => {
     const slots = [];
     
-    // Main slot (first one, spans all columns)
     slots.push(
       <ImageUpload
         key="main"
@@ -644,10 +645,9 @@ const AcquistiPage: React.FC = () => {
       </ImageUpload>
     );
 
-    // Additional slots (3 smaller ones)
     for (let i = 1; i < 4; i++) {
       const slotIndex = i;
-      const imageIndex = i; // Immagine corrispondente a questo slot
+      const imageIndex = i;
       const hasImage = images[imageIndex];
       const canAddMore = images.length < MAX_IMAGES;
       
@@ -729,6 +729,25 @@ const AcquistiPage: React.FC = () => {
 
   return (
     <AcquistiPageContainer>
+      {/* 🔥 FORM NASCOSTO - METTI QUI, COME PRIMO ELEMENTO */}
+      <form 
+        name="acquisizione" 
+        data-netlify="true"  // ← CORRETTO: data-netlify invece di netlify
+        hidden
+        style={{ display: 'none' }}
+      >
+        <input type="text" name="nome" />
+        <input type="text" name="cognome" />
+        <input type="email" name="mail" />
+        <input type="tel" name="telefono" />
+        <input type="text" name="marca" />
+        <input type="text" name="anno" />
+        <input type="text" name="km" />
+        <textarea name="note"></textarea>
+        <input type="text" name="numero-immagini" />
+        <input type="text" name="immagini-urls" />
+      </form>
+  
       <Header 
         showHero={true} 
         featuredCar={featuredCarForContacts}
@@ -753,17 +772,6 @@ const AcquistiPage: React.FC = () => {
                 <div style={{ display: 'none' }}>
                   <input name="bot-field" />
                 </div>
-                
-                {/* Campi nascosti per le immagini */}
-                <input type="hidden" name="numero-immagini" value={images.length} />
-                {images.map((_, index) => (
-                  <input 
-                    key={`img-${index}`}
-                    type="hidden" 
-                    name={`immagine-${index + 1}`} 
-                    value=""
-                  />
-                ))}
                 
                 <FormInnerGrid>
                   <FormFieldsColumn>
