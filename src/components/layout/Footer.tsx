@@ -24,7 +24,7 @@ const FooterContent = styled.div`
   align-items: start;
   gap: 100px;
 
-  @media (max-width: 768px) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
     gap: 40px;
     text-align: center;
@@ -36,7 +36,7 @@ const LogoSection = styled.div`
   align-items: center;
   justify-content: center;
 
-  @media (max-width: 768px) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     justify-content: center;
   }
 `;
@@ -50,6 +50,12 @@ const LogoCircle = styled.div`
     height: 100%;
     object-fit: contain;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+  }
 `;
 
 const ContactSection = styled.div`
@@ -59,7 +65,7 @@ const ContactSection = styled.div`
 
   h3 {
     margin: 0 0 8px 0;
-    font-size: 1.2rem;
+    font-size: 1rem;
     font-weight: 600;
     color: black;
   }
@@ -74,6 +80,12 @@ const ContactSection = styled.div`
   .phone {
     font-weight: 400;
     color: black;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    h3 {
+      font-size: 1.1rem !important;
+    }
   }
 `;
 
@@ -95,6 +107,12 @@ const HoursSection = styled.div`
     line-height: 1.2;
     color: black;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    h3 {
+      font-size: 1.1rem !important;
+    }
+  }
 `;
 
 const AddressSection = styled.div`
@@ -111,6 +129,12 @@ const AddressSection = styled.div`
     font-size: 1.2rem;
     font-weight: 600;
     color: black;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    h3 {
+      font-size: 1.1rem !important;
+    }
   }
 `;
 

@@ -55,7 +55,7 @@ const ImageContainer = styled.div`
     display: block;
   }
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     order: -1;
     
     img {
@@ -312,7 +312,7 @@ const WhoWeAre: React.FC = () => {
             </PromotionalBox>
           </PromotionalContainer>
 
-          <ContactContainer>
+          <ContactContainer id="contatti-form">
             <ContactForm 
               onSubmit={handleSubmit}
               data-netlify="true" 

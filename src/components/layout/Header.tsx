@@ -208,13 +208,13 @@ const MobileMenuButton = styled.button`
   z-index: 1001;
   position: absolute;
   right: 20px;
-  top: 50%;
+  top: 35px;
   transform: translateY(-50%);
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     display: block;
     svg {
-      font-size: 1.4rem !important;
+      font-size: 1.2rem !important;
     }
   }
 `;
@@ -276,12 +276,7 @@ const MobileNavLink = styled(Link)<{ isActive: boolean }>`
   font-weight: 600;
   text-decoration: none;
   padding: ${({ theme }) => theme.spacing.sm} 0;
-  border-bottom: 2px solid ${({ isActive }) => isActive ? '#cb1618' : 'transparent'};
   transition: all 0.2s ease;
-
-  &:hover {
-    color: #cb1618;
-  }
 `;
 
 const HeroContentContainer = styled.div<{ showHero: boolean }>`
@@ -698,17 +693,18 @@ const Header: React.FC<HeaderProps> = ({
               closeMobileMenu();
               if (location.pathname === '/') {
                 e.preventDefault();
-                const contattiSection = document.getElementById('contatti');
+                // Da mobile, vai direttamente al form di contatto
+                const contattiSection = document.getElementById('contatti-form');
                 if (contattiSection) {
                   contattiSection.scrollIntoView({ behavior: 'smooth' });
                 }
               } else {
-                // Se non siamo sulla home, naviga e poi scrolla
+                // Se non siamo sulla home, naviga e poi scrolla al form
                 e.preventDefault();
                 navigate('/#contatti');
                 // Usa un timeout per permettere alla navigazione di completarsi
                 setTimeout(() => {
-                  const contattiSection = document.getElementById('contatti');
+                  const contattiSection = document.getElementById('contatti-form');
                   if (contattiSection) {
                     contattiSection.scrollIntoView({ behavior: 'smooth' });
                   }
