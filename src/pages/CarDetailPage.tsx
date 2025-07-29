@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaArrowLeft, FaPhone, FaEnvelope, FaMapMarkerAlt, FaHeart, FaShare, FaCalendar, FaCar, FaGasPump, FaTachometerAlt, FaPalette, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import { FaArrowLeft, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCalendar, FaCar, FaGasPump, FaTachometerAlt, FaPalette, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 import { GiGearStickPattern } from "react-icons/gi";
-
 import Container from '../components/layout/Container';
 import Button from '../components/common/Button';
 import Loading from '../components/common/Loading';
@@ -13,6 +12,19 @@ const PageContainer = styled.div`
   background: ${({ theme }) => theme.colors.background.default};
   min-height: 100vh;
   padding-top: ${({ theme }) => theme.spacing.md};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => theme.spacing.sm};
+    padding-left: 0;
+    padding-right: 0;
+  }
+`;
+
+const MobileWrapper = styled.div`
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    width: calc(100vw - ${({ theme }) => theme.spacing.xl});
+    padding: 0 ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const BackButton = styled(Button)`
@@ -45,9 +57,11 @@ const DetailGrid = styled.div`
   gap: ${({ theme }) => theme.spacing.xxl};
   margin-bottom: ${({ theme }) => theme.spacing.xxl};
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
-    gap: ${({ theme }) => theme.spacing.xl};
+    gap: 0;
+    padding: 0;
+    justify-content: center;
   }
 `;
 
@@ -69,7 +83,9 @@ const MainImage = styled.div`
   }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    height: 300px;
+    height: 250px;
+    border-radius: ${({ theme }) => theme.borderRadius.md};
+    margin-bottom: ${({ theme }) => theme.spacing.sm};
   }
 `;
 
@@ -108,6 +124,11 @@ const ImageNavButton = styled.button`
   svg {
     font-size: 18px;
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    width: 30px;
+    height: 30px;
+  }
 `;
 
 const PrevButton = styled(ImageNavButton)`
@@ -134,6 +155,10 @@ const ThumbnailCarousel = styled.div`
   position: relative;
   width: 100%;
   max-width: 100%;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin-bottom: ${({ theme }) => theme.spacing.lg};
+  }
 `;
 
 const ThumbnailContainer = styled.div`
@@ -141,6 +166,10 @@ const ThumbnailContainer = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.md};
   width: 100%;
   max-width: 60vw;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    max-width: 100%;
+  }
 `;
 
 const ThumbnailSlider = styled.div<{ $translateX: number; $totalWidth: number }>`
@@ -148,7 +177,7 @@ const ThumbnailSlider = styled.div<{ $translateX: number; $totalWidth: number }>
   gap: ${({ theme }) => theme.spacing.sm};
   transition: transform 0.3s ease;
   transform: translateX(${({ $translateX }) => $translateX}px);
-  width: ${({ $totalWidth }) => $totalWidth}px; /* Larghezza esatta calcolata */
+  width: ${({ $totalWidth }) => $totalWidth}px;
 `;
 
 const ThumbnailImage = styled.div<{ $isActive: boolean }>`
@@ -170,6 +199,11 @@ const ThumbnailImage = styled.div<{ $isActive: boolean }>`
   &:hover {
     border-color: ${({ theme }) => theme.colors.primary.main};
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    flex: 0 0 80px;
+    height: 60px;
+  }
 `;
 
 const InfoSection = styled.div`
@@ -181,6 +215,15 @@ const InfoSection = styled.div`
   height: fit-content;
   position: sticky;
   top: ${({ theme }) => theme.spacing.xl};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    position: static;
+  }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => theme.spacing.lg};
+    border-radius: ${({ theme }) => theme.borderRadius.md};
+  }
 `;
 
 const CarHeader = styled.div`
@@ -251,7 +294,6 @@ const CarDivider = styled.hr`
   border: none;
   margin-bottom: ${({ theme }) => theme.spacing.xl};
   margin-top: ${({ theme }) => theme.spacing.md};
-
 `;
 
 const SpecsGrid = styled.div`
@@ -272,7 +314,7 @@ const SpecItem = styled.div`
   color: ${({ theme }) => theme.colors.text.primary};
 
   svg {
-    color: #000000;;
+    color: #000000;
     font-size: 1.1rem;
   }
 `;
@@ -317,6 +359,12 @@ const DescriptionSection = styled.div`
   margin-top: ${({ theme }) => theme.spacing.xl};
   border: 1px solid #e0e0e0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    padding: ${({ theme }) => theme.spacing.lg};
+    border-radius: ${({ theme }) => theme.borderRadius.md};
+    margin: ${({ theme }) => theme.spacing.lg} 0;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -492,147 +540,153 @@ const CarDetailPage: React.FC = () => {
 
         <DetailGrid>
           <ImageSection>
-            <MainImage>
-              <img 
-                src={car.images[activeImageIndex]?.url || '/placeholder-car.jpg'} 
-                alt={car.images[activeImageIndex]?.altText || `${car.make} ${car.model}`}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'flex';
-                  target.style.alignItems = 'center';
-                  target.style.justifyContent = 'center';
-                  target.style.fontSize = '4rem';
-                  target.innerHTML = '🚗';
-                }}
-              />
-              
+            <MobileWrapper>
+              <MainImage>
+                <img 
+                  src={car.images[activeImageIndex]?.url || '/placeholder-car.jpg'} 
+                  alt={car.images[activeImageIndex]?.altText || `${car.make} ${car.model}`}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'flex';
+                    target.style.alignItems = 'center';
+                    target.style.justifyContent = 'center';
+                    target.style.fontSize = '4rem';
+                    target.innerHTML = '🚗';
+                  }}
+                />
+                
+                {car.images && car.images.length > 1 && (
+                  <>
+                    <PrevButton onClick={handlePrevImage}>
+                      <FaChevronLeft />
+                    </PrevButton>
+                    <NextButton onClick={handleNextImage}>
+                      <FaChevronRight />
+                    </NextButton>
+                    <ImageCounter>
+                      {activeImageIndex + 1} / {car.images.length}
+                    </ImageCounter>
+                  </>
+                )}
+              </MainImage>
+
               {car.images && car.images.length > 1 && (
-                <>
-                  <PrevButton onClick={handlePrevImage}>
-                    <FaChevronLeft />
-                  </PrevButton>
-                  <NextButton onClick={handleNextImage}>
-                    <FaChevronRight />
-                  </NextButton>
-                  <ImageCounter>
-                    {activeImageIndex + 1} / {car.images.length}
-                  </ImageCounter>
-                </>
+                <ThumbnailCarousel>
+                  <ThumbnailContainer>
+                    <ThumbnailSlider 
+                      $translateX={getTranslateX()} 
+                      $totalWidth={getTotalSliderWidth()}
+                    >
+                      {car.images.map((image, index) => (
+                        <ThumbnailImage
+                          key={image.id}
+                          $isActive={activeImageIndex === index}
+                          onClick={() => handleThumbnailClick(index)}
+                        >
+                          <img 
+                            src={image.url} 
+                            alt={image.altText}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'flex';
+                              target.style.alignItems = 'center';
+                              target.style.justifyContent = 'center';
+                              target.style.fontSize = '2rem';
+                              target.innerHTML = '🚗';
+                            }}
+                          />
+                        </ThumbnailImage>
+                      ))}
+                    </ThumbnailSlider>
+                  </ThumbnailContainer>
+                </ThumbnailCarousel>
               )}
-            </MainImage>
+            </MobileWrapper>
 
-            {car.images && car.images.length > 1 && (
-              <ThumbnailCarousel>
-                <ThumbnailContainer>
-                  <ThumbnailSlider 
-                    $translateX={getTranslateX()} 
-                    $totalWidth={getTotalSliderWidth()}
-                  >
-                    {car.images.map((image, index) => (
-                      <ThumbnailImage
-                        key={image.id}
-                        $isActive={activeImageIndex === index}
-                        onClick={() => handleThumbnailClick(index)}
-                      >
-                        <img 
-                          src={image.url} 
-                          alt={image.altText}
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.style.display = 'flex';
-                            target.style.alignItems = 'center';
-                            target.style.justifyContent = 'center';
-                            target.style.fontSize = '2rem';
-                            target.innerHTML = '🚗';
-                          }}
-                        />
-                      </ThumbnailImage>
-                    ))}
-                  </ThumbnailSlider>
-                </ThumbnailContainer>
-              </ThumbnailCarousel>
-            )}
+            <MobileWrapper>
+              <DescriptionSection>
+                <SectionTitle>Descrizione</SectionTitle>
+                <Description>{car.description}</Description>
 
-            <DescriptionSection>
-              <SectionTitle>Descrizione</SectionTitle>
-              <Description>{car.description}</Description>
-
-              {car.features && car.features.length > 0 && (
-                <>
-                  <SectionTitle>Equipaggiamenti</SectionTitle>
-                  <FeaturesList>
-                    {car.features.map((feature, index) => (
-                      <FeatureItem key={index}>{feature}</FeatureItem>
-                    ))}
-                  </FeaturesList>
-                </>
-              )}
-            </DescriptionSection>
+                {car.features && car.features.length > 0 && (
+                  <>
+                    <SectionTitle>Equipaggiamenti</SectionTitle>
+                    <FeaturesList>
+                      {car.features.map((feature, index) => (
+                        <FeatureItem key={index}>{feature}</FeatureItem>
+                      ))}
+                    </FeaturesList>
+                  </>
+                )}
+              </DescriptionSection>
+            </MobileWrapper>
           </ImageSection>
 
-          <InfoSection>
-            <CarHeader>
-              <CarTitle>{car.model}</CarTitle>
-              <CarMake>{car.make}</CarMake>
-              <CarPrice>{car.price.toLocaleString('it-IT')}€</CarPrice>
+          <MobileWrapper>
+            <InfoSection>
+              <CarHeader>
+                <CarTitle>{car.model}</CarTitle>
+                <CarMake>{car.make}</CarMake>
+                <CarPrice>{car.price.toLocaleString('it-IT')}€</CarPrice>
+                
+                <ActionButtons>
+                  <PrimaryButton onClick={handleContactDealer}>
+                    <FaPhone /> Chiama Ora
+                  </PrimaryButton>
+                  <SecondaryButton onClick={handleEmailDealer}>
+                    <FaEnvelope /> Invia Email
+                  </SecondaryButton>
+                </ActionButtons>
+              </CarHeader>
               
-              <ActionButtons>
-                <PrimaryButton onClick={handleContactDealer}>
-                  <FaPhone /> Chiama Ora
-                </PrimaryButton>
-                <SecondaryButton onClick={handleEmailDealer}>
-                  <FaEnvelope /> Invia Email
-                </SecondaryButton>
-              </ActionButtons>
-            </CarHeader>
-            
-            <CarDivider></CarDivider>
+              <CarDivider></CarDivider>
 
-            <SpecsGrid>
-              <SpecItem>
-                <FaCalendar />
-                <span>{car.year}</span>
-              </SpecItem>
-              <SpecItem>
-                <FaTachometerAlt />
-                <span>{car.mileage.toLocaleString()} Km</span>
-              </SpecItem>
-              <SpecItem>
-                <FaGasPump />
-                <span>{getTranslatedSpec('fuelType', car.fuelType)}</span>
-              </SpecItem>
-              <SpecItem>
-                <GiGearStickPattern />
-                <span>{getTranslatedSpec('transmission', car.transmission)}</span>
-              </SpecItem>
-              <SpecItem>
-                <FaCar />
-                <span>{car.power}KW</span>
-              </SpecItem>
-              <SpecItem>
-                <FaPalette />
-                <span>{car.color}</span>
-              </SpecItem>
-            </SpecsGrid>
+              <SpecsGrid>
+                <SpecItem>
+                  <FaCalendar />
+                  <span>{car.year}</span>
+                </SpecItem>
+                <SpecItem>
+                  <FaTachometerAlt />
+                  <span>{car.mileage.toLocaleString()} Km</span>
+                </SpecItem>
+                <SpecItem>
+                  <FaGasPump />
+                  <span>{getTranslatedSpec('fuelType', car.fuelType)}</span>
+                </SpecItem>
+                <SpecItem>
+                  <GiGearStickPattern />
+                  <span>{getTranslatedSpec('transmission', car.transmission)}</span>
+                </SpecItem>
+                <SpecItem>
+                  <FaCar />
+                  <span>{car.power}KW</span>
+                </SpecItem>
+                <SpecItem>
+                  <FaPalette />
+                  <span>{car.color}</span>
+                </SpecItem>
+              </SpecsGrid>
 
-            <DealerInfo>
-              <DealerName>{car.dealer.name}</DealerName>
-              <ContactInfo>
-                <ContactItem>
-                  <FaMapMarkerAlt />
-                  <span>{car.location.address}, {car.location.city}</span>
-                </ContactItem>
-                <ContactItem>
-                  <FaPhone />
-                  <span>{car.dealer.phone}</span>
-                </ContactItem>
-                <ContactItem>
-                  <FaEnvelope />
-                  <span>{car.dealer.email}</span>
-                </ContactItem>
-              </ContactInfo>
-            </DealerInfo>
-          </InfoSection>
+              <DealerInfo>
+                <DealerName>{car.dealer.name}</DealerName>
+                <ContactInfo>
+                  <ContactItem>
+                    <FaMapMarkerAlt />
+                    <span>{car.location.address}, {car.location.city}</span>
+                  </ContactItem>
+                  <ContactItem>
+                    <FaPhone />
+                    <span>{car.dealer.phone}</span>
+                  </ContactItem>
+                  <ContactItem>
+                    <FaEnvelope />
+                    <span>{car.dealer.email}</span>
+                  </ContactItem>
+                </ContactInfo>
+              </DealerInfo>
+            </InfoSection>
+          </MobileWrapper>
         </DetailGrid>
       </Container>
     </PageContainer>

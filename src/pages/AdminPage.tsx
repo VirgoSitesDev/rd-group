@@ -90,10 +90,6 @@ const AdminContent = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   gap: ${({ theme }) => theme.spacing.xl};
-
-  @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
-    /* Usa CSS per il layout responsivo invece della prop */
-  }
 `;
 
 const VehiclesSection = styled.div`
