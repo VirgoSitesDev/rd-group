@@ -658,22 +658,12 @@ RD Group - Concessionario Auto Pistoia
       const summaryUrl = createSummaryUrl(summaryId);
       const emailContent = createEmailContent(formData, imageUrls, summaryUrl);
       
-      // 🚀 INVIA TUTTI I CAMPI (inclusi quelli individuali per Netlify)
+      // 🚀 INVIA SOLO IL RIEPILOGO COMPLETO COME "MESSAGGIO"
       const submitData = new URLSearchParams();
       submitData.append('form-name', 'acquisizione');
       
-      // Campi individuali (per compatibilità Netlify)
-      submitData.append('nome', formData.nome);
-      submitData.append('cognome', formData.cognome);
-      submitData.append('mail', formData.mail);
-      submitData.append('telefono', formData.telefono);
-      submitData.append('marca', formData.marca);
-      submitData.append('anno', formData.anno);
-      submitData.append('km', formData.km);
-      submitData.append('note', formData.note);
-      
-      // IL RIEPILOGO COMPLETO (questo è quello che leggerai nell'email)
-      submitData.append('riepilogo_completo', emailContent);
+      // TUTTO IL CONTENUTO va nel campo "messaggio"
+      submitData.append('messaggio', emailContent);
       
       console.log('📤 Invio email con riepilogo completo...');
       
@@ -862,15 +852,7 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
         hidden
         style={{ display: 'none' }}
       >
-        <input type="text" name="nome" />
-        <input type="text" name="cognome" />
-        <input type="email" name="mail" />
-        <input type="tel" name="telefono" />
-        <input type="text" name="marca" />
-        <input type="text" name="anno" />
-        <input type="text" name="km" />
-        <textarea name="note"></textarea>
-        <textarea name="riepilogo_completo"></textarea>
+        <textarea name="messaggio"></textarea>
       </form>
   
       <Header 
@@ -905,7 +887,6 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
                       <FormInput
                         type="text"
                         id="nome"
-                        name="nome"
                         value={formData.nome}
                         onChange={(e) => handleInputChange('nome', e.target.value)}
                         placeholder='Nome'
@@ -918,7 +899,6 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
                       <FormInput
                         type="text"
                         id="cognome"
-                        name="cognome"
                         value={formData.cognome}
                         onChange={(e) => handleInputChange('cognome', e.target.value)}
                         placeholder='Cognome'
@@ -931,7 +911,6 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
                       <FormInput
                         type="email"
                         id="mail"
-                        name="mail"
                         value={formData.mail}
                         onChange={(e) => handleInputChange('mail', e.target.value)}
                         placeholder='example@gmail.com'
@@ -944,7 +923,6 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
                       <FormInput
                         type="tel"
                         id="telefono"
-                        name="telefono"
                         value={formData.telefono}
                         onChange={(e) => handleInputChange('telefono', e.target.value)}
                         placeholder='+39 000 000 0000'
@@ -956,7 +934,6 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
                       <FormLabel htmlFor="marca">Marca</FormLabel>
                       <FormInput
                         id="marca"
-                        name="marca"
                         value={formData.marca}
                         onChange={(e) => handleInputChange('marca', e.target.value)}
                         placeholder='Ex: Mercedes, BMW, etc...'
@@ -968,7 +945,6 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
                       <FormInput
                         type="number"
                         id="anno"
-                        name="anno"
                         value={formData.anno}
                         onChange={(e) => handleInputChange('anno', e.target.value)}
                         placeholder="2020"
@@ -980,7 +956,6 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
                       <FormInput
                         type="number"
                         id="km"
-                        name="km"
                         value={formData.km}
                         onChange={(e) => handleInputChange('km', e.target.value)}
                         placeholder="Es. 100000"
@@ -991,7 +966,6 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
                       <FormLabel htmlFor="note">Altre note</FormLabel>
                       <FormTextArea
                         id="note"
-                        name="note"
                         value={formData.note}
                         onChange={(e) => handleInputChange('note', e.target.value)}
                         placeholder="Inserisci qui eventuali note"
