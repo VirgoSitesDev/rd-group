@@ -149,9 +149,9 @@ const ImageContainer = styled.div<{ $isMain?: boolean }>`
   `}
 `;
 
-const CarImage = styled.img`
+const CarImage = styled.img<{ $isMain?: boolean }>`
   width: 100%;
-  height: ${({ $isMain }: { $isMain?: boolean }) => $isMain ? '500px' : '250px'};
+  height: ${({ $isMain }) => $isMain ? '500px' : '250px'};
   object-fit: cover;
   display: block;
 `;
