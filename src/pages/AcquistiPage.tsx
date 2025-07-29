@@ -658,17 +658,21 @@ RD Group - Concessionario Auto Pistoia
       const summaryUrl = createSummaryUrl(summaryId);
       const emailContent = createEmailContent(formData, imageUrls, summaryUrl);
       
-      // 🚀 INVIA SOLO L'EMAIL CON IL RIEPILOGO COMPLETO
+      // 🚀 INVIA TUTTI I CAMPI (inclusi quelli individuali per Netlify)
       const submitData = new URLSearchParams();
       submitData.append('form-name', 'acquisizione');
       
-      // Campi obbligatori per Netlify (per conferma)
+      // Campi individuali (per compatibilità Netlify)
       submitData.append('nome', formData.nome);
       submitData.append('cognome', formData.cognome);
       submitData.append('mail', formData.mail);
       submitData.append('telefono', formData.telefono);
+      submitData.append('marca', formData.marca);
+      submitData.append('anno', formData.anno);
+      submitData.append('km', formData.km);
+      submitData.append('note', formData.note);
       
-      // Il VERO contenuto dell'email che riceverai
+      // IL RIEPILOGO COMPLETO (questo è quello che leggerai nell'email)
       submitData.append('riepilogo_completo', emailContent);
       
       console.log('📤 Invio email con riepilogo completo...');
@@ -680,9 +684,9 @@ RD Group - Concessionario Auto Pistoia
       });
   
       if (response.ok) {
-        // ✅ SUCCESSO - Messaggio pulito per il cliente (SENZA LINK)
+        // ✅ SUCCESSO - Messaggio SENZA LINK per il cliente
         alert(`✅ Richiesta inviata con successo!
-        
+
 Ti contatteremo presto per la valutazione della tua auto.
 
 Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
@@ -862,6 +866,10 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
         <input type="text" name="cognome" />
         <input type="email" name="mail" />
         <input type="tel" name="telefono" />
+        <input type="text" name="marca" />
+        <input type="text" name="anno" />
+        <input type="text" name="km" />
+        <textarea name="note"></textarea>
         <textarea name="riepilogo_completo"></textarea>
       </form>
   
