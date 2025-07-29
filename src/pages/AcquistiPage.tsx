@@ -490,7 +490,7 @@ const AcquistiPage: React.FC = () => {
       let imageUrls: string[] = [];
   
       if (images.length > 0) {
-        console.log('📤 Caricamento immagini in corso...');
+        console.log('📤 Caricamento immagini su cloud...');
         
         setImages(prev => prev.map(img => ({ 
           ...img, 
@@ -527,40 +527,65 @@ const AcquistiPage: React.FC = () => {
         }
       }
   
-      const submitData = new URLSearchParams();
+      const submitFormData = new FormData();
       
-      // Dati base del form
-      submitData.append('form-name', 'acquisizione');
-      submitData.append('nome', formData.nome);
-      submitData.append('cognome', formData.cognome);
-      submitData.append('mail', formData.mail);
-      submitData.append('telefono', formData.telefono);
-      submitData.append('marca', formData.marca);
-      submitData.append('anno', formData.anno);
-      submitData.append('km', formData.km);
-      submitData.append('note', formData.note);
+      submitFormData.append('form-name', 'acquisizione');
+      submitFormData.append('nome', formData.nome);
+      submitFormData.append('cognome', formData.cognome);
+      submitFormData.append('mail', formData.mail);
+      submitFormData.append('telefono', formData.telefono);
+      submitFormData.append('marca', formData.marca);
+      submitFormData.append('anno', formData.anno);
+      submitFormData.append('km', formData.km);
+      submitFormData.append('note', formData.note);
       
-      // Gestione migliorata delle immagini
-      submitData.append('numero-immagini', imageUrls.length.toString());
-  
-      // Aggiungi ogni immagine come campo separato (più facile da leggere nella mail)
-      imageUrls.forEach((url, index) => {
-        submitData.append(`immagine-${index + 1}`, url);
+      submitFormData.append('numero-immagini', images.length.toString());
+
+      images.forEach((imageFile, index) => {
+        submitFormData.append(`immagine-file-${index + 1}`, imageFile.file);
+        submitFormData.append(`immagine-info-${index + 1}`, 
+          `Nome: ${imageFile.file.name}, Dimensione: ${(imageFile.file.size / 1024 / 1024).toFixed(2)}MB${index === 0 ? ' (PRINCIPALE)' : ''}`
+        );
       });
-  
-      // Aggiungi anche un campo con tutte le immagini formattate per la mail
-      const imagesFormatted = imageUrls.length > 0 
-        ? imageUrls.map((url, index) => `Immagine ${index + 1}: ${url}`).join('\n\n')
+
+      const urlsFormatted = imageUrls.length > 0 
+        ? imageUrls.map((url, index) => `
+📷 IMMAGINE ${index + 1}${index === 0 ? ' (PRINCIPALE)' : ''}
+Link diretto: ${url}
+Link per visualizzare: ${url}
+-------------------`).join('\n')
         : 'Nessuna immagine caricata';
-      
-      submitData.append('immagini-complete', imagesFormatted);
-  
-      console.log('📤 Invio form a Netlify...');
-  
+
+      const filesSummary = images.map((img, index) => 
+        `${index + 1}. ${img.file.name} (${(img.file.size / 1024 / 1024).toFixed(2)}MB)${index === 0 ? ' - PRINCIPALE' : ''}`
+      ).join('\n');
+
+      const completeReport = `
+IMMAGINI DELL'AUTO (${images.length} foto):
+
+=== LINK PERMANENTI ===
+${urlsFormatted}
+
+TUTTI I LINK IN UNA RIGA:
+${imageUrls.join(' | ')}
+
+=== FILE ALLEGATI ===
+${filesSummary}
+
+Nota: I file immagine sono anche allegati a questa email.
+      `.trim();
+
+      submitFormData.append('immagini-complete', completeReport);
+
+      imageUrls.forEach((url, index) => {
+        submitFormData.append(`immagine-url-${index + 1}`, url);
+      });
+
+      console.log('📤 Invio form completo a Netlify...');
+
       const response = await fetch('/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: submitData.toString()
+        body: submitFormData
       });
   
       if (response.ok) {
@@ -741,12 +766,24 @@ const AcquistiPage: React.FC = () => {
         <input type="text" name="anno" />
         <input type="text" name="km" />
         <textarea name="note"></textarea>
+        
         <input type="text" name="numero-immagini" />
-        <input type="text" name="immagine-1" />      {/* ← AGGIUNGI QUESTI */}
-        <input type="text" name="immagine-2" />      {/* ← CAMPI SEPARATI */}
-        <input type="text" name="immagine-3" />      {/* ← PER OGNI */}
-        <input type="text" name="immagine-4" />      {/* ← IMMAGINE */}
-        <textarea name="immagini-complete"></textarea> {/* ← E QUESTO PER IL TESTO FORMATTATO */}
+        <textarea name="immagini-complete"></textarea>
+        
+        <input type="file" name="immagine-file-1" />
+        <input type="file" name="immagine-file-2" />
+        <input type="file" name="immagine-file-3" />
+        <input type="file" name="immagine-file-4" />
+        
+        <input type="text" name="immagine-info-1" />
+        <input type="text" name="immagine-info-2" />
+        <input type="text" name="immagine-info-3" />
+        <input type="text" name="immagine-info-4" />
+        
+        <input type="text" name="immagine-url-1" />
+        <input type="text" name="immagine-url-2" />
+        <input type="text" name="immagine-url-3" />
+        <input type="text" name="immagine-url-4" />
       </form>
   
       <Header 
