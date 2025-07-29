@@ -15,9 +15,9 @@ export interface Car {
 	seats: number;
 	color: string;
 	previousOwners: number;
-	engineSize: number; // in cc
-	power: number; // in kW
-	horsepower: number; // in HP
+	engineSize: number;
+	power: number;
+	horsepower: number;
 	images: CarImage[];
 	description: string;
 	features: string[];
@@ -148,7 +148,7 @@ export interface Car {
   }
 
   export interface CarFilters {
-	search?: string; // NUOVO: ricerca testuale per marca e modello
+	search?: string;
 	make?: string[];
 	model?: string[];
 	priceMin?: number;
@@ -165,7 +165,7 @@ export interface Car {
 	bodyType?: BodyType[];
 	isLuxury?: boolean;
 	location?: string;
-	radius?: number; // km di raggio dalla location
+	radius?: number;
   }
 
   export interface CarSorting {

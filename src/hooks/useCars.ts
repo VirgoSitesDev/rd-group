@@ -5,7 +5,6 @@ import type { ExportOptions } from '../components/admin/ExportControls';
 import databaseService from '../services/databaseService';
 import adminService from '../services/adminService';
 
-// Query keys per caching
 export const carQueryKeys = {
   all: ['cars'] as const,
   lists: () => [...carQueryKeys.all, 'list'] as const,
@@ -16,12 +15,10 @@ export const carQueryKeys = {
   syncStatus: () => [...carQueryKeys.sync(), 'status'] as const,
 };
 
-// Query keys per admin
 export const adminQueryKeys = {
   stats: () => [...carQueryKeys.all, 'admin', 'stats'] as const,
 };
 
-// Tipi per le operazioni admin
 interface CreateVehicleData {
   make: string;
   model: string;
@@ -357,7 +354,6 @@ export function useAdminOperations() {
 // =====================================
 
 export default {
-  // Hook principali (esistenti)
   useCars,
   useCar,
   useSyncStatus,
@@ -368,8 +364,6 @@ export default {
   useRecentCars,
   useFeaturedCars,
   useCarStats,
-  
-  // Hook admin (nuovi)
   useCreateVehicle,
   useUpdateVehicle,
   useDeleteVehicle,

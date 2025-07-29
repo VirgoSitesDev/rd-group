@@ -353,9 +353,9 @@ const CarDetailPage: React.FC = () => {
   const [thumbnailStartIndex, setThumbnailStartIndex] = useState(0);
   const { data: car, isLoading, error } = useCar(slug || '');
 
-  const THUMBNAILS_VISIBLE = 4; // Numero di thumbnails visibili
-  const THUMBNAIL_WIDTH = 120; // Larghezza thumbnail
-  const THUMBNAIL_GAP = 8; // Gap tra thumbnails
+  const THUMBNAILS_VISIBLE = 4;
+  const THUMBNAIL_WIDTH = 120;
+  const THUMBNAIL_GAP = 8;
 
   useEffect(() => {
     if (car) {
@@ -420,8 +420,7 @@ const CarDetailPage: React.FC = () => {
 
   const updateThumbnailView = (activeIndex: number) => {
     if (!car?.images) return;
-    
-    // Se l'immagine attiva è fuori dalla vista corrente, aggiorna la vista
+
     if (activeIndex < thumbnailStartIndex) {
       setThumbnailStartIndex(activeIndex);
     } else if (activeIndex >= thumbnailStartIndex + THUMBNAILS_VISIBLE) {
@@ -438,7 +437,6 @@ const CarDetailPage: React.FC = () => {
     return -(thumbnailStartIndex * (THUMBNAIL_WIDTH + THUMBNAIL_GAP));
   };
 
-  // Gestione tasti freccia
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'ArrowLeft') {

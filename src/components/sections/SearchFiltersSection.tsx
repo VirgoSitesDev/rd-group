@@ -173,21 +173,18 @@ interface SearchFiltersProps {
 const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
   const navigate = useNavigate();
   const [filters, setFilters] = useState<CarFilters>({});
-  const [searchQuery, setSearchQuery] = useState(''); // NUOVO: stato per la ricerca
+  const [searchQuery, setSearchQuery] = useState('');
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  
-  // Hook per ottenere le auto e ricavare marche e modelli disponibili
+
   const { data: allCarsResult } = useCars({}, 1, 1000);
 
-  // Estrai marche e modelli unici dal database
   const availableMakes = useMemo(() => {
     if (!allCarsResult?.cars) return [];
     const makes = [...new Set(allCarsResult.cars.map(car => car.make))];
     return makes.sort();
   }, [allCarsResult]);
 
-  // Aggiorna modelli quando cambia la marca
   useEffect(() => {
     if (!filters.make?.length || !allCarsResult?.cars) {
       setAvailableModels([]);
@@ -202,7 +199,6 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
     setAvailableModels(uniqueModels);
   }, [filters.make, allCarsResult]);
 
-  // Chiudi dropdown quando clicchi fuori
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (openDropdown) {
@@ -224,7 +220,7 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
       setFilters(prev => ({
         ...prev,
         make: value ? [value] : undefined,
-        model: undefined // Reset model quando cambia marca
+        model: undefined
       }));
     } else {
       setFilters(prev => ({
@@ -243,7 +239,6 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
     }));
   };
 
-  // NUOVO: gestione Enter nel campo di ricerca
   const handleSearchKeyPress = (event: React.KeyboardEvent) => {
     if (event.key === 'Enter') {
       handleApplyFilters();
@@ -260,8 +255,6 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
       onSearch(finalFilters);
     } else {
       const searchParams = new URLSearchParams();
-      
-      // Preserva il parametro luxury dall'URL corrente
       const currentParams = new URLSearchParams(window.location.search);
       const isLuxury = currentParams.get('luxury');
       if (isLuxury === 'true') {

@@ -540,8 +540,7 @@ const CatalogPage: React.FC = () => {
 
 const filters = useMemo(() => {
   const urlFilters: CarFilters = {};
-  
-  // NUOVO: aggiungi il parametro search
+
   const search = searchParams.get('search');
   if (search) urlFilters.search = search;
   
@@ -765,7 +764,6 @@ const filters = useMemo(() => {
   };
 
   const removeFilter = (field: keyof CarFilters) => {
-    // Non permettere la rimozione del filtro luxury tramite questo metodo
     if (field === 'isLuxury') return;
     
     setLocalFilters(prev => {
@@ -903,7 +901,6 @@ const filters = useMemo(() => {
     if (localFilters.location) {
       tags.push({ key: 'location', label: `Località: ${localFilters.location}` });
     }
-    // Non mostrare il filtro luxury come tag rimovibile
     
     return tags;
   };

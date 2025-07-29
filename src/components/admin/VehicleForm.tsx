@@ -381,13 +381,11 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onClose, onSuccess }
     setIsSubmitting(true);
 
     try {
-      // Upload new images if any
       let newImageUrls: string[] = [];
       if (uploadedImages.length > 0) {
         newImageUrls = await uploadVehicleImages(uploadedImages);
       }
 
-      // Prepare vehicle data
       const vehicleData = {
         ...formData,
         features: formData.features.split(',').map(f => f.trim()).filter(f => f),

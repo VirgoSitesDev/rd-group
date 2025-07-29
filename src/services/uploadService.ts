@@ -2,7 +2,7 @@ import { supabase } from './supabase';
 
 class UploadService {
   private readonly BUCKET_NAME = 'vehicle-images';
-  private readonly MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  private readonly MAX_FILE_SIZE = 10 * 1024 * 1024;
   private readonly ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
   /**

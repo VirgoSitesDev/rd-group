@@ -27,7 +27,7 @@ export interface ApiResponse<T = any> {
 	apiUrl: string;
 	apiKey: string;
 	dealerId: string;
-	syncInterval: number; // in minutes
+	syncInterval: number;
 	enableWebhooks: boolean;
 	webhookUrl?: string;
   }
@@ -69,8 +69,8 @@ export interface ApiResponse<T = any> {
 	color: string;
 	previousOwners: number;
 	engine: {
-	  size: number; // cc
-	  power: number; // kW
+	  size: number;
+	  power: number;
 	};
 	images: AutoScout24Image[];
 	description: string;

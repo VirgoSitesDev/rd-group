@@ -285,10 +285,8 @@ const AcquistiPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic to handle form submission
   };
 
-  // Usa auto reale dal database se disponibile, altrimenti fallback
   const heroFeaturedCar = featuredResult?.cars?.[0];
   const featuredCarForContacts = heroFeaturedCar ? {
     make: heroFeaturedCar.make.toUpperCase(),

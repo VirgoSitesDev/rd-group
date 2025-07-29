@@ -54,7 +54,7 @@ export interface Database {
 	peso: number | null;
 	cilidri: number | null;
 	immagine_principale: string | null;
-	immagini: any | null; // JSONB
+	immagini: any | null;
 	ultima_sincronizzazione: string | null;
 	stato_annuncio: string | null;
 	slug: string | null;
@@ -112,8 +112,8 @@ export interface Database {
 	prezzo_max?: number;
 	anno_min?: string;
 	anno_max?: string;
-	potenza_cv_min?: number; // NUOVO
-	potenza_kw_min?: number; // NUOVO
+	potenza_cv_min?: number;
+	potenza_kw_min?: number;
 	colore?: string;
 	alimentazione?: DBAlimentazione;
 	cambio?: DBCambio;

@@ -1,8 +1,6 @@
 import { supabase } from './supabase';
 import { deleteVehicleImages } from './uploadService';
 import { mapAppToDBTypes } from './carMappers';
-import type { Car } from '../types/car/car';
-import type { RDGroupRow, RDGroupLuxuryRow } from '../types/supabase/database';
 import type { ExportOptions } from '../components/admin/ExportControls';
 
 interface CreateVehicleData {
@@ -52,10 +50,6 @@ interface UpdateVehicleData extends CreateVehicleData {
 }
 
 class AdminService {
-  
-  /**
-   * Genera uno slug unico per il veicolo
-   */
   private generateSlug(marca: string, modello: string, id: number): string {
     const cleanText = (text: string) => 
       text.toLowerCase()
@@ -78,16 +72,13 @@ class AdminService {
     return `${marcaClean}-${modelloClean}-${id}`;
   }
 
-  /**
-   * Converte i dati del veicolo nel formato del database
-   */
   private mapVehicleToDBFormat(vehicleData: CreateVehicleData) {
     return {
       marca: vehicleData.make,
       modello: vehicleData.model,
       prezzo: vehicleData.price,
       chilometri: vehicleData.mileage,
-      anno: `${vehicleData.year}`, // Format come stringa
+      anno: `${vehicleData.year}`,
       potenza_kw: vehicleData.power,
       potenza_cv: vehicleData.horsepower,
       alimentazione: mapAppToDBTypes.fuelType(vehicleData.fuelType as any),
@@ -118,9 +109,6 @@ class AdminService {
     };
   }
 
-  /**
-   * Crea un nuovo veicolo
-   */
   async createVehicle(vehicleData: CreateVehicleData): Promise<string> {
     try {
       const tableName = vehicleData.isLuxury ? 'rd_group_luxury' : 'rd_group';
@@ -140,7 +128,6 @@ class AdminService {
         throw new Error('ID veicolo non restituito dal database');
       }
 
-      // Aggiorna con il slug generato
       const slug = this.generateSlug(vehicleData.make, vehicleData.model, data.id);
       await supabase
         .from(tableName)
@@ -155,25 +142,19 @@ class AdminService {
     }
   }
 
-  /**
-   * Aggiorna un veicolo esistente
-   */
   async updateVehicle(vehicleData: UpdateVehicleData): Promise<void> {
     try {
-      // Prima determina in quale tabella si trova il veicolo
       const numericId = this.extractNumericId(vehicleData.id);
       if (!numericId) {
         throw new Error('ID veicolo non valido');
       }
 
-      // Controlla luxury prima
       const { data: luxuryVehicle } = await supabase
         .from('rd_group_luxury')
         .select('id, isLuxury')
         .eq('id', numericId)
         .single();
 
-      // Controlla standard se non trovato in luxury
       let currentTable: 'rd_group' | 'rd_group_luxury' = 'rd_group';
       if (luxuryVehicle) {
         currentTable = 'rd_group_luxury';
@@ -192,20 +173,16 @@ class AdminService {
       const targetTable = vehicleData.isLuxury ? 'rd_group_luxury' : 'rd_group';
       const dbData = this.mapVehicleToDBFormat(vehicleData);
 
-      // Se la categoria è cambiata, sposta tra tabelle
       if (currentTable !== targetTable) {
-        // Elimina dalla tabella attuale
         await supabase
           .from(currentTable)
           .delete()
           .eq('id', numericId);
 
-        // Inserisci nella nuova tabella con stesso ID
         await supabase
           .from(targetTable)
           .insert([{ ...dbData, id: numericId, slug: vehicleData.id }]);
       } else {
-        // Semplice aggiornamento nella stessa tabella
         const { error } = await supabase
           .from(targetTable)
           .update({
@@ -225,9 +202,6 @@ class AdminService {
     }
   }
 
-  /**
-   * Elimina un veicolo
-   */
   async deleteVehicle(vehicleId: string): Promise<void> {
     try {
       const numericId = this.extractNumericId(vehicleId);
@@ -235,11 +209,9 @@ class AdminService {
         throw new Error('ID veicolo non valido');
       }
 
-      // Trova il veicolo e le sue immagini prima dell'eliminazione
       let vehicle: any = null;
       let tableName: 'rd_group' | 'rd_group_luxury' = 'rd_group';
 
-      // Controlla luxury prima
       const { data: luxuryVehicle } = await supabase
         .from('rd_group_luxury')
         .select('*')
@@ -266,7 +238,6 @@ class AdminService {
         throw new Error('Veicolo non trovato');
       }
 
-      // Raccogli URLs delle immagini per eliminarle
       const imageUrls: string[] = [];
       
       if (vehicle.immagine_principale) {
@@ -277,7 +248,6 @@ class AdminService {
         imageUrls.push(...vehicle.immagini.urls);
       }
 
-      // Elimina il veicolo dal database
       const { error } = await supabase
         .from(tableName)
         .delete()
@@ -287,9 +257,8 @@ class AdminService {
         throw new Error(`Errore eliminazione database: ${error.message}`);
       }
 
-      // Elimina le immagini dallo storage (in background)
       if (imageUrls.length > 0) {
-        deleteVehicleImages([...new Set(imageUrls)]) // Rimuovi duplicati
+        deleteVehicleImages([...new Set(imageUrls)])
           .then(result => {
             console.log(`Eliminate ${result.deleted} immagini, fallite: ${result.failed}`);
           })
@@ -304,16 +273,11 @@ class AdminService {
     }
   }
 
-  /**
-   * Esporta il catalogo in formato Excel/CSV
-   */
   async exportCatalog(options: ExportOptions): Promise<Blob> {
     try {
-      // Costruisci la query base
       let luxuryQuery = supabase.from('rd_group_luxury').select('*');
       let standardQuery = supabase.from('rd_group').select('*');
 
-      // Applica filtri temporali se necessario
       if (options.type === 'recent' && options.recentCount) {
         luxuryQuery = luxuryQuery
           .order('created_at', { ascending: false })
@@ -324,7 +288,6 @@ class AdminService {
           .limit(Math.ceil(options.recentCount / 2));
       }
 
-      // Esegui le query
       const promises = [];
       if (options.includeLuxury) {
         promises.push(luxuryQuery);
@@ -334,8 +297,7 @@ class AdminService {
       }
 
       const results = await Promise.all(promises);
-      
-      // Combina i risultati
+
       let allData: any[] = [];
       results.forEach((result, index) => {
         if (result.data) {
@@ -344,15 +306,12 @@ class AdminService {
         }
       });
 
-      // Ordina per data se necessario
       allData.sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime());
 
-      // Limita i risultati se richiesto
       if (options.type === 'recent' && options.recentCount) {
         allData = allData.slice(0, options.recentCount);
       }
 
-      // Mappa i dati per l'export
       const exportData = allData.map(vehicle => {
         const mapped: any = {};
         
@@ -404,7 +363,7 @@ class AdminService {
               mapped['Cilindrata'] = vehicle.cilindrata;
               break;
             case 'previousOwners':
-              mapped['Proprietari precedenti'] = 1; // Default
+              mapped['Proprietari precedenti'] = 1;
               break;
             case 'location':
               mapped['Sede'] = vehicle.luogo;
@@ -425,7 +384,6 @@ class AdminService {
         return mapped;
       });
 
-      // Genera il file
       if (options.format === 'csv') {
         return this.generateCSV(exportData);
       } else {
@@ -438,9 +396,6 @@ class AdminService {
     }
   }
 
-  /**
-   * Genera un file CSV
-   */
   private generateCSV(data: any[]): Blob {
     if (data.length === 0) {
       throw new Error('Nessun dato da esportare');
@@ -452,7 +407,6 @@ class AdminService {
       ...data.map(row => 
         headers.map(header => {
           const value = row[header]?.toString() || '';
-          // Escape virgole e virgolette
           if (value.includes(',') || value.includes('"')) {
             return `"${value.replace(/"/g, '""')}"`;
           }
@@ -464,27 +418,18 @@ class AdminService {
     return new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   }
 
-  /**
-   * Genera un file Excel utilizzando una libreria client-side
-   */
   private generateExcel(data: any[]): Blob {
     if (data.length === 0) {
       throw new Error('Nessun dato da esportare');
     }
 
-    // Per ora generiamo un CSV che Excel può aprire
-    // In futuro si potrebbe integrare una libreria come xlsx
     const csvBlob = this.generateCSV(data);
-    
-    // Restituiamo il CSV con mimetype Excel
+
     return new Blob([csvBlob], { 
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
     });
   }
 
-  /**
-   * Estrai ID numerico da slug
-   */
   private extractNumericId(slug: string): number | null {
     if (/^\d+$/.test(slug)) {
       return parseInt(slug);
@@ -535,7 +480,6 @@ class AdminService {
   }
 }
 
-// Istanza singleton
 const adminService = new AdminService();
 
 export default adminService;

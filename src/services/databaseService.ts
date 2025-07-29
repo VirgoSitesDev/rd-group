@@ -6,24 +6,20 @@ import type { RDGroupRow, RDGroupLuxuryRow } from '../types/supabase/database';
 
 class DatabaseService {
   private extractNumericId(slug: string): number | null {
-    // Se è già un numero
     if (/^\d+$/.test(slug)) {
       return parseInt(slug);
     }
 
-    // Se è un slug nel formato marca-modello-id
     const slugMatch = slug.match(/-(\d+)$/);
     if (slugMatch) {
       return parseInt(slugMatch[1]);
     }
 
-    // Backward compatibility per vecchi formati
     const carMatch = slug.match(/^car-(\d+)$/);
     if (carMatch) {
       return parseInt(carMatch[1]);
     }
 
-    // Per slug speciali
     if (slug === 'featured-luxury' || slug.startsWith('featured-')) {
       return null;
     }
@@ -195,7 +191,6 @@ class DatabaseService {
 
   async getVehicle(slug: string): Promise<Car | null> {
     try {
-      // Gestione casi speciali
       if (slug === 'featured-luxury') {
         const { data, error } = await supabase
           .from('rd_group_luxury')
@@ -223,8 +218,7 @@ class DatabaseService {
       }
 
       const numericId = this.extractNumericId(slug);
-      
-      // Prima cerca per slug esatto nelle due tabelle
+
       const [luxuryBySlug, standardBySlug] = await Promise.all([
         supabase
           .from('rd_group_luxury')
@@ -241,7 +235,6 @@ class DatabaseService {
           .maybeSingle()
       ]);
 
-      // Se trova per slug, restituisci quello
       if (luxuryBySlug.data && !luxuryBySlug.error) {
         return transformDBCarToAppCar(luxuryBySlug.data, true);
       }
@@ -250,7 +243,6 @@ class DatabaseService {
         return transformDBCarToAppCar(standardBySlug.data, false);
       }
 
-      // Se non trova per slug ma ha un ID numerico, cerca per ID
       if (numericId !== null) {
         const [luxuryById, standardById] = await Promise.all([
           supabase
@@ -268,7 +260,6 @@ class DatabaseService {
             .maybeSingle()
         ]);
 
-        // Preferenza: prima luxury, poi standard  
         if (luxuryById.data && !luxuryById.error) {
           return transformDBCarToAppCar(luxuryById.data, true);
         }

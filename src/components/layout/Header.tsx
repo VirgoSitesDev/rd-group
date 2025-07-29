@@ -662,10 +662,8 @@ const Header: React.FC<HeaderProps> = ({
                   sediSection.scrollIntoView({ behavior: 'smooth' });
                 }
               } else {
-                // Se non siamo sulla home, naviga e poi scrolla
                 e.preventDefault();
                 navigate('/#sedi');
-                // Usa un timeout per permettere alla navigazione di completarsi
                 setTimeout(() => {
                   const sediSection = document.getElementById('sedi');
                   if (sediSection) {
@@ -693,22 +691,28 @@ const Header: React.FC<HeaderProps> = ({
               closeMobileMenu();
               if (location.pathname === '/') {
                 e.preventDefault();
-                // Da mobile, vai direttamente al form di contatto
                 const contattiSection = document.getElementById('contatti-form');
                 if (contattiSection) {
                   contattiSection.scrollIntoView({ behavior: 'smooth' });
                 }
               } else {
-                // Se non siamo sulla home, naviga e poi scrolla al form
                 e.preventDefault();
                 navigate('/#contatti');
-                // Usa un timeout per permettere alla navigazione di completarsi
-                setTimeout(() => {
+
+                const scrollToContact = (attempts = 0) => {
                   const contattiSection = document.getElementById('contatti-form');
                   if (contattiSection) {
                     contattiSection.scrollIntoView({ behavior: 'smooth' });
+                  } else if (attempts < 20) {
+                    setTimeout(() => scrollToContact(attempts + 1), 100);
+                  } else {
+                    const mainContattiSection = document.getElementById('contatti');
+                    if (mainContattiSection) {
+                      mainContattiSection.scrollIntoView({ behavior: 'smooth' });
+                    }
                   }
-                }, 100);
+                };
+                setTimeout(() => scrollToContact(), 200);
               }
             }}
           >

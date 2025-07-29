@@ -86,7 +86,6 @@ const ActionButtons = styled.div`
   flex-wrap: wrap;
 `;
 
-// Fix: Rimuovi la prop isFormOpen dal styled component
 const AdminContent = styled.div`
   display: grid;
   grid-template-columns: 1fr;
@@ -223,7 +222,6 @@ const AdminPage: React.FC = () => {
   const deleteVehicle = useDeleteVehicle();
   const exportCatalog = useExportCatalog();
 
-  // Check if already authenticated (session storage)
   useEffect(() => {
     const isAuth = sessionStorage.getItem('admin_authenticated') === 'true';
     setIsAuthenticated(isAuth);
@@ -231,7 +229,6 @@ const AdminPage: React.FC = () => {
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simple password check - in production you might want something more secure
     if (password === 'rdgroup2025') {
       setIsAuthenticated(true);
       sessionStorage.setItem('admin_authenticated', 'true');
@@ -275,7 +272,6 @@ const AdminPage: React.FC = () => {
     setShowExportControls(true);
   };
 
-  // Fix: Cambia la funzione per gestire correttamente il tipo Promise<Blob>
   const handleExportWithOptions = async (options: any) => {
     try {
       await exportCatalog.mutateAsync(options);
@@ -460,7 +456,6 @@ const AdminPage: React.FC = () => {
             onClose={handleFormClose}
             onSuccess={() => {
               handleFormClose();
-              // Refresh the list
               window.location.reload();
             }}
           />
