@@ -482,13 +482,13 @@ const AcquistiPage: React.FC = () => {
       alert('⚠️ Aggiungi almeno 2 immagini per procedere');
       return;
     }
-  
+
     e.preventDefault();
     setIsSubmitting(true);
-  
+
     try {
       let imageUrls: string[] = [];
-  
+
       if (images.length > 0) {
         console.log('📤 Caricamento immagini su cloud...');
         
@@ -497,7 +497,7 @@ const AcquistiPage: React.FC = () => {
           isUploading: true, 
           uploadProgress: 0 
         })));
-  
+
         try {
           const imageFiles = images.map(img => img.file);
           
@@ -508,17 +508,17 @@ const AcquistiPage: React.FC = () => {
               uploadProgress: progress 
             })));
           });
-  
+
           imageUrls = uploadedUrls;
           console.log('✅ Immagini caricate:', imageUrls);
-  
+
           setImages(prev => prev.map((img, index) => ({ 
             ...img, 
             isUploading: false, 
             uploadProgress: 100,
             url: uploadedUrls[index]
           })));
-  
+
         } catch (uploadError) {
           console.error('❌ Errore caricamento immagini:', uploadError);
           alert('❌ Errore nel caricamento delle immagini. Riprova più tardi.');
@@ -526,68 +526,57 @@ const AcquistiPage: React.FC = () => {
           return;
         }
       }
-  
-      const submitFormData = new FormData();
-      
-      submitFormData.append('form-name', 'acquisizione');
-      submitFormData.append('nome', formData.nome);
-      submitFormData.append('cognome', formData.cognome);
-      submitFormData.append('mail', formData.mail);
-      submitFormData.append('telefono', formData.telefono);
-      submitFormData.append('marca', formData.marca);
-      submitFormData.append('anno', formData.anno);
-      submitFormData.append('km', formData.km);
-      submitFormData.append('note', formData.note);
-      
-      submitFormData.append('numero-immagini', images.length.toString());
 
-      images.forEach((imageFile, index) => {
-        submitFormData.append(`immagine-file-${index + 1}`, imageFile.file);
-        submitFormData.append(`immagine-info-${index + 1}`, 
-          `Nome: ${imageFile.file.name}, Dimensione: ${(imageFile.file.size / 1024 / 1024).toFixed(2)}MB${index === 0 ? ' (PRINCIPALE)' : ''}`
-        );
-      });
+      const submitData = new URLSearchParams();
+      
+      submitData.append('form-name', 'acquisizione');
+      submitData.append('nome', formData.nome);
+      submitData.append('cognome', formData.cognome);
+      submitData.append('mail', formData.mail);
+      submitData.append('telefono', formData.telefono);
+      submitData.append('marca', formData.marca);
+      submitData.append('anno', formData.anno);
+      submitData.append('km', formData.km);
+      submitData.append('note', formData.note);
+      
+      submitData.append('numero-immagini', imageUrls.length.toString());
 
-      const urlsFormatted = imageUrls.length > 0 
-        ? imageUrls.map((url, index) => `
+      const imagesFormatted = imageUrls.length > 0 
+        ? `IMMAGINI DELL'AUTO (${imageUrls.length} foto):
+
+${imageUrls.map((url, index) => `
 📷 IMMAGINE ${index + 1}${index === 0 ? ' (PRINCIPALE)' : ''}
 Link diretto: ${url}
-Link per visualizzare: ${url}
--------------------`).join('\n')
-        : 'Nessuna immagine caricata';
 
-      const filesSummary = images.map((img, index) => 
-        `${index + 1}. ${img.file.name} (${(img.file.size / 1024 / 1024).toFixed(2)}MB)${index === 0 ? ' - PRINCIPALE' : ''}`
-      ).join('\n');
+Per visualizzare clicca qui: ${url}
+Per scaricare fai click destro sul link e seleziona "Salva con nome"
 
-      const completeReport = `
-IMMAGINI DELL'AUTO (${images.length} foto):
+-------------------`).join('\n')}
 
-=== LINK PERMANENTI ===
-${urlsFormatted}
+TUTTI I LINK IN UNA RIGA (copia e incolla per aprire tutti):
+${imageUrls.join('   |   ')}
 
-TUTTI I LINK IN UNA RIGA:
-${imageUrls.join(' | ')}
+ISTRUZIONI:
+- Clicca su ogni link per vedere l'immagine
+- Per scaricare: click destro > "Salva immagine con nome"
+- Tutti i link sono permanenti e sempre accessibili
+        ` : 'Nessuna immagine caricata';
 
-=== FILE ALLEGATI ===
-${filesSummary}
-
-Nota: I file immagine sono anche allegati a questa email.
-      `.trim();
-
-      submitFormData.append('immagini-complete', completeReport);
+      submitData.append('immagini-complete', imagesFormatted);
 
       imageUrls.forEach((url, index) => {
-        submitFormData.append(`immagine-url-${index + 1}`, url);
+        submitData.append(`immagine-${index + 1}`, url);
+        submitData.append(`link-immagine-${index + 1}`, `Foto ${index + 1}: ${url}`);
       });
 
-      console.log('📤 Invio form completo a Netlify...');
+      console.log('📤 Invio form a Netlify...');
 
       const response = await fetch('/', {
         method: 'POST',
-        body: submitFormData
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: submitData.toString()
       });
-  
+
       if (response.ok) {
         alert('✅ Richiesta inviata con successo! Ti contatteremo presto per la valutazione.');
         
@@ -766,24 +755,16 @@ Nota: I file immagine sono anche allegati a questa email.
         <input type="text" name="anno" />
         <input type="text" name="km" />
         <textarea name="note"></textarea>
-        
         <input type="text" name="numero-immagini" />
         <textarea name="immagini-complete"></textarea>
-        
-        <input type="file" name="immagine-file-1" />
-        <input type="file" name="immagine-file-2" />
-        <input type="file" name="immagine-file-3" />
-        <input type="file" name="immagine-file-4" />
-        
-        <input type="text" name="immagine-info-1" />
-        <input type="text" name="immagine-info-2" />
-        <input type="text" name="immagine-info-3" />
-        <input type="text" name="immagine-info-4" />
-        
-        <input type="text" name="immagine-url-1" />
-        <input type="text" name="immagine-url-2" />
-        <input type="text" name="immagine-url-3" />
-        <input type="text" name="immagine-url-4" />
+        <input type="text" name="immagine-1" />
+        <input type="text" name="immagine-2" />
+        <input type="text" name="immagine-3" />
+        <input type="text" name="immagine-4" />
+        <input type="text" name="link-immagine-1" />
+        <input type="text" name="link-immagine-2" />
+        <input type="text" name="link-immagine-3" />
+        <input type="text" name="link-immagine-4" />
       </form>
   
       <Header 
