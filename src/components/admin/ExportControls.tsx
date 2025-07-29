@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FaDownload, FaTimes, FaFileExcel } from 'react-icons/fa';
 import Button from '../common/Button';
+import { theme } from '@/styles/theme';
 
 interface ExportControlsProps {
   onClose: () => void;
@@ -36,7 +37,10 @@ const DialogContainer = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   max-width: 600px;
   width: 90%;
-  max-height: 80vh;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-shadow: ${({ theme }) => theme.shadows.xl};
   animation: slideIn 0.2s ease-out;
 
@@ -60,6 +64,7 @@ const DialogHeader = styled.div`
   justify-content: space-between;
   background: ${({ theme }) => theme.colors.background.default};
   border-radius: ${({ theme }) => theme.borderRadius.lg} ${({ theme }) => theme.borderRadius.lg} 0 0;
+  flex-shrink: 0;
 `;
 
 const DialogTitle = styled.div`
@@ -96,8 +101,9 @@ const CloseButton = styled.button`
 
 const DialogContent = styled.div`
   padding: ${({ theme }) => theme.spacing.xl};
-  max-height: 80vh;
+  flex: 1;
   overflow-y: auto;
+  min-height: 0;
 `;
 
 const FormSection = styled.div`
@@ -235,6 +241,7 @@ const DialogActions = styled.div`
   justify-content: flex-end;
   background: ${({ theme }) => theme.colors.background.default};
   border-radius: 0 0 ${({ theme }) => theme.borderRadius.lg} ${({ theme }) => theme.borderRadius.lg};
+  flex-shrink: 0;
 `;
 
 const ExportControls: React.FC<ExportControlsProps> = ({
@@ -413,7 +420,7 @@ const ExportControls: React.FC<ExportControlsProps> = ({
 
         <DialogActions>
           <Button 
-            variant="outline" 
+            variant="primary" 
             onClick={onClose}
             disabled={isLoading}
           >

@@ -2,6 +2,7 @@ import { supabase } from './supabase';
 import { deleteVehicleImages } from './uploadService';
 import { mapAppToDBTypes } from './carMappers';
 import type { ExportOptions } from '../components/admin/ExportControls';
+import * as XLSX from 'xlsx';
 
 interface CreateVehicleData {
   make: string;
@@ -276,16 +277,16 @@ class AdminService {
   async exportCatalog(options: ExportOptions): Promise<Blob> {
     try {
       let luxuryQuery = supabase.from('rd_group_luxury').select('*');
-      let standardQuery = supabase.from('rd_group').select('*');
+      let standardQuery = supabase.from('rd_group').select('*'); 
 
       if (options.type === 'recent' && options.recentCount) {
         luxuryQuery = luxuryQuery
           .order('created_at', { ascending: false })
-          .limit(Math.floor(options.recentCount / 2));
+          .limit(Math.floor(options.recentCount));
         
         standardQuery = standardQuery
           .order('created_at', { ascending: false })
-          .limit(Math.ceil(options.recentCount / 2));
+          .limit(Math.ceil(options.recentCount));
       }
 
       const promises = [];
@@ -400,32 +401,51 @@ class AdminService {
     if (data.length === 0) {
       throw new Error('Nessun dato da esportare');
     }
-
+  
     const headers = Object.keys(data[0]);
+    
+    // Usa punto e virgola per l'Italia
     const csvContent = [
-      headers.join(','),
+      headers.join(';'),
       ...data.map(row => 
         headers.map(header => {
           const value = row[header]?.toString() || '';
-          if (value.includes(',') || value.includes('"')) {
+          // Se contiene punto e virgola o virgola, metti tra virgolette
+          if (value.includes(';') || value.includes(',') || value.includes('"')) {
             return `"${value.replace(/"/g, '""')}"`;
           }
           return value;
-        }).join(',')
+        }).join(';')
       )
     ].join('\n');
-
-    return new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  
+    // Aggiungi BOM per caratteri speciali italiani
+    const BOM = '\uFEFF';
+    return new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
   }
-
+  
   private generateExcel(data: any[]): Blob {
     if (data.length === 0) {
       throw new Error('Nessun dato da esportare');
     }
-
-    const csvBlob = this.generateCSV(data);
-
-    return new Blob([csvBlob], { 
+  
+    // Crea un workbook Excel reale
+    const wb = XLSX.utils.book_new();
+    
+    // Converti i dati in worksheet
+    const ws = XLSX.utils.json_to_sheet(data);
+    
+    // Aggiungi il worksheet al workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'Catalogo Auto');
+    
+    // Genera il file Excel binario
+    const excelBuffer = XLSX.write(wb, { 
+      type: 'array', 
+      bookType: 'xlsx',
+      cellStyles: true 
+    });
+    
+    return new Blob([excelBuffer], { 
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
     });
   }
