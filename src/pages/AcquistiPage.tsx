@@ -9,7 +9,6 @@ import Header from '../components/layout/Header';
 import LocationsSection from '@/components/sections/ServicesMapsSection';
 import { useFeaturedCars } from '../hooks/useCars';
 import { uploadVehicleImages } from '../services/uploadService';
-import { supabase } from '../services/supabase';
 
 const AcquistiPageContainer = styled.div`
   background: ${({ theme }) => theme.colors.background.default};
@@ -346,24 +345,6 @@ interface ImageFile {
   url?: string;
 }
 
-interface AcquisitionSummary {
-  id: string;
-  customerData: {
-    nome: string;
-    cognome: string;
-    mail: string;
-    telefono: string;
-  };
-  vehicleData: {
-    marca: string;
-    anno: string;
-    km: string;
-    note: string;
-  };
-  images: string[];
-  createdAt: string;
-}
-
 const AcquistiPage: React.FC = () => {
   const { data: featuredResult } = useFeaturedCars(1);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -387,135 +368,7 @@ const AcquistiPage: React.FC = () => {
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
-  const saveSummaryToDatabase = async (summaryData: AcquisitionSummary): Promise<string> => {
-    try {
-      const { data, error } = await supabase
-        .from('acquisition_summaries')
-        .insert([{
-          id: summaryData.id,
-          customer_data: summaryData.customerData,
-          vehicle_data: summaryData.vehicleData,
-          images: summaryData.images,
-          created_at: summaryData.createdAt
-        }])
-        .select()
-        .single();
 
-      if (error) {
-        console.error('Errore salvataggio riepilogo:', error);
-        throw error;
-      }
-
-      return summaryData.id;
-    } catch (error) {
-      console.error('Errore database:', error);
-      throw error;
-    }
-  };
-
-  const createSummaryUrl = (summaryId: string): string => {
-    return `${window.location.origin}/riepilogo-acquisizione/${summaryId}`;
-  };
-
-  const createEmailContent = (formData: any, imageUrls: string[], summaryUrl: string) => {
-    const currentDate = new Date().toLocaleDateString('it-IT', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  
-    return `
-  🚗 NUOVA RICHIESTA ACQUISIZIONE AUTO - RD GROUP
-  ══════════════════════════════════════════════
-  
-  ⏰ DATA: ${currentDate}
-  🆔 ID RICHIESTA: #${Date.now().toString().slice(-6)}
-  
-  ══════════════════════════════════════════════
-  👤 DATI CLIENTE
-  ══════════════════════════════════════════════
-  
-  Nome Completo: ${formData.nome} ${formData.cognome}
-  Email: ${formData.mail}
-  Telefono: ${formData.telefono}
-  
-  ══════════════════════════════════════════════
-  🚙 DATI VEICOLO
-  ══════════════════════════════════════════════
-  
-  Marca: ${formData.marca || 'Non specificata'}
-  Anno: ${formData.anno || 'Non specificato'}
-  Chilometraggio: ${formData.km ? parseInt(formData.km).toLocaleString('it-IT') + ' km' : 'Non specificati'}
-  
-  ${formData.note ? `
-  ══════════════════════════════════════════════
-  📝 NOTE AGGIUNTIVE
-  ══════════════════════════════════════════════
-  
-  ${formData.note}
-  ` : ''}
-  
-  ══════════════════════════════════════════════
-  📸 FOTO DEL VEICOLO (${imageUrls.length} immagini)
-  ══════════════════════════════════════════════
-  
-  ${imageUrls.map((url: string, index: number) => `
-  🖼️ FOTO ${index + 1}${index === 0 ? ' ⭐ (PRINCIPALE)' : ''}:
-     Link diretto: ${url}
-     
-     Per visualizzare: Copia e incolla il link nel browser
-     ${index === 0 ? '   ⚠️ Questa è la foto principale del veicolo' : ''}
-  `).join('')}
-  
-  ══════════════════════════════════════════════
-  🌟 RIEPILOGO COMPLETO CON TUTTE LE FOTO
-  ══════════════════════════════════════════════
-  
-  📋 LINK RIEPILOGO DETTAGLIATO:
-  ${summaryUrl}
-  
-  ✅ Questo link contiene:
-     - Tutte le informazioni del cliente
-     - Tutte le foto in alta qualità
-     - Layout ottimizzato per la consultazione
-     - Funzioni di stampa/salvataggio PDF
-  
-  💡 ISTRUZIONI:
-     1. Clicca sul link sopra per aprire il riepilogo
-     2. Visualizza tutte le foto in qualità originale
-     3. Contatta direttamente il cliente (dati sotto)
-     4. Usa il pulsante "Stampa/Salva PDF" se necessario
-  
-  ══════════════════════════════════════════════
-  📞 CONTATTO DIRETTO CLIENTE
-  ══════════════════════════════════════════════
-  
-  📧 EMAIL: ${formData.mail}
-     ↳ Clicca per inviare email: mailto:${formData.mail}?subject=Valutazione%20auto%20${formData.marca || 'veicolo'}
-  
-  📱 TELEFONO: ${formData.telefono}
-     ↳ Clicca per chiamare: tel:${formData.telefono}
-  
-  ══════════════════════════════════════════════
-  🏢 RD GROUP - CONCESSIONARIO AUTO PISTOIA
-  ══════════════════════════════════════════════
-  
-  📍 Indirizzo: Via Bottaia, 2 - 51100 Pistoia (PT)
-  📞 Telefono: +39 057 318 7467
-  ✉️ Email: rdautosrlpistoia@gmail.com
-  
-  ⚡ AZIONE RICHIESTA:
-     - Contattare il cliente entro 24 ore
-     - Fissare appuntamento per valutazione
-     - Aprire il riepilogo completo per vedere le foto
-  
-  ──────────────────────────────────────────────
-  Email generata automaticamente dal sistema di acquisizione
-  ID Sessione: ${Date.now()}
-  ──────────────────────────────────────────────`;
-  };
 
   useEffect(() => {
     document.title = 'Acquisizione Auto - RD Group Pistoia | Vendiamo la tua Auto';
@@ -637,6 +490,7 @@ const AcquistiPage: React.FC = () => {
     try {
       let imageUrls: string[] = [];
   
+      // 📤 CARICAMENTO IMMAGINI
       if (images.length > 0) {
         console.log('📤 Caricamento immagini su cloud...');
         
@@ -676,8 +530,6 @@ const AcquistiPage: React.FC = () => {
       }
   
       // 📧 INVIA EMAIL CON SENDGRID
-      const summaryUrl = `${window.location.origin}/riepilogo-acquisizione/${Date.now()}`;
-      
       const emailData = {
         customerData: {
           nome: formData.nome,
@@ -692,10 +544,10 @@ const AcquistiPage: React.FC = () => {
           note: formData.note
         },
         images: imageUrls,
-        summaryUrl: summaryUrl
+        summaryUrl: `${window.location.origin}/riepilogo-acquisizione/${Date.now()}`
       };
       
-      console.log('📤 Invio email con SendGrid...');
+      console.log('📤 Invio email con SendGrid...', emailData);
       
       const response = await fetch('/.netlify/functions/send-acquisition-email', {
         method: 'POST',
@@ -705,7 +557,23 @@ const AcquistiPage: React.FC = () => {
         body: JSON.stringify(emailData)
       });
   
-      const result = await response.json();
+      // 🔍 DEBUG: Log della risposta
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response headers:', response.headers);
+      
+      let result;
+      try {
+        const responseText = await response.text();
+        console.log('📡 Response text:', responseText);
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error('❌ Errore parsing risposta:', parseError);
+        throw new Error(`Errore del server (Status: ${response.status}). Controlla le environment variables di Netlify.`);
+      }
+  
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${result.message || 'Errore del server'}`);
+      }
   
       if (result.success) {
         // ✅ SUCCESSO
@@ -739,7 +607,7 @@ const AcquistiPage: React.FC = () => {
     } catch (error) {
       console.error('❌ Errore invio form:', error);
       
-      // Fix TypeScript: gestione sicura dell'errore unknown
+      // Gestione dettagliata degli errori
       let errorMessage = 'Errore sconosciuto';
       
       if (error instanceof Error) {
@@ -748,6 +616,13 @@ const AcquistiPage: React.FC = () => {
         errorMessage = error;
       } else if (error && typeof error === 'object' && 'message' in error) {
         errorMessage = String((error as any).message);
+      }
+      
+      // Messaggio specifico per errori comuni
+      if (errorMessage.includes('SENDGRID_API_KEY')) {
+        errorMessage = 'Configurazione email non trovata. Contatta l\'amministratore.';
+      } else if (errorMessage.includes('FROM_EMAIL')) {
+        errorMessage = 'Configurazione email mittente non trovata. Contatta l\'amministratore.';
       }
       
       alert(`❌ Errore nell'invio: ${errorMessage}
