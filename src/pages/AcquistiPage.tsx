@@ -9,6 +9,7 @@ import Header from '../components/layout/Header';
 import LocationsSection from '@/components/sections/ServicesMapsSection';
 import { useFeaturedCars } from '../hooks/useCars';
 import { uploadVehicleImages } from '../services/uploadService';
+import { supabase } from '../services/supabase';
 
 const AcquistiPageContainer = styled.div`
   background: ${({ theme }) => theme.colors.background.default};
@@ -345,8 +346,25 @@ interface ImageFile {
   url?: string;
 }
 
-const AcquistiPage: React.FC = () => {
+interface AcquisitionSummary {
+  id: string;
+  customerData: {
+    nome: string;
+    cognome: string;
+    mail: string;
+    telefono: string;
+  };
+  vehicleData: {
+    marca: string;
+    anno: string;
+    km: string;
+    note: string;
+  };
+  images: string[];
+  createdAt: string;
+}
 
+const AcquistiPage: React.FC = () => {
   const { data: featuredResult } = useFeaturedCars(1);
   const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   
@@ -368,6 +386,85 @@ const AcquistiPage: React.FC = () => {
   const MAX_IMAGES = 4;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+  const saveSummaryToDatabase = async (summaryData: AcquisitionSummary): Promise<string> => {
+    try {
+      const { data, error } = await supabase
+        .from('acquisition_summaries')
+        .insert([{
+          id: summaryData.id,
+          customer_data: summaryData.customerData,
+          vehicle_data: summaryData.vehicleData,
+          images: summaryData.images,
+          created_at: summaryData.createdAt
+        }])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Errore salvataggio riepilogo:', error);
+        throw error;
+      }
+
+      return summaryData.id;
+    } catch (error) {
+      console.error('Errore database:', error);
+      throw error;
+    }
+  };
+
+  const createSummaryUrl = (summaryId: string): string => {
+    return `${window.location.origin}/riepilogo-acquisizione/${summaryId}`;
+  };
+
+  const createEmailContent = (formData: any, imageUrls: string[], summaryUrl: string) => {
+    const currentDate = new Date().toLocaleDateString('it-IT', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return `🚗 NUOVA RICHIESTA ACQUISIZIONE AUTO - RD GROUP
+════════════════════════════════════════════════════
+
+📋 DATI CLIENTE:
+▪️ Nome: ${formData.nome} ${formData.cognome}
+▪️ Email: ${formData.mail}
+▪️ Telefono: ${formData.telefono}
+▪️ Data richiesta: ${currentDate}
+
+🚙 DATI VEICOLO:
+▪️ Marca: ${formData.marca || 'Non specificata'}
+▪️ Anno: ${formData.anno || 'Non specificato'}
+▪️ Chilometraggio: ${formData.km ? parseInt(formData.km).toLocaleString('it-IT') + ' km' : 'Non specificati'}
+
+${formData.note ? `📝 NOTE AGGIUNTIVE:
+${formData.note}
+
+` : ''}📸 IMMAGINI DEL VEICOLO (${imageUrls.length}):
+${imageUrls.map((url, index) => 
+  `🖼️ Foto ${index + 1}${index === 0 ? ' (PRINCIPALE)' : ''}: ${url}`
+).join('\n')}
+
+🌟 RIEPILOGO COMPLETO CON IMMAGINI:
+👉 ${summaryUrl}
+
+💡 Il link sopra contiene tutte le informazioni e le foto del veicolo
+in un formato facile da consultare e condividere.
+
+────────────────────────────────
+📞 CONTATTO DIRETTO CLIENTE:
+✉️ ${formData.mail}
+📱 ${formData.telefono}
+────────────────────────────────
+
+RD Group - Concessionario Auto Pistoia
+📍 Via Bottaia, 2 - 51100 Pistoia (PT)
+📞 +39 057 318 7467
+✉️ rdautosrlpistoia@gmail.com`;
+  };
 
   useEffect(() => {
     document.title = 'Acquisizione Auto - RD Group Pistoia | Vendiamo la tua Auto';
@@ -527,6 +624,36 @@ const AcquistiPage: React.FC = () => {
         }
       }
 
+      const summaryId = `acq_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const currentDate = new Date().toISOString();
+      
+      const summaryData: AcquisitionSummary = {
+        id: summaryId,
+        customerData: {
+          nome: formData.nome,
+          cognome: formData.cognome,
+          mail: formData.mail,
+          telefono: formData.telefono
+        },
+        vehicleData: {
+          marca: formData.marca,
+          anno: formData.anno,
+          km: formData.km,
+          note: formData.note
+        },
+        images: imageUrls,
+        createdAt: currentDate
+      };
+
+      try {
+        await saveSummaryToDatabase(summaryData);
+        console.log('✅ Riepilogo salvato nel database');
+      } catch (dbError) {
+        console.warn('⚠️ Impossibile salvare nel database, procedo comunque:', dbError);
+      }
+
+      const summaryUrl = createSummaryUrl(summaryId);
+
       const submitData = new URLSearchParams();
       
       submitData.append('form-name', 'acquisizione');
@@ -539,34 +666,14 @@ const AcquistiPage: React.FC = () => {
       submitData.append('km', formData.km);
       submitData.append('note', formData.note);
       
+      const emailContent = createEmailContent(formData, imageUrls, summaryUrl);
+      submitData.append('riepilogo-completo', emailContent);
+      
       submitData.append('numero-immagini', imageUrls.length.toString());
-
-      const imagesFormatted = imageUrls.length > 0 
-        ? `IMMAGINI DELL'AUTO (${imageUrls.length} foto):
-
-${imageUrls.map((url, index) => `
-📷 IMMAGINE ${index + 1}${index === 0 ? ' (PRINCIPALE)' : ''}
-Link diretto: ${url}
-
-Per visualizzare clicca qui: ${url}
-Per scaricare fai click destro sul link e seleziona "Salva con nome"
-
--------------------`).join('\n')}
-
-TUTTI I LINK IN UNA RIGA (copia e incolla per aprire tutti):
-${imageUrls.join('   |   ')}
-
-ISTRUZIONI:
-- Clicca su ogni link per vedere l'immagine
-- Per scaricare: click destro > "Salva immagine con nome"
-- Tutti i link sono permanenti e sempre accessibili
-        ` : 'Nessuna immagine caricata';
-
-      submitData.append('immagini-complete', imagesFormatted);
+      submitData.append('link-riepilogo', summaryUrl);
 
       imageUrls.forEach((url, index) => {
         submitData.append(`immagine-${index + 1}`, url);
-        submitData.append(`link-immagine-${index + 1}`, `Foto ${index + 1}: ${url}`);
       });
 
       console.log('📤 Invio form a Netlify...');
@@ -578,7 +685,11 @@ ISTRUZIONI:
       });
 
       if (response.ok) {
-        alert('✅ Richiesta inviata con successo! Ti contatteremo presto per la valutazione.');
+        alert(`✅ Richiesta inviata con successo! 
+
+🔗 Link al riepilogo: ${summaryUrl}
+
+Ti contatteremo presto per la valutazione.`);
         
         setFormData({
           nome: '',
@@ -593,8 +704,10 @@ ISTRUZIONI:
         
         images.forEach(image => URL.revokeObjectURL(image.preview));
         setImages([]);
+
+        window.open(summaryUrl, '_blank');
+        
       } else {
-        const errorText = await response.text();
         throw new Error(`Errore HTTP: ${response.status} - ${response.statusText}`);
       }
       
@@ -756,15 +869,12 @@ ISTRUZIONI:
         <input type="text" name="km" />
         <textarea name="note"></textarea>
         <input type="text" name="numero-immagini" />
-        <textarea name="immagini-complete"></textarea>
+        <textarea name="riepilogo-completo"></textarea>
+        <input type="text" name="link-riepilogo" />
         <input type="text" name="immagine-1" />
         <input type="text" name="immagine-2" />
         <input type="text" name="immagine-3" />
         <input type="text" name="immagine-4" />
-        <input type="text" name="link-immagine-1" />
-        <input type="text" name="link-immagine-2" />
-        <input type="text" name="link-immagine-3" />
-        <input type="text" name="link-immagine-4" />
       </form>
   
       <Header 
