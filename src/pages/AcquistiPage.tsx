@@ -675,38 +675,8 @@ const AcquistiPage: React.FC = () => {
         }
       }
   
-      // 📝 CREA IL RIEPILOGO NEL DATABASE
-      const summaryId = `acq_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const currentDate = new Date().toISOString();
-      
-      const summaryData: AcquisitionSummary = {
-        id: summaryId,
-        customerData: {
-          nome: formData.nome,
-          cognome: formData.cognome,
-          mail: formData.mail,
-          telefono: formData.telefono
-        },
-        vehicleData: {
-          marca: formData.marca,
-          anno: formData.anno,
-          km: formData.km,
-          note: formData.note
-        },
-        images: imageUrls,
-        createdAt: currentDate
-      };
-  
-      // Salva nel database
-      try {
-        await saveSummaryToDatabase(summaryData);
-        console.log('✅ Riepilogo salvato nel database');
-      } catch (dbError) {
-        console.warn('⚠️ Impossibile salvare nel database, procedo comunque:', dbError);
-      }
-  
       // 📧 INVIA EMAIL CON SENDGRID
-      const summaryUrl = createSummaryUrl(summaryId);
+      const summaryUrl = `${window.location.origin}/riepilogo-acquisizione/${Date.now()}`;
       
       const emailData = {
         customerData: {
@@ -740,12 +710,12 @@ const AcquistiPage: React.FC = () => {
       if (result.success) {
         // ✅ SUCCESSO
         alert(`✅ Richiesta inviata con successo!
-
-Ti contatteremo presto per la valutazione della tua auto.
-
-Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.
-
-Controlla la tua email per la conferma!`);
+  
+  Ti contatteremo presto per la valutazione della tua auto.
+  
+  Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.
+  
+  Controlla la tua email per la conferma!`);
         
         // Resetta il form
         setFormData({
@@ -767,8 +737,22 @@ Controlla la tua email per la conferma!`);
       }
       
     } catch (error) {
-      console.error('Errore invio form:', error);
-      alert('❌ Errore nell\'invio. Riprova più tardi o contattaci direttamente al +39 057 318 7467.');
+      console.error('❌ Errore invio form:', error);
+      
+      // Fix TypeScript: gestione sicura dell'errore unknown
+      let errorMessage = 'Errore sconosciuto';
+      
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      } else if (error && typeof error === 'object' && 'message' in error) {
+        errorMessage = String((error as any).message);
+      }
+      
+      alert(`❌ Errore nell'invio: ${errorMessage}
+      
+  Riprova più tardi o contattaci direttamente al +39 057 318 7467.`);
     } finally {
       setIsSubmitting(false);
     }

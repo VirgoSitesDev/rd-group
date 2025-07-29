@@ -97,7 +97,8 @@ const createEmailHtml = (data) => {
           </div>
 
           <div class="section">
-              <h2>📸 Foto del Veicolo (${data.images.length} immagini)</h2>
+              <h2>📸 Foto del Veicolo (${data.images ? data.images.length : 0} immagini)</h2>
+              ${data.images && data.images.length > 0 ? `
               <div class="images-grid">
                   ${data.images.map((url, index) => `
                   <div class="image-container">
@@ -107,6 +108,7 @@ const createEmailHtml = (data) => {
                   </div>
                   `).join('')}
               </div>
+              ` : '<p>Nessuna immagine allegata</p>'}
           </div>
 
           <div class="contact-info">
@@ -115,7 +117,7 @@ const createEmailHtml = (data) => {
               <div style="text-align: center;">
                   <a href="tel:${data.customerData.telefono}" class="cta-button">📱 Chiama ${data.customerData.telefono}</a>
                   <a href="mailto:${data.customerData.mail}?subject=Valutazione auto ${data.vehicleData.marca || 'veicolo'}" class="cta-button">✉️ Invia Email</a>
-                  <a href="${data.summaryUrl}" target="_blank" class="cta-button">📋 Riepilogo Completo</a>
+                  ${data.summaryUrl ? `<a href="${data.summaryUrl}" target="_blank" class="cta-button">📋 Riepilogo Completo</a>` : ''}
               </div>
           </div>
       </div>
@@ -166,56 +168,104 @@ exports.handler = async (event, context) => {
   }
 
   try {
+    console.log('🔥 Funzione chiamata, verifica environment variables...');
+    
     // Verifica API key
     if (!process.env.SENDGRID_API_KEY) {
-      console.error('SENDGRID_API_KEY non configurata');
+      console.error('❌ SENDGRID_API_KEY non configurata');
       return {
         statusCode: 500,
         headers,
         body: JSON.stringify({ 
           success: false, 
-          message: 'Configurazione email non valida' 
+          message: 'SENDGRID_API_KEY non configurata nelle environment variables' 
         })
       };
     }
 
+    // Verifica FROM_EMAIL
+    if (!process.env.FROM_EMAIL) {
+      console.error('❌ FROM_EMAIL non configurata');
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({ 
+          success: false, 
+          message: 'FROM_EMAIL non configurata nelle environment variables' 
+        })
+      };
+    }
+
+    console.log('✅ Environment variables OK');
+
     // Inizializza SendGrid
     sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-    // Parse del body
-    const data = JSON.parse(event.body || '{}');
-
-    // Validazione base
-    if (!data.customerData?.mail || !data.customerData?.nome) {
+    // Parse del body con error handling
+    let data;
+    try {
+      data = JSON.parse(event.body || '{}');
+      console.log('✅ Body parsed successfully');
+    } catch (parseError) {
+      console.error('❌ Errore parsing JSON:', parseError);
       return {
         statusCode: 400,
         headers,
         body: JSON.stringify({ 
           success: false, 
-          message: 'Dati cliente mancanti' 
+          message: 'Formato JSON non valido' 
         })
       };
     }
+
+    // Validazione base con dettagli
+    if (!data.customerData) {
+      console.error('❌ customerData mancante');
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ 
+          success: false, 
+          message: 'customerData mancante' 
+        })
+      };
+    }
+
+    if (!data.customerData.mail || !data.customerData.nome) {
+      console.error('❌ Dati cliente incompleti:', data.customerData);
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ 
+          success: false, 
+          message: 'Email e nome del cliente sono obbligatori' 
+        })
+      };
+    }
+
+    console.log('✅ Validazione dati OK');
 
     // Crea e invia email principale
     const msg = {
       to: process.env.TO_EMAIL || 'rdautosrlpistoia@gmail.com',
       from: {
-        email: process.env.FROM_EMAIL || 'rdautosrlpistoia@gmail.com',
+        email: process.env.FROM_EMAIL,
         name: 'RD Group - Sistema Acquisizioni'
       },
-      subject: `🚗 URGENTE: Richiesta Acquisizione ${data.vehicleData.marca || 'Auto'} - ${data.customerData.nome} ${data.customerData.cognome}`,
+      subject: `🚗 URGENTE: Richiesta Acquisizione ${data.vehicleData?.marca || 'Auto'} - ${data.customerData.nome} ${data.customerData.cognome}`,
       html: createEmailHtml(data),
       replyTo: data.customerData.mail,
     };
 
+    console.log('📤 Invio email principale...');
     await sgMail.send(msg);
+    console.log('✅ Email principale inviata');
 
     // Invia email di conferma al cliente
     const confirmationMsg = {
       to: data.customerData.mail,
       from: {
-        email: process.env.FROM_EMAIL || 'rdautosrlpistoia@gmail.com',
+        email: process.env.FROM_EMAIL,
         name: 'RD Group'
       },
       subject: '✅ Richiesta ricevuta - Ti contatteremo presto!',
@@ -226,7 +276,7 @@ exports.handler = async (event, context) => {
         </div>
         <div style="padding: 30px 20px;">
           <p>Ciao <strong>${data.customerData.nome}</strong>,</p>
-          <p>Abbiamo ricevuto la tua richiesta di valutazione per la tua <strong>${data.vehicleData.marca || 'auto'}</strong>.</p>
+          <p>Abbiamo ricevuto la tua richiesta di valutazione per la tua <strong>${data.vehicleData?.marca || 'auto'}</strong>.</p>
           
           <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 25px 0;">
             <h3 style="color: #2d5016; margin-top: 0;">🎯 Cosa succede ora:</h3>
@@ -257,28 +307,35 @@ exports.handler = async (event, context) => {
       `
     };
 
+    console.log('📤 Invio email di conferma...');
     await sgMail.send(confirmationMsg);
+    console.log('✅ Email di conferma inviata');
 
     return {
       statusCode: 200,
       headers,
       body: JSON.stringify({ 
         success: true, 
-        message: 'Email inviata con successo' 
+        message: 'Email inviate con successo' 
       })
     };
 
   } catch (error) {
-    console.error('Errore SendGrid:', error);
+    console.error('❌ Errore completo:', error);
     
     let errorMessage = 'Errore interno del server';
     let statusCode = 500;
 
-    if (error && typeof error === 'object' && 'response' in error) {
-      const sgError = error;
-      if (sgError.response?.body?.errors) {
-        errorMessage = sgError.response.body.errors[0]?.message || errorMessage;
-        statusCode = sgError.code || 500;
+    // Gestione errori SendGrid specifici
+    if (error && typeof error === 'object') {
+      if (error.response && error.response.body) {
+        console.error('❌ Errore SendGrid:', error.response.body);
+        if (error.response.body.errors && error.response.body.errors.length > 0) {
+          errorMessage = error.response.body.errors[0].message;
+        }
+        statusCode = error.code || error.response.status || 500;
+      } else if (error.message) {
+        errorMessage = error.message;
       }
     }
 
@@ -287,7 +344,8 @@ exports.handler = async (event, context) => {
       headers,
       body: JSON.stringify({ 
         success: false, 
-        message: errorMessage 
+        message: `Errore SendGrid: ${errorMessage}`,
+        debug: process.env.NODE_ENV === 'development' ? error.toString() : undefined
       })
     };
   }
