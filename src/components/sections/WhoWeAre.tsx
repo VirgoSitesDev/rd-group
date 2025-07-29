@@ -24,7 +24,7 @@ const SectionTitle = styled.h2`
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     text-align: center;
-    font-size: 1.2rem;
+    font-size: 1rem !important;
     padding-top: 50px;
   }
 `;

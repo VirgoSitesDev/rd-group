@@ -233,10 +233,14 @@ export const GlobalStyles = createGlobalStyle`
 
     /* Target styled components by common patterns */
     [class*="Text"], 
-    [class*="text"],
+    [class*="text"], {
+      font-size: 1rem !important;
+    }
+
+    /* Target styled components by common patterns */
     [class*="Description"],
     [class*="description"], {
-      font-size: 1rem !important;
+      font-size: 1rem;
     }
 
     /* Target styled components by common patterns */

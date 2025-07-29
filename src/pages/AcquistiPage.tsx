@@ -18,6 +18,10 @@ const ContactContent = styled.section`
   padding: ${({ theme }) => theme.spacing.xxl} 0;
   background: ${({ theme }) => theme.colors.background.default};
   margin-top: 0;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+    padding: ${({ theme }) => theme.spacing.md} 0;
+  }
 `;
 
 const ContactGrid = styled.div`
@@ -26,9 +30,9 @@ const ContactGrid = styled.div`
   gap: ${({ theme }) => theme.spacing.xxl};
   align-items: start;
 
-  @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     grid-template-columns: 1fr;
-    gap: ${({ theme }) => theme.spacing.xl};
+    gap: ${({ theme }) => theme.spacing.md};
   }
 `;
 
@@ -45,6 +49,17 @@ const MainTitle = styled.h2`
   .bold {
     font-weight: ${({ theme }) => theme.typography.fontWeight.bold};
   }
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin: 20px 10px;
+    width: 80%;
+  }
+
+  .bold {
+    @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+      width: 80%;
+    }
+  }
 `;
 
 const FormSection = styled.div`
@@ -55,6 +70,11 @@ const FormSection = styled.div`
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid #d3d3d3;
   grid-column: 1 / -1;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin: 0px;
+    padding: ${({ theme }) => theme.spacing.md};
+  }
 `;
 
 const FormInnerGrid = styled.div`
@@ -146,12 +166,20 @@ const GalleryTitle = styled.h3`
   text-transform: uppercase;
   letter-spacing: 0.4px;
   margin-bottom: 2px;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 1.1rem !important;
+  }
 `;
 
 const GallerySubtitle = styled.p`
   color: ${({ theme }) => theme.colors.text.primary};
   font-size: 1.2rem;
   margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.9rem !important;
+  }
 `;
 
 const GalleryGrid = styled.div`
@@ -210,11 +238,20 @@ const LegalText = styled.p`
   line-height: 1.3;
   text-align: left;
   margin: 30px 50px;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin: 20px 05px;
+    font-size: 0.8rem !important;
+  }
 `;
 
 const SectionMaps = styled.div`
   width: 100ww;
   margin-bottom: 120px;
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    margin-top: 30px;
+  }
 `
 
 const AcquistiPage: React.FC = () => {
