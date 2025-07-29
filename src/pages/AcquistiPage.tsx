@@ -425,45 +425,96 @@ const AcquistiPage: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit'
     });
-
-    return `🚗 NUOVA RICHIESTA ACQUISIZIONE AUTO - RD GROUP
-════════════════════════════════════════════════════
-
-📋 DATI CLIENTE:
-▪️ Nome: ${formData.nome} ${formData.cognome}
-▪️ Email: ${formData.mail}
-▪️ Telefono: ${formData.telefono}
-▪️ Data richiesta: ${currentDate}
-
-🚙 DATI VEICOLO:
-▪️ Marca: ${formData.marca || 'Non specificata'}
-▪️ Anno: ${formData.anno || 'Non specificato'}
-▪️ Chilometraggio: ${formData.km ? parseInt(formData.km).toLocaleString('it-IT') + ' km' : 'Non specificati'}
-
-${formData.note ? `📝 NOTE AGGIUNTIVE:
-${formData.note}
-
-` : ''}📸 IMMAGINI DEL VEICOLO (${imageUrls.length}):
-${imageUrls.map((url, index) => 
-  `🖼️ Foto ${index + 1}${index === 0 ? ' (PRINCIPALE)' : ''}: ${url}`
-).join('\n')}
-
-🌟 RIEPILOGO COMPLETO CON IMMAGINI:
-👉 ${summaryUrl}
-
-💡 Il link sopra contiene tutte le informazioni e le foto del veicolo
-in un formato facile da consultare e condividere.
-
-────────────────────────────────
-📞 CONTATTO DIRETTO CLIENTE:
-✉️ ${formData.mail}
-📱 ${formData.telefono}
-────────────────────────────────
-
-RD Group - Concessionario Auto Pistoia
-📍 Via Bottaia, 2 - 51100 Pistoia (PT)
-📞 +39 057 318 7467
-✉️ rdautosrlpistoia@gmail.com`;
+  
+    return `
+  🚗 NUOVA RICHIESTA ACQUISIZIONE AUTO - RD GROUP
+  ══════════════════════════════════════════════
+  
+  ⏰ DATA: ${currentDate}
+  🆔 ID RICHIESTA: #${Date.now().toString().slice(-6)}
+  
+  ══════════════════════════════════════════════
+  👤 DATI CLIENTE
+  ══════════════════════════════════════════════
+  
+  Nome Completo: ${formData.nome} ${formData.cognome}
+  Email: ${formData.mail}
+  Telefono: ${formData.telefono}
+  
+  ══════════════════════════════════════════════
+  🚙 DATI VEICOLO
+  ══════════════════════════════════════════════
+  
+  Marca: ${formData.marca || 'Non specificata'}
+  Anno: ${formData.anno || 'Non specificato'}
+  Chilometraggio: ${formData.km ? parseInt(formData.km).toLocaleString('it-IT') + ' km' : 'Non specificati'}
+  
+  ${formData.note ? `
+  ══════════════════════════════════════════════
+  📝 NOTE AGGIUNTIVE
+  ══════════════════════════════════════════════
+  
+  ${formData.note}
+  ` : ''}
+  
+  ══════════════════════════════════════════════
+  📸 FOTO DEL VEICOLO (${imageUrls.length} immagini)
+  ══════════════════════════════════════════════
+  
+  ${imageUrls.map((url: string, index: number) => `
+  🖼️ FOTO ${index + 1}${index === 0 ? ' ⭐ (PRINCIPALE)' : ''}:
+     Link diretto: ${url}
+     
+     Per visualizzare: Copia e incolla il link nel browser
+     ${index === 0 ? '   ⚠️ Questa è la foto principale del veicolo' : ''}
+  `).join('')}
+  
+  ══════════════════════════════════════════════
+  🌟 RIEPILOGO COMPLETO CON TUTTE LE FOTO
+  ══════════════════════════════════════════════
+  
+  📋 LINK RIEPILOGO DETTAGLIATO:
+  ${summaryUrl}
+  
+  ✅ Questo link contiene:
+     - Tutte le informazioni del cliente
+     - Tutte le foto in alta qualità
+     - Layout ottimizzato per la consultazione
+     - Funzioni di stampa/salvataggio PDF
+  
+  💡 ISTRUZIONI:
+     1. Clicca sul link sopra per aprire il riepilogo
+     2. Visualizza tutte le foto in qualità originale
+     3. Contatta direttamente il cliente (dati sotto)
+     4. Usa il pulsante "Stampa/Salva PDF" se necessario
+  
+  ══════════════════════════════════════════════
+  📞 CONTATTO DIRETTO CLIENTE
+  ══════════════════════════════════════════════
+  
+  📧 EMAIL: ${formData.mail}
+     ↳ Clicca per inviare email: mailto:${formData.mail}?subject=Valutazione%20auto%20${formData.marca || 'veicolo'}
+  
+  📱 TELEFONO: ${formData.telefono}
+     ↳ Clicca per chiamare: tel:${formData.telefono}
+  
+  ══════════════════════════════════════════════
+  🏢 RD GROUP - CONCESSIONARIO AUTO PISTOIA
+  ══════════════════════════════════════════════
+  
+  📍 Indirizzo: Via Bottaia, 2 - 51100 Pistoia (PT)
+  📞 Telefono: +39 057 318 7467
+  ✉️ Email: rdautosrlpistoia@gmail.com
+  
+  ⚡ AZIONE RICHIESTA:
+     - Contattare il cliente entro 24 ore
+     - Fissare appuntamento per valutazione
+     - Aprire il riepilogo completo per vedere le foto
+  
+  ──────────────────────────────────────────────
+  Email generata automaticamente dal sistema di acquisizione
+  ID Sessione: ${Date.now()}
+  ──────────────────────────────────────────────`;
   };
 
   useEffect(() => {
@@ -656,13 +707,25 @@ RD Group - Concessionario Auto Pistoia
   
       // 📧 CREA L'EMAIL CON IL RIEPILOGO COMPLETO
       const summaryUrl = createSummaryUrl(summaryId);
-      const emailContent = createEmailContent(formData, imageUrls, summaryUrl);
       
-      // 🚀 INVIA SOLO IL RIEPILOGO COMPLETO COME "MESSAGGIO"
+      // 🎯 MIGLIORA L'INVIO: Usa più campi invece di solo "messaggio"
       const submitData = new URLSearchParams();
       submitData.append('form-name', 'acquisizione');
-      
-      // TUTTO IL CONTENUTO va nel campo "messaggio"
+
+      // Campi separati per migliore organizzazione
+      submitData.append('customer_name', `${formData.nome} ${formData.cognome}`);
+      submitData.append('customer_email', formData.mail);
+      submitData.append('customer_phone', formData.telefono);
+      submitData.append('vehicle_make', formData.marca || 'Non specificata');
+      submitData.append('vehicle_year', formData.anno || 'Non specificato');
+      submitData.append('vehicle_km', formData.km || 'Non specificati');
+      submitData.append('vehicle_notes', formData.note || 'Nessuna nota');
+      submitData.append('summary_url', summaryUrl);
+      submitData.append('images_count', imageUrls.length.toString());
+      submitData.append('images_urls', imageUrls.join('\n'));
+
+      // Il messaggio completo formattato
+      const emailContent = createEmailContent(formData, imageUrls, summaryUrl);
       submitData.append('messaggio', emailContent);
       
       console.log('📤 Invio email con riepilogo completo...');
@@ -852,6 +915,16 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
         hidden
         style={{ display: 'none' }}
       >
+        <input name="customer_name" />
+        <input name="customer_email" />
+        <input name="customer_phone" />
+        <input name="vehicle_make" />
+        <input name="vehicle_year" />
+        <input name="vehicle_km" />
+        <textarea name="vehicle_notes"></textarea>
+        <input name="summary_url" />
+        <input name="images_count" />
+        <textarea name="images_urls"></textarea>
         <textarea name="messaggio"></textarea>
       </form>
   
