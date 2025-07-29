@@ -529,6 +529,7 @@ const AcquistiPage: React.FC = () => {
   
       const submitData = new URLSearchParams();
       
+      // Dati base del form
       submitData.append('form-name', 'acquisizione');
       submitData.append('nome', formData.nome);
       submitData.append('cognome', formData.cognome);
@@ -538,33 +539,29 @@ const AcquistiPage: React.FC = () => {
       submitData.append('anno', formData.anno);
       submitData.append('km', formData.km);
       submitData.append('note', formData.note);
+      
+      // Gestione migliorata delle immagini
       submitData.append('numero-immagini', imageUrls.length.toString());
-      submitData.append('immagini-urls', imageUrls.join('|'));
+  
+      // Aggiungi ogni immagine come campo separato (più facile da leggere nella mail)
+      imageUrls.forEach((url, index) => {
+        submitData.append(`immagine-${index + 1}`, url);
+      });
+  
+      // Aggiungi anche un campo con tutte le immagini formattate per la mail
+      const imagesFormatted = imageUrls.length > 0 
+        ? imageUrls.map((url, index) => `Immagine ${index + 1}: ${url}`).join('\n\n')
+        : 'Nessuna immagine caricata';
+      
+      submitData.append('immagini-complete', imagesFormatted);
   
       console.log('📤 Invio form a Netlify...');
-      console.log('📋 Dati form:', Object.fromEntries(submitData.entries()));
-      console.log('🌐 URL attuale:', window.location.href);
-      console.log('🌐 Origin:', window.location.origin);
   
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: submitData.toString()
       });
-  
-      // DEBUG COMPLETO DELLA RESPONSE
-      console.log('📊 Response status:', response.status);
-      console.log('📊 Response statusText:', response.statusText);
-      console.log('📊 Response ok:', response.ok);
-      console.log('📊 Response type:', response.type);
-      console.log('📊 Response url:', response.url);
-      console.log('📊 Response redirected:', response.redirected);
-      console.log('📊 Response headers:', Object.fromEntries(response.headers.entries()));
-  
-      // Leggi la response come testo per vedere cosa contiene
-      const responseText = await response.text();
-      console.log('📄 Response body length:', responseText.length);
-      console.log('📄 Response body preview:', responseText.substring(0, 500));
   
       if (response.ok) {
         alert('✅ Richiesta inviata con successo! Ti contatteremo presto per la valutazione.');
@@ -583,12 +580,13 @@ const AcquistiPage: React.FC = () => {
         images.forEach(image => URL.revokeObjectURL(image.preview));
         setImages([]);
       } else {
-        console.error('❌ Response non OK');
-        throw new Error(`HTTP ${response.status}: ${response.statusText}\nBody: ${responseText.substring(0, 200)}`);
+        const errorText = await response.text();
+        throw new Error(`Errore HTTP: ${response.status} - ${response.statusText}`);
       }
       
     } catch (error) {
-      console.error('❌ Errore completo:', error);
+      console.error('Errore invio form:', error);
+      alert('❌ Errore nell\'invio. Riprova più tardi o contattaci direttamente.');
     } finally {
       setIsSubmitting(false);
     }
@@ -729,10 +727,9 @@ const AcquistiPage: React.FC = () => {
 
   return (
     <AcquistiPageContainer>
-      {/* 🔥 FORM NASCOSTO - METTI QUI, COME PRIMO ELEMENTO */}
       <form 
         name="acquisizione" 
-        data-netlify="true"  // ← CORRETTO: data-netlify invece di netlify
+        data-netlify="true"
         hidden
         style={{ display: 'none' }}
       >
@@ -745,7 +742,11 @@ const AcquistiPage: React.FC = () => {
         <input type="text" name="km" />
         <textarea name="note"></textarea>
         <input type="text" name="numero-immagini" />
-        <input type="text" name="immagini-urls" />
+        <input type="text" name="immagine-1" />      {/* ← AGGIUNGI QUESTI */}
+        <input type="text" name="immagine-2" />      {/* ← CAMPI SEPARATI */}
+        <input type="text" name="immagine-3" />      {/* ← PER OGNI */}
+        <input type="text" name="immagine-4" />      {/* ← IMMAGINE */}
+        <textarea name="immagini-complete"></textarea> {/* ← E QUESTO PER IL TESTO FORMATTATO */}
       </form>
   
       <Header 
