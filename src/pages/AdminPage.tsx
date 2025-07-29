@@ -324,7 +324,7 @@ const AdminPage: React.FC = () => {
             <Button variant="primary" onClick={handleAddNew}>
               <FaPlus /> Aggiungi Veicolo
             </Button>
-            <Button variant="outline" onClick={handleExport}>
+            <Button variant="primary" onClick={handleExport}>
               <FaDownload /> Esporta Catalogo
             </Button>
           </ActionButtons>
@@ -423,7 +423,7 @@ const AdminPage: React.FC = () => {
                     <div>
                       {page > 1 && (
                         <Button
-                          variant="outline"
+                          variant="primary"
                           onClick={() => setPage(page - 1)}
                           style={{ marginRight: '8px' }}
                         >
@@ -432,7 +432,7 @@ const AdminPage: React.FC = () => {
                       )}
                       {vehiclesResult.hasMore && (
                         <Button
-                          variant="outline"
+                          variant="primary"
                           onClick={() => setPage(page + 1)}
                         >
                           Successiva

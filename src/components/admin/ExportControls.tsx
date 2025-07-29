@@ -36,6 +36,7 @@ const DialogContainer = styled.div`
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   max-width: 600px;
   width: 90%;
+  max-height: 80vh;
   box-shadow: ${({ theme }) => theme.shadows.xl};
   animation: slideIn 0.2s ease-out;
 
@@ -95,6 +96,8 @@ const CloseButton = styled.button`
 
 const DialogContent = styled.div`
   padding: ${({ theme }) => theme.spacing.xl};
+  max-height: 80vh;
+  overflow-y: auto;
 `;
 
 const FormSection = styled.div`
