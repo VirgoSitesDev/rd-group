@@ -624,6 +624,7 @@ RD Group - Concessionario Auto Pistoia
         }
       }
   
+      // 📝 CREA IL RIEPILOGO NEL DATABASE
       const summaryId = `acq_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       const currentDate = new Date().toISOString();
       
@@ -645,6 +646,7 @@ RD Group - Concessionario Auto Pistoia
         createdAt: currentDate
       };
   
+      // Salva nel database
       try {
         await saveSummaryToDatabase(summaryData);
         console.log('✅ Riepilogo salvato nel database');
@@ -652,26 +654,25 @@ RD Group - Concessionario Auto Pistoia
         console.warn('⚠️ Impossibile salvare nel database, procedo comunque:', dbError);
       }
   
+      // 📧 CREA L'EMAIL CON IL RIEPILOGO COMPLETO
       const summaryUrl = createSummaryUrl(summaryId);
       const emailContent = createEmailContent(formData, imageUrls, summaryUrl);
-  
-      // ✅ Invio sia i dati originali che il riepilogo completo
-      const submitData = new URLSearchParams();
       
+      // 🚀 INVIA SOLO L'EMAIL CON IL RIEPILOGO COMPLETO
+      const submitData = new URLSearchParams();
       submitData.append('form-name', 'acquisizione');
+      
+      // Campi obbligatori per Netlify (per conferma)
       submitData.append('nome', formData.nome);
       submitData.append('cognome', formData.cognome);
       submitData.append('mail', formData.mail);
       submitData.append('telefono', formData.telefono);
-      submitData.append('marca', formData.marca);
-      submitData.append('anno', formData.anno);
-      submitData.append('km', formData.km);
-      submitData.append('note', formData.note); // Note originali dell'utente
-      submitData.append('riepilogo_completo', emailContent); // Contenuto elaborato
-  
-      console.log('📤 Invio form a Netlify...');
-      console.log('📧 Contenuto email:', emailContent);
-  
+      
+      // Il VERO contenuto dell'email che riceverai
+      submitData.append('riepilogo_completo', emailContent);
+      
+      console.log('📤 Invio email con riepilogo completo...');
+      
       const response = await fetch('/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -679,12 +680,14 @@ RD Group - Concessionario Auto Pistoia
       });
   
       if (response.ok) {
-        alert(`✅ Richiesta inviata con successo! 
-  
-  🔗 Link al riepilogo: ${summaryUrl}
-  
-  Ti contatteremo presto per la valutazione.`);
+        // ✅ SUCCESSO - Messaggio pulito per il cliente (SENZA LINK)
+        alert(`✅ Richiesta inviata con successo!
         
+Ti contatteremo presto per la valutazione della tua auto.
+
+Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
+        
+        // Resetta il form
         setFormData({
           nome: '',
           cognome: '',
@@ -698,8 +701,9 @@ RD Group - Concessionario Auto Pistoia
         
         images.forEach(image => URL.revokeObjectURL(image.preview));
         setImages([]);
-  
-        window.open(summaryUrl, '_blank');
+        
+        // ❌ NON aprire la pagina del riepilogo al cliente
+        // window.open(summaryUrl, '_blank'); // RIMOSSO!
         
       } else {
         throw new Error(`Errore HTTP: ${response.status} - ${response.statusText}`);
@@ -707,7 +711,7 @@ RD Group - Concessionario Auto Pistoia
       
     } catch (error) {
       console.error('Errore invio form:', error);
-      alert('❌ Errore nell\'invio. Riprova più tardi o contattaci direttamente.');
+      alert('❌ Errore nell\'invio. Riprova più tardi o contattaci direttamente al +39 057 318 7467.');
     } finally {
       setIsSubmitting(false);
     }
@@ -858,10 +862,6 @@ RD Group - Concessionario Auto Pistoia
         <input type="text" name="cognome" />
         <input type="email" name="mail" />
         <input type="tel" name="telefono" />
-        <input type="text" name="marca" />
-        <input type="text" name="anno" />
-        <input type="text" name="km" />
-        <textarea name="note"></textarea>
         <textarea name="riepilogo_completo"></textarea>
       </form>
   
