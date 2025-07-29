@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import styled from 'styled-components';
-import { FaArrowRight} from 'react-icons/fa';
+import { FaArrowRight, FaTrash, FaTimes} from 'react-icons/fa';
 import { LuImagePlus } from "react-icons/lu";
 
 import Container from '../components/layout/Container';
@@ -189,20 +189,25 @@ const GalleryGrid = styled.div`
   margin-bottom: ${({ theme }) => theme.spacing.lg};
 `;
 
-const ImageUpload = styled.div`
+const ImageUpload = styled.div<{ $isDragOver?: boolean; $hasImage?: boolean }>`
   aspect-ratio: 1.2;
-  border: 3px dashed #949494;
+  border: 3px dashed ${({ $isDragOver, theme }) => 
+    $isDragOver ? theme.colors.primary.main : '#949494'};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: border-color 0.2s ease;
-  background: #fafafa;
+  transition: all 0.2s ease;
+  background: ${({ $isDragOver, $hasImage }) => 
+    $isDragOver ? 'rgba(203, 22, 24, 0.1)' : $hasImage ? 'transparent' : '#fafafa'};
+  position: relative;
+  overflow: hidden;
 
   &:hover {
     border-color: ${({ theme }) => theme.colors.primary.main};
+    background: ${({ $hasImage }) => $hasImage ? 'transparent' : 'rgba(203, 22, 24, 0.05)'};
   }
 
   input {
@@ -224,6 +229,81 @@ const ImageUpload = styled.div`
   &:first-child {
     grid-column: 1 / -1;
     aspect-ratio: 2.6;
+  }
+`;
+
+const ImagePreview = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const PreviewImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+`;
+
+const RemoveImageButton = styled.button`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  z-index: 10;
+
+  &:hover {
+    background: ${({ theme }) => theme.colors.error};
+    transform: scale(1.1);
+  }
+`;
+
+const MainImageBadge = styled.div`
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background: ${({ theme }) => theme.colors.primary.main};
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  z-index: 10;
+`;
+
+const UploadProgress = styled.div<{ $progress: number }>`
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.1);
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: ${({ $progress }) => $progress}%;
+    background: ${({ theme }) => theme.colors.primary.main};
+    transition: width 0.3s ease;
   }
 `;
 
@@ -252,10 +332,21 @@ const SectionMaps = styled.div`
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
     margin-top: 30px;
   }
-`
+`;
+
+interface ImageFile {
+  file: File;
+  preview: string;
+  id: string;
+  isUploading?: boolean;
+  uploadProgress?: number;
+  error?: string;
+}
 
 const AcquistiPage: React.FC = () => {
   const { data: featuredResult } = useFeaturedCars(1);
+  const fileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  
   const [formData, setFormData] = useState({
     nome: '',
     cognome: '',
@@ -267,6 +358,14 @@ const AcquistiPage: React.FC = () => {
     note: ''
   });
 
+  const [images, setImages] = useState<ImageFile[]>([]);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const MAX_IMAGES = 4;
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
   useEffect(() => {
     document.title = 'Acquisizione Auto - RD Group Pistoia | Vendiamo la tua Auto';
     
@@ -274,7 +373,102 @@ const AcquistiPage: React.FC = () => {
     if (metaDescription) {
       metaDescription.setAttribute('content', 'Vendi la tua auto a RD Group. Pagamento immediato e passaggio di proprietà a carico nostro. Compila il modulo per una valutazione gratuita.');
     }
+
+    // Cleanup preview URLs on unmount
+    return () => {
+      images.forEach(image => {
+        URL.revokeObjectURL(image.preview);
+      });
+    };
   }, []);
+
+  const validateFile = (file: File): string | null => {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return `Formato non supportato. Usa: ${ALLOWED_TYPES.join(', ')}`;
+    }
+    
+    if (file.size > MAX_FILE_SIZE) {
+      return `File troppo grande. Max: ${MAX_FILE_SIZE / 1024 / 1024}MB`;
+    }
+    
+    return null;
+  };
+
+  const addImages = (files: File[]) => {
+    const availableSlots = MAX_IMAGES - images.length;
+    const filesToAdd = files.slice(0, availableSlots);
+    
+    const newImages: ImageFile[] = [];
+    
+    filesToAdd.forEach(file => {
+      const error = validateFile(file);
+      if (!error) {
+        const imageFile: ImageFile = {
+          file,
+          preview: URL.createObjectURL(file),
+          id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          isUploading: false,
+          uploadProgress: 0,
+          error: undefined
+        };
+        newImages.push(imageFile);
+      }
+    });
+    
+    setImages(prev => [...prev, ...newImages]);
+  };
+
+  const removeImage = (id: string) => {
+    setImages(prev => {
+      const imageToRemove = prev.find(img => img.id === id);
+      if (imageToRemove) {
+        URL.revokeObjectURL(imageToRemove.preview);
+      }
+      return prev.filter(img => img.id !== id);
+    });
+  };
+
+  const handleFileSelect = (slotIndex: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length > 0) {
+      if (slotIndex === 0) {
+        // Main image slot - can add multiple images
+        addImages(files);
+      } else {
+        // Individual small slots - add one image at a time
+        if (images.length < MAX_IMAGES) {
+          addImages([files[0]]);
+        }
+      }
+    }
+    // Reset input value
+    if (e.target) {
+      e.target.value = '';
+    }
+  };
+
+  const handleDragOver = (index: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (index: number) => (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOverIndex(null);
+    
+    const files = Array.from(e.dataTransfer.files).filter(file => 
+      file.type.startsWith('image/')
+    );
+    
+    if (files.length > 0) {
+      addImages(files);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -283,8 +477,228 @@ const AcquistiPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const convertImageToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    // Controllo validazione prima di procedere
+    if (images.length < 2) {
+      e.preventDefault();
+      alert('⚠️ Aggiungi almeno 2 immagini per procedere');
+      return;
+    }
+
+    // Previene il submit normale mentre elaboriamo le immagini
     e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Converte le immagini in base64
+      const imagePromises = images.map(async (image, index) => {
+        setImages(prev => prev.map(img => 
+          img.id === image.id 
+            ? { ...img, isUploading: true, uploadProgress: 0 }
+            : img
+        ));
+        
+        // Simula progress durante la conversione
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress += 20;
+          setImages(prev => prev.map(img => 
+            img.id === image.id 
+              ? { ...img, uploadProgress: Math.min(progress, 90) }
+              : img
+          ));
+        }, 100);
+
+        const base64 = await convertImageToBase64(image.file);
+        
+        clearInterval(progressInterval);
+        setImages(prev => prev.map(img => 
+          img.id === image.id 
+            ? { ...img, isUploading: false, uploadProgress: 100 }
+            : img
+        ));
+
+        return {
+          name: `immagine-${index + 1}`,
+          data: base64
+        };
+      });
+
+      const imageData = await Promise.all(imagePromises);
+
+      // Crea i dati del form manualmente per Netlify
+      const submitData = new URLSearchParams();
+      
+      // Aggiunge i campi del form
+      submitData.append('form-name', 'acquisizione');
+      submitData.append('nome', formData.nome);
+      submitData.append('cognome', formData.cognome);
+      submitData.append('mail', formData.mail);
+      submitData.append('telefono', formData.telefono);
+      submitData.append('marca', formData.marca);
+      submitData.append('anno', formData.anno);
+      submitData.append('km', formData.km);
+      submitData.append('note', formData.note);
+      
+      // Aggiunge le immagini
+      submitData.append('numero-immagini', images.length.toString());
+      imageData.forEach((img, index) => {
+        submitData.append(`immagine-${index + 1}`, img.data);
+      });
+
+      // Invia a Netlify
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: submitData.toString()
+      });
+
+      if (response.ok) {
+        alert('✅ Richiesta inviata con successo! Ti contatteremo presto per la valutazione.');
+        
+        // Reset form
+        setFormData({
+          nome: '',
+          cognome: '',
+          mail: '',
+          telefono: '',
+          marca: '',
+          anno: '',
+          km: '',
+          note: ''
+        });
+        
+        // Clear images
+        images.forEach(image => URL.revokeObjectURL(image.preview));
+        setImages([]);
+      } else {
+        throw new Error(`Errore HTTP: ${response.status}`);
+      }
+      
+    } catch (error) {
+      console.error('Errore invio form:', error);
+      alert('❌ Errore nell\'invio. Riprova più tardi o contattaci direttamente.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getImageSlots = () => {
+    const slots = [];
+    
+    // Main slot (first one, spans all columns)
+    slots.push(
+      <ImageUpload
+        key="main"
+        $isDragOver={dragOverIndex === 0}
+        $hasImage={images.length > 0}
+        onClick={() => {
+          if (images.length < MAX_IMAGES) {
+            fileInputRefs.current[0]?.click();
+          }
+        }}
+        onDragOver={handleDragOver(0)}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop(0)}
+      >
+        <input
+          ref={el => { fileInputRefs.current[0] = el; }}
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={handleFileSelect(0)}
+        />
+        
+        {images.length > 0 && images[0] ? (
+          <ImagePreview>
+            <PreviewImage src={images[0].preview} alt="Anteprima" />
+            <MainImageBadge>Principale</MainImageBadge>
+            <RemoveImageButton
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeImage(images[0].id);
+              }}
+            >
+              <FaTimes />
+            </RemoveImageButton>
+            {images[0].isUploading && (
+              <UploadProgress $progress={images[0].uploadProgress || 0} />
+            )}
+          </ImagePreview>
+        ) : (
+          <>
+            <LuImagePlus />
+            <span>Aggiungi foto principale</span>
+          </>
+        )}
+      </ImageUpload>
+    );
+
+    // Additional slots (3 smaller ones)
+    for (let i = 1; i < 4; i++) {
+      const slotIndex = i;
+      const imageIndex = i; // Immagine corrispondente a questo slot
+      const hasImage = images[imageIndex];
+      const canAddMore = images.length < MAX_IMAGES;
+      
+      slots.push(
+        <ImageUpload
+          key={slotIndex}
+          $isDragOver={dragOverIndex === slotIndex}
+          $hasImage={!!hasImage}
+          onClick={() => {
+            if (!hasImage && canAddMore) {
+              fileInputRefs.current[slotIndex]?.click();
+            }
+          }}
+          onDragOver={handleDragOver(slotIndex)}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop(slotIndex)}
+        >
+          <input
+            ref={el => { fileInputRefs.current[slotIndex] = el; }}
+            type="file"
+            accept="image/*"
+            onChange={handleFileSelect(slotIndex)}
+          />
+          
+          {hasImage ? (
+            <ImagePreview>
+              <PreviewImage src={hasImage.preview} alt="Anteprima" />
+              <RemoveImageButton
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeImage(hasImage.id);
+                }}
+              >
+                <FaTimes />
+              </RemoveImageButton>
+              {hasImage.isUploading && (
+                <UploadProgress $progress={hasImage.uploadProgress || 0} />
+              )}
+            </ImagePreview>
+          ) : (
+            <>
+              <LuImagePlus />
+              <span>{canAddMore ? 'Aggiungi foto' : `${images.length}/${MAX_IMAGES}`}</span>
+            </>
+          )}
+        </ImageUpload>
+      );
+    }
+
+    return slots;
   };
 
   const heroFeaturedCar = featuredResult?.cars?.[0];
@@ -339,6 +753,17 @@ const AcquistiPage: React.FC = () => {
                 <div style={{ display: 'none' }}>
                   <input name="bot-field" />
                 </div>
+                
+                {/* Campi nascosti per le immagini */}
+                <input type="hidden" name="numero-immagini" value={images.length} />
+                {images.map((_, index) => (
+                  <input 
+                    key={`img-${index}`}
+                    type="hidden" 
+                    name={`immagine-${index + 1}`} 
+                    value=""
+                  />
+                ))}
                 
                 <FormInnerGrid>
                   <FormFieldsColumn>
@@ -401,7 +826,7 @@ const AcquistiPage: React.FC = () => {
                         name="marca"
                         value={formData.marca}
                         onChange={(e) => handleInputChange('marca', e.target.value)}
-                        placeholder='Ex: Mercedes, BWM, etc...'
+                        placeholder='Ex: Mercedes, BMW, etc...'
                       />
                     </FormGroup>
 
@@ -413,7 +838,7 @@ const AcquistiPage: React.FC = () => {
                         name="anno"
                         value={formData.anno}
                         onChange={(e) => handleInputChange('anno', e.target.value)}
-                        placeholder="MM/AAAA"
+                        placeholder="2020"
                       />
                     </FormGroup>
 
@@ -425,7 +850,7 @@ const AcquistiPage: React.FC = () => {
                         name="km"
                         value={formData.km}
                         onChange={(e) => handleInputChange('km', e.target.value)}
-                        placeholder="Ex. 100 000km"
+                        placeholder="Es. 100000"
                       />
                     </FormGroup>
 
@@ -443,28 +868,34 @@ const AcquistiPage: React.FC = () => {
 
                   <GallerySection>
                     <GalleryTitle>Galleria</GalleryTitle>
-                    <GallerySubtitle>Almeno 2 immagini</GallerySubtitle>
+                    <GallerySubtitle>
+                      Almeno 2 immagini ({images.length}/{MAX_IMAGES})
+                    </GallerySubtitle>
                     <GalleryGrid>
-                      <ImageUpload>
-                        <input type="file" accept="image/*" />
-                        <LuImagePlus />
-                        <span>Aggiungi foto</span>
-                      </ImageUpload>
-
-                      {[2, 3, 4].map((index) => (
-                        <ImageUpload key={index}>
-                          <input type="file" accept="image/*" />
-                          <LuImagePlus />
-                          <span>Aggiungi foto</span>
-                        </ImageUpload>
-                      ))}
+                      {getImageSlots()}
                     </GalleryGrid>
-
+                    
+                    {images.length >= 2 && (
+                      <div style={{ 
+                        color: '#4caf50', 
+                        fontSize: '0.9rem', 
+                        textAlign: 'center',
+                        marginTop: '8px'
+                      }}>
+                        ✅ Numero minimo di immagini raggiunto
+                      </div>
+                    )}
                   </GallerySection>
+                  
                   <div></div>
+                  
                   <ButtonContainer>
-                    <ActionButton type="submit">
-                      Richiedi informazioni<FaArrowRight />
+                    <ActionButton 
+                      type="submit" 
+                      disabled={isSubmitting || images.length < 2}
+                    >
+                      {isSubmitting ? 'Invio in corso...' : 'Richiedi informazioni'}
+                      <FaArrowRight />
                     </ActionButton>
                   </ButtonContainer>
                 </FormInnerGrid>
@@ -477,8 +908,9 @@ const AcquistiPage: React.FC = () => {
           </LegalText>
         </Container>
       </ContactContent>
+      
       <SectionMaps>
-        <LocationsSection></LocationsSection>
+        <LocationsSection />
       </SectionMaps>
     </AcquistiPageContainer>
   );
