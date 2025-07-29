@@ -705,44 +705,47 @@ const AcquistiPage: React.FC = () => {
         console.warn('⚠️ Impossibile salvare nel database, procedo comunque:', dbError);
       }
   
-      // 📧 CREA L'EMAIL CON IL RIEPILOGO COMPLETO
+      // 📧 INVIA EMAIL CON SENDGRID
       const summaryUrl = createSummaryUrl(summaryId);
       
-      // 🎯 MIGLIORA L'INVIO: Usa più campi invece di solo "messaggio"
-      const submitData = new URLSearchParams();
-      submitData.append('form-name', 'acquisizione');
-
-      // Campi separati per migliore organizzazione
-      submitData.append('customer_name', `${formData.nome} ${formData.cognome}`);
-      submitData.append('customer_email', formData.mail);
-      submitData.append('customer_phone', formData.telefono);
-      submitData.append('vehicle_make', formData.marca || 'Non specificata');
-      submitData.append('vehicle_year', formData.anno || 'Non specificato');
-      submitData.append('vehicle_km', formData.km || 'Non specificati');
-      submitData.append('vehicle_notes', formData.note || 'Nessuna nota');
-      submitData.append('summary_url', summaryUrl);
-      submitData.append('images_count', imageUrls.length.toString());
-      submitData.append('images_urls', imageUrls.join('\n'));
-
-      // Il messaggio completo formattato
-      const emailContent = createEmailContent(formData, imageUrls, summaryUrl);
-      submitData.append('messaggio', emailContent);
+      const emailData = {
+        customerData: {
+          nome: formData.nome,
+          cognome: formData.cognome,
+          mail: formData.mail,
+          telefono: formData.telefono
+        },
+        vehicleData: {
+          marca: formData.marca,
+          anno: formData.anno,
+          km: formData.km,
+          note: formData.note
+        },
+        images: imageUrls,
+        summaryUrl: summaryUrl
+      };
       
-      console.log('📤 Invio email con riepilogo completo...');
+      console.log('📤 Invio email con SendGrid...');
       
-      const response = await fetch('/', {
+      const response = await fetch('/.netlify/functions/send-acquisition-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: submitData.toString()
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData)
       });
   
-      if (response.ok) {
-        // ✅ SUCCESSO - Messaggio SENZA LINK per il cliente
+      const result = await response.json();
+  
+      if (result.success) {
+        // ✅ SUCCESSO
         alert(`✅ Richiesta inviata con successo!
 
 Ti contatteremo presto per la valutazione della tua auto.
 
-Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
+Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.
+
+Controlla la tua email per la conferma!`);
         
         // Resetta il form
         setFormData({
@@ -759,11 +762,8 @@ Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.`);
         images.forEach(image => URL.revokeObjectURL(image.preview));
         setImages([]);
         
-        // ❌ NON aprire la pagina del riepilogo al cliente
-        // window.open(summaryUrl, '_blank'); // RIMOSSO!
-        
       } else {
-        throw new Error(`Errore HTTP: ${response.status} - ${response.statusText}`);
+        throw new Error(result.message || 'Errore nell\'invio email');
       }
       
     } catch (error) {
