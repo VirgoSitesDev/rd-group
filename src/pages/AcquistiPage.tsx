@@ -183,9 +183,20 @@ const GallerySubtitle = styled.p`
   }
 `;
 
+const GalleryHint = styled.p`
+  color: ${({ theme }) => theme.colors.primary.main};
+  font-size: 1rem;
+  font-weight: ${({ theme }) => theme.typography.fontWeight.medium};
+  margin-bottom: ${({ theme }) => theme.spacing.lg};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    font-size: 0.85rem !important;
+  }
+`;
+
 const GalleryGrid = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   gap: ${({ theme }) => theme.spacing.sm};
   margin-bottom: ${({ theme }) => theme.spacing.lg};
 `;
@@ -364,7 +375,7 @@ const AcquistiPage: React.FC = () => {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const MAX_IMAGES = 4;
+  const MAX_IMAGES = 6;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
@@ -478,9 +489,9 @@ const AcquistiPage: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    if (images.length < 2) {
+    if (images.length < 6) {
       e.preventDefault();
-      alert('⚠️ Aggiungi almeno 2 immagini per procedere');
+      alert('⚠️ Aggiungi 6 immagini per procedere');
       return;
     }
   
@@ -684,7 +695,7 @@ const AcquistiPage: React.FC = () => {
       </ImageUpload>
     );
 
-    for (let i = 1; i < 4; i++) {
+    for (let i = 1; i < 6; i++) {
       const slotIndex = i;
       const imageIndex = i;
       const hasImage = images[imageIndex];
@@ -908,13 +919,17 @@ const AcquistiPage: React.FC = () => {
                   <GallerySection>
                     <GalleryTitle>Galleria</GalleryTitle>
                     <GallerySubtitle>
-                      Almeno 2 immagini ({images.length}/{MAX_IMAGES})
+                      Inserisci 6 immagini ({images.length}/{MAX_IMAGES})
                     </GallerySubtitle>
                     <GalleryGrid>
                       {getImageSlots()}
                     </GalleryGrid>
-                    
-                    {images.length >= 2 && (
+
+                    <GalleryHint>
+                      Includi foto degli esterni, interni, cruscotto e dettagli importanti
+                    </GalleryHint>
+
+                    {images.length >= 6 && (
                       <div style={{ 
                         color: '#4caf50', 
                         fontSize: '0.9rem', 
@@ -931,7 +946,7 @@ const AcquistiPage: React.FC = () => {
                   <ButtonContainer>
                     <ActionButton 
                       type="submit" 
-                      disabled={isSubmitting || images.length < 2}
+                      disabled={isSubmitting || images.length < 6}
                     >
                       {isSubmitting ? 'Invio in corso...' : 'Richiedi informazioni'}
                       <FaArrowRight />
