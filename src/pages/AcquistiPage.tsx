@@ -567,10 +567,6 @@ const AcquistiPage: React.FC = () => {
         },
         body: JSON.stringify(emailData)
       });
-  
-      // 🔍 DEBUG: Log della risposta
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response headers:', response.headers);
       
       let result;
       try {
@@ -588,7 +584,7 @@ const AcquistiPage: React.FC = () => {
   
       if (result.success) {
         // ✅ SUCCESSO
-        alert(`✅ Richiesta inviata con successo!
+        alert(`Richiesta inviata con successo!
   
   Ti contatteremo presto per la valutazione della tua auto.
   
@@ -617,8 +613,7 @@ const AcquistiPage: React.FC = () => {
       
     } catch (error) {
       console.error('❌ Errore invio form:', error);
-      
-      // Gestione dettagliata degli errori
+  
       let errorMessage = 'Errore sconosciuto';
       
       if (error instanceof Error) {
@@ -629,7 +624,6 @@ const AcquistiPage: React.FC = () => {
         errorMessage = String((error as any).message);
       }
       
-      // Messaggio specifico per errori comuni
       if (errorMessage.includes('SENDGRID_API_KEY')) {
         errorMessage = 'Configurazione email non trovata. Contatta l\'amministratore.';
       } else if (errorMessage.includes('FROM_EMAIL')) {

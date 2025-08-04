@@ -277,7 +277,6 @@ ID Sessione: ${Date.now()}
     }
   }
 
-  // Metodo per inviare email di conferma al cliente
   async sendConfirmationEmail(customerEmail: string, customerName: string): Promise<void> {
     const msg = {
       to: customerEmail,
@@ -285,25 +284,27 @@ ID Sessione: ${Date.now()}
         email: this.fromEmail,
         name: 'RD Group'
       },
-      subject: '✅ Richiesta ricevuta - Ti contatteremo presto!',
+      subject: 'Richiesta ricevuta - Ti contatteremo presto!',
       html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #cb1618; color: white; padding: 20px; text-align: center;">
-          <h1>✅ Richiesta Ricevuta!</h1>
+        <div style="background: #000000; color: white; padding: 30px 20px; text-align: center;">
+          <img src="https://your-domain.com/Logo_black.png" alt="RD Group Logo" style="max-width: 80px; height: auto; margin-bottom: 20px; filter: brightness(0) invert(1);">
+          <h1 style="margin: 0; color: white;">Richiesta Ricevuta!</h1>
         </div>
         <div style="padding: 30px 20px;">
           <p>Ciao <strong>${customerName}</strong>,</p>
           <p>Abbiamo ricevuto la tua richiesta di valutazione auto.</p>
-          <p><strong>🎯 Cosa succede ora:</strong></p>
           <ul>
             <li>Un nostro esperto valuterà le informazioni e le foto che ci hai inviato</li>
-            <li>Ti contatteremo entro <strong>24 ore</strong> per fissare un appuntamento</li>
+            <li>Ti contatteremo nei prossimi giorni per fissare un appuntamento</li>
             <li>Valuteremo la tua auto di persona per offrirti il miglior prezzo</li>
           </ul>
           
           <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #cb1618; margin-top: 0;">📞 Hai fretta?</h3>
-            <p>Chiamaci direttamente al <strong>+39 057 318 7467</strong></p>
+            <p>Chiamaci direttamente:</p>
+            <p><strong>RD Group: +39 057 318 7467</strong></p>
+            <p><strong>RD Luxury: +39 057 318 74672</strong></p>
             <p>Siamo aperti Lunedì-Sabato: 08:30-13:00 / 14:30-19:30</p>
           </div>
           
@@ -312,28 +313,33 @@ ID Sessione: ${Date.now()}
         </div>
         <div style="background: #f5f5f5; padding: 15px; text-align: center; font-size: 0.9rem; color: #666;">
           RD Group - Via Bottaia, 2 - 51100 Pistoia (PT)<br>
-          📞 +39 057 318 7467 | ✉️ rdautosrlpistoia@gmail.com
+          📞 RD Group: +39 057 318 7467 | RD Luxury: +39 057 318 74672<br>
+          ✉️ rdautosrlpistoia@gmail.com | rdluxurysrl@gmail.com
         </div>
       </div>
       `,
       text: `
-Ciao ${customerName},
+  Ciao ${customerName},
 
-Abbiamo ricevuto la tua richiesta di valutazione auto.
+  Abbiamo ricevuto la tua richiesta di valutazione auto.
 
-🎯 Cosa succede ora:
-- Un nostro esperto valuterà le informazioni e le foto che ci hai inviato
-- Ti contatteremo entro 24 ore per fissare un appuntamento  
-- Valuteremo la tua auto di persona per offrirti il miglior prezzo
+  🎯 Cosa succede ora:
+  - Un nostro esperto valuterà le informazioni e le foto che ci hai inviato
+  - Ti contatteremo entro 24 ore per fissare un appuntamento  
+  - Valuteremo la tua auto di persona per offrirti il miglior prezzo
 
-📞 Hai fretta? Chiamaci al +39 057 318 7467
-Siamo aperti Lunedì-Sabato: 08:30-13:00 / 14:30-19:30
+  📞 Hai fretta? Chiamaci direttamente:
+  RD Group: +39 057 318 7467
+  RD Luxury: +39 057 318 74672
 
-Grazie per aver scelto RD Group!
-Il Team RD Group
+  Siamo aperti Lunedì-Sabato: 08:30-13:00 / 14:30-19:30
 
-RD Group - Via Bottaia, 2 - 51100 Pistoia (PT)
-📞 +39 057 318 7467 | ✉️ rdautosrlpistoia@gmail.com
+  Grazie per aver scelto RD Group!
+  Il Team RD Group
+
+  RD Group - Via Bottaia, 2 - 51100 Pistoia (PT)
+  📞 RD Group: +39 057 318 7467 | RD Luxury: +39 057 318 74672
+  ✉️ rdautosrlpistoia@gmail.com | rdluxurysrl@gmail.com
       `
     };
 
