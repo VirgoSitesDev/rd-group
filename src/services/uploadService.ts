@@ -6,6 +6,78 @@ class UploadService {
   private readonly ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
   /**
+   * 🔒 FORZA HTTPS negli URL
+   */
+  private forceHttps(url: string): string {
+    if (url.startsWith('http://')) {
+      const httpsUrl = url.replace('http://', 'https://');
+      console.log(`🔒 [HTTPS FIX] ${url} → ${httpsUrl}`);
+      return httpsUrl;
+    }
+    return url;
+  }
+
+  /**
+   * 🔍 Debug del File object
+   */
+  private async debugFile(file: File, label: string = ''): Promise<void> {
+    console.log(`🔍 [DEBUG ${label}] File Info:`, {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      lastModified: file.lastModified,
+      constructor: file.constructor.name
+    });
+
+    // Verifica che sia davvero un file binario
+    if (file.size > 0) {
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer.slice(0, 16));
+        const hexString = Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join(' ');
+        console.log(`🔍 [DEBUG ${label}] Prime 16 bytes:`, hexString);
+        
+        // Check magic numbers
+        const magic = Array.from(bytes.slice(0, 4)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+        const formats = {
+          'FFD8FFE0': 'JPEG',
+          'FFD8FFE1': 'JPEG', 
+          'FFD8FFE2': 'JPEG',
+          '89504E47': 'PNG',
+          '52494646': 'WebP/RIFF',
+        };
+        
+        const detectedFormat = (magic in formats) ? formats[magic as keyof typeof formats] : 'Unknown';
+        console.log(`🔍 [DEBUG ${label}] Magic Number: ${magic} (${detectedFormat})`);
+        
+      } catch (error) {
+        console.error(`❌ [DEBUG ${label}] Errore lettura file:`, error);
+      }
+    }
+  }
+
+  /**
+   * 🔧 CONVERTE FILE IN ARRAYBUFFER - FIX PRINCIPALE
+   */
+  private async fileToArrayBuffer(file: File): Promise<{ buffer: ArrayBuffer; contentType: string }> {
+    try {
+      console.log('🔄 Conversione File -> ArrayBuffer...');
+      
+      const arrayBuffer = await file.arrayBuffer();
+      console.log(`✅ ArrayBuffer creato: ${arrayBuffer.byteLength} bytes`);
+      
+      return {
+        buffer: arrayBuffer,
+        contentType: file.type || 'application/octet-stream'
+      };
+      
+    } catch (error) {
+      console.error('❌ Errore conversione File -> ArrayBuffer:', error);
+      throw new Error(`Impossibile leggere il file: ${error}`);
+    }
+  }
+
+  /**
    * Valida un file immagine
    */
   private validateFile(file: File): { valid: boolean; error?: string } {
@@ -76,7 +148,7 @@ class UploadService {
   }
 
   /**
-   * Carica immagini per un veicolo specifico con ID
+   * 🚀 UPLOAD CORRETTO - Usa ArrayBuffer invece di File object
    */
   async uploadVehicleImagesWithId(
     vehicleId: number,
@@ -85,6 +157,7 @@ class UploadService {
   ): Promise<string[]> {
     try {
       console.log(`🚗 Inizio upload immagini per veicolo ID: ${vehicleId}`);
+      console.log(`📊 File da caricare: ${files.length}`);
       
       if (files.length === 0) {
         throw new Error('Nessun file da caricare');
@@ -95,7 +168,10 @@ class UploadService {
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
-        console.log(`📤 Caricamento immagine ${i + 1}/${files.length}: ${file.name}`);
+        console.log(`\n📤 === UPLOAD ${i + 1}/${files.length}: ${file.name} ===`);
+
+        // Debug file originale
+        await this.debugFile(file, `ORIGINALE_${i}`);
 
         // Valida il file
         const validation = this.validateFile(file);
@@ -109,26 +185,35 @@ class UploadService {
         if (file.type !== 'image/webp') {
           console.log(`🔄 Conversione in WebP: ${file.name}`);
           fileToUpload = await this.convertToWebP(file);
+          await this.debugFile(fileToUpload, `CONVERTITO_${i}`);
         }
+
+        // 🔧 CONVERSIONE CRUCIALE: File -> ArrayBuffer
+        const { buffer, contentType } = await this.fileToArrayBuffer(fileToUpload);
 
         // Nome file progressivo
         const fileName = `image_${i.toString().padStart(2, '0')}.webp`;
         const filePath = `${folderPath}/${fileName}`;
 
-        console.log(`📁 Upload in: ${filePath}`);
+        console.log(`📁 Upload path: ${filePath}`);
+        console.log(`📋 Content-Type: ${contentType}`);
+        console.log(`📦 Buffer size: ${buffer.byteLength} bytes`);
 
-        // Upload su Supabase
+        // 🚀 UPLOAD USANDO ARRAYBUFFER - QUESTO È IL FIX!
         const { data, error } = await supabase.storage
           .from(this.BUCKET_NAME)
-          .upload(filePath, fileToUpload, {
+          .upload(filePath, buffer, {
             cacheControl: '3600',
-            upsert: true // Sovrascrivi se esiste già
+            upsert: true,
+            contentType: contentType // ✅ Content-Type corretto
           });
 
         if (error) {
           console.error(`❌ Errore upload ${fileName}:`, error);
           throw new Error(`Errore upload ${fileName}: ${error.message}`);
         }
+
+        console.log(`✅ Upload Supabase OK:`, data);
 
         // Ottieni URL pubblico
         const { data: urlData } = supabase.storage
@@ -139,14 +224,34 @@ class UploadService {
           throw new Error(`Errore nel generare URL pubblico per ${fileName}`);
         }
 
-        uploadedUrls.push(urlData.publicUrl);
-        console.log(`✅ Upload completato: ${fileName} -> ${urlData.publicUrl}`);
+        // Applica fix HTTPS
+        const secureUrl = this.forceHttps(urlData.publicUrl);
+        uploadedUrls.push(secureUrl);
+        
+        console.log(`🌐 URL finale: ${secureUrl}`);
+
+        // 🔍 Test immediato dell'immagine
+        try {
+          const testImg = new Image();
+          testImg.onload = () => {
+            console.log(`✅ [VERIFICA] Immagine ${fileName} caricabile nel browser`);
+          };
+          testImg.onerror = () => {
+            console.error(`❌ [VERIFICA] Immagine ${fileName} NON caricabile nel browser`);
+          };
+          testImg.src = secureUrl;
+        } catch (testError) {
+          console.warn(`⚠️ Test immagine fallito:`, testError);
+        }
 
         // Callback di progresso
         onProgress?.(i + 1, files.length);
       }
 
-      console.log(`🎉 Upload completato per veicolo ${vehicleId}: ${uploadedUrls.length} immagini`);
+      console.log(`\n🎉 === UPLOAD COMPLETATO ===`);
+      console.log(`✅ ${uploadedUrls.length} immagini caricate per veicolo ${vehicleId}`);
+      console.log(`🔗 URLs:`, uploadedUrls);
+      
       return uploadedUrls;
 
     } catch (error) {
@@ -216,7 +321,7 @@ class UploadService {
   }
 
   /**
-   * METODI LEGACY - manteniamo per compatibilità con altre parti del codice
+   * METODI LEGACY - con fix ArrayBuffer
    */
   async uploadSingleImage(file: File, optimize: boolean = true): Promise<string> {
     try {
@@ -235,14 +340,18 @@ class UploadService {
         }
       }
 
+      // 🔧 USA ARRAYBUFFER anche qui
+      const { buffer, contentType } = await this.fileToArrayBuffer(fileToUpload);
+
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.webp`;
       const filePath = `temp/${fileName}`;
 
       const { data, error } = await supabase.storage
         .from(this.BUCKET_NAME)
-        .upload(filePath, fileToUpload, {
+        .upload(filePath, buffer, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: contentType
         });
 
       if (error) {
@@ -257,7 +366,7 @@ class UploadService {
         throw new Error('Errore nel generare URL pubblico');
       }
 
-      return urlData.publicUrl;
+      return this.forceHttps(urlData.publicUrl);
 
     } catch (error) {
       console.error('Errore upload immagine:', error);
