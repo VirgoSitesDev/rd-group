@@ -106,6 +106,60 @@ function generateSlug(marca: string, modello: string, id: number): string {
   return `${marcaClean}-${modelloClean}-${id}`;
 }
 
+// 🆕 Funzione per ottenere le informazioni del dealer in base al tipo di auto
+function getDealerInfo(isLuxury: boolean) {
+  if (isLuxury) {
+    return {
+      id: 'rd-luxury-1',
+      name: 'RD Luxury',
+      phone: '+39 057 318 74672',
+      email: 'rdluxurysrl@gmail.com',
+      location: {
+        address: 'Via Luigi Galvani, 2',
+        city: 'Pistoia',
+        region: 'Toscana',
+        postalCode: '51100',
+        country: 'Italia',
+      },
+    };
+  } else {
+    return {
+      id: 'rd-group-1',
+      name: 'RD Group',
+      phone: '+39 057 318 7467',
+      email: 'rdautosrlpistoia@gmail.com',
+      location: {
+        address: 'Via Bottaia di San Sebastiano, 2L',
+        city: 'Pistoia',
+        region: 'Toscana',
+        postalCode: '51100',
+        country: 'Italia',
+      },
+    };
+  }
+}
+
+// 🆕 Funzione per ottenere l'indirizzo della sede principale in base al tipo di auto
+function getMainLocation(isLuxury: boolean) {
+  if (isLuxury) {
+    return {
+      address: 'Via Luigi Galvani, 2',
+      city: 'Pistoia',
+      region: 'Toscana',
+      postalCode: '51100',
+      country: 'Italia',
+    };
+  } else {
+    return {
+      address: 'Via Bottaia di San Sebastiano, 2L',
+      city: 'Pistoia',
+      region: 'Toscana',
+      postalCode: '51100',
+      country: 'Italia',
+    };
+  }
+}
+
 export function transformDBCarToAppCar(dbCar: RDGroupRow | RDGroupLuxuryRow, isLuxury: boolean): Car {
   const imagesJson = dbCar.immagini as any;
   const images = Array.isArray(imagesJson?.urls) 
@@ -130,6 +184,10 @@ export function transformDBCarToAppCar(dbCar: RDGroupRow | RDGroupLuxuryRow, isL
   const year = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
   const carId = dbCar.slug || generateSlug(dbCar.marca, dbCar.modello, dbCar.id);
 
+  // 🔄 Usa i contatti appropriati in base al tipo di auto
+  const dealerInfo = getDealerInfo(isLuxury);
+  const mainLocation = getMainLocation(isLuxury);
+
   return {
     id: carId,
     autoscout24Id: dbCar.autoscout_id || undefined,
@@ -153,26 +211,10 @@ export function transformDBCarToAppCar(dbCar: RDGroupRow | RDGroupLuxuryRow, isL
     images,
     description: dbCar.descrizione || `${dbCar.marca} ${dbCar.modello} in ottime condizioni.`,
     features: [],
-    location: {
-      address: dbCar.luogo || 'Via Bottaia, 2',
-      city: 'Pistoia',
-      region: 'Toscana',
-      postalCode: '51100',
-      country: 'Italia',
-    },
-    dealer: {
-      id: 'rd-group-1',
-      name: 'RD Group',
-      phone: '+39 057 318 7467',
-      email: 'rdautosrlpistoia@gmail.com',
-      location: {
-        address: 'Via Bottaia, 2',
-        city: 'Pistoia',
-        region: 'Toscana',
-        postalCode: '51100',
-        country: 'Italia',
-      },
-    },
+    // 🔄 Usa l'indirizzo principale appropriato
+    location: mainLocation,
+    // 🔄 Usa le informazioni del dealer appropriate
+    dealer: dealerInfo,
     isLuxury,
     condition: CarCondition.USED,
     availability: dbCar.stato_annuncio === 'attivo' ? AvailabilityStatus.AVAILABLE : AvailabilityStatus.PENDING,
@@ -279,3 +321,6 @@ export const getTranslatedValues = {
     return translations[bodyType] || bodyType;
   },
 };
+
+// 🆕 Export delle funzioni utility per ottenere le informazioni dei dealer
+export { getDealerInfo, getMainLocation };
