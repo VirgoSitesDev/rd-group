@@ -1,5 +1,5 @@
 import { supabase } from './supabase';
-import { deleteVehicleImages } from './uploadService';
+import { uploadVehicleImagesWithId, deleteVehicleImagesById } from './uploadService';
 import { mapAppToDBTypes } from './carMappers';
 import type { ExportOptions } from '../components/admin/ExportControls';
 import * as XLSX from 'xlsx';
@@ -30,7 +30,9 @@ interface CreateVehicleData {
     altText: string;
     isPrimary: boolean;
     order: number;
+    file?: File; // Aggiungiamo il file originale per l'upload
   }>;
+  imageFiles?: File[]; // File delle immagini da caricare
   location: {
     address: string;
     city: string;
@@ -73,7 +75,13 @@ class AdminService {
     return `${marcaClean}-${modelloClean}-${id}`;
   }
 
-  private mapVehicleToDBFormat(vehicleData: CreateVehicleData) {
+  private mapVehicleToDBFormat(vehicleData: CreateVehicleData, imageUrls?: string[]) {
+    const immaginiData = imageUrls && imageUrls.length > 0 ? {
+      urls: imageUrls,
+      count: imageUrls.length,
+      updatedAt: new Date().toISOString()
+    } : null;
+
     return {
       marca: vehicleData.make,
       modello: vehicleData.model,
@@ -93,16 +101,8 @@ class AdminService {
       peso: null,
       cilidri: null,
       marce: null,
-      immagine_principale: vehicleData.images.find(img => img.isPrimary)?.url || vehicleData.images[0]?.url || null,
-      immagini: {
-        urls: vehicleData.images.map(img => img.url),
-        metadata: vehicleData.images.map(img => ({
-          id: img.id,
-          altText: img.altText,
-          isPrimary: img.isPrimary,
-          order: img.order
-        }))
-      },
+      immagine_principale: imageUrls && imageUrls.length > 0 ? imageUrls[0] : null,
+      immagini: immaginiData,
       descrizione: vehicleData.description,
       stato_annuncio: 'attivo',
       autoscout_id: null,
@@ -111,34 +111,100 @@ class AdminService {
   }
 
   async createVehicle(vehicleData: CreateVehicleData): Promise<string> {
+    console.log('🚗 Inizio creazione veicolo:', vehicleData.make, vehicleData.model);
+    
     try {
       const tableName = vehicleData.isLuxury ? 'rd_group_luxury' : 'rd_group';
-      const dbData = this.mapVehicleToDBFormat(vehicleData);
+      
+      // STEP 1: Crea il record del veicolo SENZA immagini
+      console.log('📝 Step 1: Creazione record veicolo senza immagini');
+      const dbDataWithoutImages = this.mapVehicleToDBFormat(vehicleData);
 
-      const { data, error } = await supabase
+      const { data: vehicleRecord, error: createError } = await supabase
         .from(tableName)
-        .insert([dbData])
+        .insert([dbDataWithoutImages])
         .select('id')
         .single();
 
-      if (error) {
-        throw new Error(`Errore database: ${error.message}`);
+      if (createError) {
+        console.error('❌ Errore creazione record veicolo:', createError);
+        throw new Error(`Errore database: ${createError.message}`);
       }
 
-      if (!data?.id) {
+      if (!vehicleRecord?.id) {
         throw new Error('ID veicolo non restituito dal database');
       }
 
-      const slug = this.generateSlug(vehicleData.make, vehicleData.model, data.id);
-      await supabase
-        .from(tableName)
-        .update({ slug })
-        .eq('id', data.id);
+      const vehicleId = vehicleRecord.id;
+      console.log('✅ Veicolo creato con ID:', vehicleId);
+      
+      // STEP 2: Genera slug
+      const slug = this.generateSlug(vehicleData.make, vehicleData.model, vehicleId);
+      console.log('🏷️ Slug generato:', slug);
 
+      // STEP 3: Carica le immagini se presenti
+      let imageUrls: string[] = [];
+      if (vehicleData.imageFiles && vehicleData.imageFiles.length > 0) {
+        console.log(`📸 Step 3: Upload di ${vehicleData.imageFiles.length} immagini`);
+        
+        try {
+          imageUrls = await uploadVehicleImagesWithId(
+            vehicleId, 
+            vehicleData.imageFiles,
+            (completed, total) => {
+              console.log(`📤 Upload progresso: ${completed}/${total}`);
+              // TODO: Supportare callback di progresso dal form
+            }
+          );
+          console.log('✅ Upload immagini completato:', imageUrls);
+        } catch (uploadError) {
+          console.error('❌ Errore upload immagini:', uploadError);
+          
+          // Elimina il record del veicolo se l'upload fallisce
+          await supabase.from(tableName).delete().eq('id', vehicleId);
+          throw new Error(`Errore upload immagini: ${uploadError instanceof Error ? uploadError.message : uploadError}`);
+        }
+      }
+
+      // STEP 4: Aggiorna il record con slug e immagini
+      console.log('📝 Step 4: Aggiornamento record con slug e immagini');
+      const updateData: any = { slug };
+
+      if (imageUrls.length > 0) {
+        updateData.immagine_principale = imageUrls[0];
+        updateData.immagini = {
+          urls: imageUrls,
+          count: imageUrls.length,
+          updatedAt: new Date().toISOString()
+        };
+      }
+
+      const { error: updateError } = await supabase
+        .from(tableName)
+        .update(updateData)
+        .eq('id', vehicleId);
+
+      if (updateError) {
+        console.error('❌ Errore aggiornamento veicolo:', updateError);
+        
+        // Cleanup: elimina immagini e record
+        if (imageUrls.length > 0) {
+          await deleteVehicleImagesById(vehicleId);
+        }
+        await supabase.from(tableName).delete().eq('id', vehicleId);
+        
+        throw new Error(`Errore aggiornamento database: ${updateError.message}`);
+      }
+
+      console.log('🎉 Veicolo creato con successo!');
+      console.log('- ID:', vehicleId);
+      console.log('- Slug:', slug);
+      console.log('- Immagini:', imageUrls.length);
+      
       return slug;
 
     } catch (error) {
-      console.error('Errore creazione veicolo:', error);
+      console.error('❌ Errore generale creazione veicolo:', error);
       throw error;
     }
   }
@@ -172,6 +238,9 @@ class AdminService {
       }
 
       const targetTable = vehicleData.isLuxury ? 'rd_group_luxury' : 'rd_group';
+      
+      // Per l'update, per ora manteniamo le immagini esistenti
+      // TODO: Implementare logic per gestire upload/update immagini nell'edit
       const dbData = this.mapVehicleToDBFormat(vehicleData);
 
       if (currentTable !== targetTable) {
@@ -239,16 +308,7 @@ class AdminService {
         throw new Error('Veicolo non trovato');
       }
 
-      const imageUrls: string[] = [];
-      
-      if (vehicle.immagine_principale) {
-        imageUrls.push(vehicle.immagine_principale);
-      }
-
-      if (vehicle.immagini?.urls && Array.isArray(vehicle.immagini.urls)) {
-        imageUrls.push(...vehicle.immagini.urls);
-      }
-
+      // Elimina il record dal database
       const { error } = await supabase
         .from(tableName)
         .delete()
@@ -258,15 +318,15 @@ class AdminService {
         throw new Error(`Errore eliminazione database: ${error.message}`);
       }
 
-      if (imageUrls.length > 0) {
-        deleteVehicleImages([...new Set(imageUrls)])
-          .then(result => {
-            console.log(`Eliminate ${result.deleted} immagini, fallite: ${result.failed}`);
-          })
-          .catch(error => {
-            console.error('Errore eliminazione immagini:', error);
-          });
-      }
+      // Elimina tutte le immagini del veicolo
+      console.log(`🗑️ Eliminazione immagini per veicolo ${numericId}`);
+      deleteVehicleImagesById(numericId)
+        .then(result => {
+          console.log(`✅ Eliminate ${result.deleted} immagini, fallite: ${result.failed}`);
+        })
+        .catch(error => {
+          console.error('⚠️ Errore eliminazione immagini:', error);
+        });
 
     } catch (error) {
       console.error('Errore eliminazione veicolo:', error);

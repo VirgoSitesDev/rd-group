@@ -5,7 +5,6 @@ import { LuImagePlus } from "react-icons/lu";
 
 import Button from '../common/Button';
 import { useCreateVehicle, useUpdateVehicle } from '../../hooks/useCars';
-import { uploadVehicleImages } from '@/services/uploadService';
 import type { Car } from '../../types/car/car';
 import { FuelType, TransmissionType, BodyType, CarCondition } from '../../types/car/car';
 
@@ -273,6 +272,27 @@ const FormActions = styled.div`
   background: ${({ theme }) => theme.colors.background.default};
 `;
 
+const ProgressBar = styled.div<{ $progress: number }>`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: ${({ $progress }) => $progress}%;
+    background: ${({ theme }) => theme.colors.primary.main};
+    transition: width 0.3s ease;
+  }
+`;
+
 interface FormData {
   make: string;
   model: string;
@@ -297,12 +317,18 @@ interface FormData {
   location: string;
 }
 
+interface ImageFile {
+  file: File;
+  preview: string;
+  id: string;
+}
+
 const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onClose, onSuccess }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState<File[]>([]);
-  const [existingImages, setExistingImages] = useState(vehicle?.images || []);
+  const [imageFiles, setImageFiles] = useState<ImageFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const createVehicle = useCreateVehicle();
   const updateVehicle = useUpdateVehicle();
@@ -354,7 +380,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onClose, onSuccess }
     );
     
     if (files.length > 0) {
-      setUploadedImages(prev => [...prev, ...files]);
+      addImageFiles(files);
     }
   }, []);
 
@@ -364,47 +390,49 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onClose, onSuccess }
     );
     
     if (files.length > 0) {
-      setUploadedImages(prev => [...prev, ...files]);
+      addImageFiles(files);
+    }
+    
+    if (e.target) {
+      e.target.value = '';
     }
   };
 
-  const removeUploadedImage = (index: number) => {
-    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+  const addImageFiles = (files: File[]) => {
+    console.log('📸 Aggiunta nuove immagini:', files.length);
+    
+    const newImageFiles: ImageFile[] = files.map(file => ({
+      file,
+      preview: URL.createObjectURL(file),
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    }));
+
+    setImageFiles(prev => [...prev, ...newImageFiles]);
   };
 
-  const removeExistingImage = (imageId: string) => {
-    setExistingImages(prev => prev.filter(img => img.id !== imageId));
+  const removeImageFile = (id: string) => {
+    setImageFiles(prev => {
+      const imageToRemove = prev.find(img => img.id === id);
+      if (imageToRemove) {
+        URL.revokeObjectURL(imageToRemove.preview);
+      }
+      return prev.filter(img => img.id !== id);
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setUploadProgress(0);
 
     try {
-      let newImageUrls: string[] = [];
-      if (uploadedImages.length > 0) {
-        newImageUrls = await uploadVehicleImages(uploadedImages);
-      }
+      console.log('🚗 Inizio creazione veicolo con', imageFiles.length, 'immagini');
 
       const vehicleData = {
         ...formData,
         features: formData.features.split(',').map(f => f.trim()).filter(f => f),
-        images: [
-          ...existingImages.map(img => ({
-            id: img.id,
-            url: img.url,
-            altText: `${formData.make} ${formData.model}`,
-            isPrimary: img.isPrimary,
-            order: img.order,
-          })),
-          ...newImageUrls.map((url, index) => ({
-            id: `new-${Date.now()}-${index}`,
-            url,
-            altText: `${formData.make} ${formData.model}`,
-            isPrimary: existingImages.length === 0 && index === 0,
-            order: existingImages.length + index,
-          })),
-        ],
+        imageFiles: imageFiles.map(img => img.file), // Passa i file originali
+        images: [], // Array vuoto, le immagini verranno gestite dal service
         location: {
           address: formData.location,
           city: 'Pistoia',
@@ -428,346 +456,369 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onClose, onSuccess }
       };
 
       if (vehicle) {
+        // TODO: Implementare logica per l'aggiornamento
+        console.log('⚠️ Update veicolo non ancora implementato con nuove immagini');
         await updateVehicle.mutateAsync({ id: vehicle.id, ...vehicleData });
       } else {
+        console.log('🆕 Creazione nuovo veicolo...');
+        
+        // Simula progresso per la creazione del record
+        setUploadProgress(10);
+        
         await createVehicle.mutateAsync(vehicleData);
+        
+        // Simula progresso completato
+        setUploadProgress(100);
       }
 
+      console.log('✅ Veicolo salvato con successo!');
+      
+      // Pulisci le preview
+      imageFiles.forEach(img => URL.revokeObjectURL(img.preview));
+      
       onSuccess();
+
     } catch (error) {
-      console.error('Error saving vehicle:', error);
-      alert('Errore nel salvataggio. Riprova più tardi.');
+      console.error('❌ Errore nel salvataggio veicolo:', error);
+      
+      let errorMessage = 'Errore sconosciuto durante il salvataggio';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      alert(`❌ Errore: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
+      setUploadProgress(0);
     }
   };
 
-  const totalImages = existingImages.length + uploadedImages.length;
+  // Cleanup delle preview quando il componente viene smontato
+  React.useEffect(() => {
+    return () => {
+      imageFiles.forEach(img => URL.revokeObjectURL(img.preview));
+    };
+  }, []);
 
   return (
-    <FormOverlay onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <FormContainer>
-        <FormHeader>
-          <FormTitle>
-            {vehicle ? 'Modifica Veicolo' : 'Aggiungi Nuovo Veicolo'}
-          </FormTitle>
-          <CloseButton onClick={onClose}>
-            <FaTimes />
-          </CloseButton>
-        </FormHeader>
+    <>
+      {isSubmitting && uploadProgress > 0 && (
+        <ProgressBar $progress={uploadProgress} />
+      )}
+      
+      <FormOverlay onClick={(e) => e.target === e.currentTarget && onClose()}>
+        <FormContainer>
+          <FormHeader>
+            <FormTitle>
+              {vehicle ? 'Modifica Veicolo' : 'Aggiungi Nuovo Veicolo'}
+            </FormTitle>
+            <CloseButton onClick={onClose}>
+              <FaTimes />
+            </CloseButton>
+          </FormHeader>
 
-        <FormContent onSubmit={handleSubmit}>
-          <FormGrid>
-            <FormGroup>
-              <FormLabel>Marca *</FormLabel>
-              <FormInput
-                type="text"
-                value={formData.make}
-                onChange={(e) => handleInputChange('make', e.target.value)}
-                required
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Modello *</FormLabel>
-              <FormInput
-                type="text"
-                value={formData.model}
-                onChange={(e) => handleInputChange('model', e.target.value)}
-                required
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Versione</FormLabel>
-              <FormInput
-                type="text"
-                value={formData.variant}
-                onChange={(e) => handleInputChange('variant', e.target.value)}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Anno *</FormLabel>
-              <FormInput
-                type="number"
-                value={formData.year}
-                onChange={(e) => handleInputChange('year', parseInt(e.target.value))}
-                min="1950"
-                max={new Date().getFullYear() + 1}
-                required
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Chilometri *</FormLabel>
-              <FormInput
-                type="number"
-                value={formData.mileage}
-                onChange={(e) => handleInputChange('mileage', parseInt(e.target.value))}
-                min="0"
-                required
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Prezzo (€) *</FormLabel>
-              <FormInput
-                type="number"
-                value={formData.price}
-                onChange={(e) => handleInputChange('price', parseInt(e.target.value))}
-                min="0"
-                required
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Alimentazione *</FormLabel>
-              <FormSelect
-                value={formData.fuelType}
-                onChange={(e) => handleInputChange('fuelType', e.target.value as FuelType)}
-                required
-              >
-                <option value={FuelType.PETROL}>Benzina</option>
-                <option value={FuelType.DIESEL}>Diesel</option>
-                <option value={FuelType.ELECTRIC}>Elettrico</option>
-                <option value={FuelType.HYBRID}>Ibrido</option>
-                <option value={FuelType.LPG}>GPL</option>
-                <option value={FuelType.CNG}>Metano</option>
-              </FormSelect>
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Cambio *</FormLabel>
-              <FormSelect
-                value={formData.transmission}
-                onChange={(e) => handleInputChange('transmission', e.target.value as TransmissionType)}
-                required
-              >
-                <option value={TransmissionType.MANUAL}>Manuale</option>
-                <option value={TransmissionType.AUTOMATIC}>Automatico</option>
-                <option value={TransmissionType.SEMI_AUTOMATIC}>Semiautomatico</option>
-                <option value={TransmissionType.CVT}>CVT</option>
-              </FormSelect>
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Carrozzeria *</FormLabel>
-              <FormSelect
-                value={formData.bodyType}
-                onChange={(e) => handleInputChange('bodyType', e.target.value as BodyType)}
-                required
-              >
-                <option value={BodyType.SEDAN}>Berlina</option>
-                <option value={BodyType.HATCHBACK}>Utilitaria</option>
-                <option value={BodyType.ESTATE}>Station Wagon</option>
-                <option value={BodyType.SUV}>SUV</option>
-                <option value={BodyType.COUPE}>Coupé</option>
-                <option value={BodyType.CONVERTIBLE}>Cabrio</option>
-                <option value={BodyType.VAN}>Furgone</option>
-                <option value={BodyType.MINIVAN}>Monovolume</option>
-              </FormSelect>
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Colore</FormLabel>
-              <FormInput
-                type="text"
-                value={formData.color}
-                onChange={(e) => handleInputChange('color', e.target.value)}
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Porte</FormLabel>
-              <FormInput
-                type="number"
-                value={formData.doors}
-                onChange={(e) => handleInputChange('doors', parseInt(e.target.value))}
-                min="2"
-                max="6"
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Posti</FormLabel>
-              <FormInput
-                type="number"
-                value={formData.seats}
-                onChange={(e) => handleInputChange('seats', parseInt(e.target.value))}
-                min="2"
-                max="9"
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Cilindrata (cc)</FormLabel>
-              <FormInput
-                type="number"
-                value={formData.engineSize}
-                onChange={(e) => handleInputChange('engineSize', parseInt(e.target.value))}
-                min="0"
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Potenza (kW)</FormLabel>
-              <FormInput
-                type="number"
-                value={formData.power}
-                onChange={(e) => handleInputChange('power', parseInt(e.target.value))}
-                min="0"
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Cavalli (CV)</FormLabel>
-              <FormInput
-                type="number"
-                value={formData.horsepower}
-                onChange={(e) => handleInputChange('horsepower', parseInt(e.target.value))}
-                min="0"
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <FormLabel>Proprietari precedenti</FormLabel>
-              <FormInput
-                type="number"
-                value={formData.previousOwners}
-                onChange={(e) => handleInputChange('previousOwners', parseInt(e.target.value))}
-                min="0"
-                max="10"
-              />
-            </FormGroup>
-
-            <FormGroup className="full-width">
-              <FormLabel>Sede</FormLabel>
-              <FormSelect
-                value={formData.location}
-                onChange={(e) => handleInputChange('location', e.target.value)}
-              >
-                <option value="Via Bottaia, 2">Via Bottaia, 2</option>
-                <option value="Via Luigi Galvani, 2">Via Luigi Galvani, 2</option>
-                <option value="Via Fiorentina, 331">Via Fiorentina, 331</option>
-              </FormSelect>
-            </FormGroup>
-
-            <FormGroup className="full-width">
-              <CheckboxContainer>
-                <Checkbox
-                  type="checkbox"
-                  checked={formData.isLuxury}
-                  onChange={(e) => handleInputChange('isLuxury', e.target.checked)}
+          <FormContent onSubmit={handleSubmit}>
+            <FormGrid>
+              <FormGroup>
+                <FormLabel>Marca *</FormLabel>
+                <FormInput
+                  type="text"
+                  value={formData.make}
+                  onChange={(e) => handleInputChange('make', e.target.value)}
+                  required
                 />
-                <FormLabel style={{ margin: 0 }}>Veicolo Luxury</FormLabel>
-              </CheckboxContainer>
-            </FormGroup>
+              </FormGroup>
 
-            <FormGroup className="full-width">
-              <FormLabel>Descrizione</FormLabel>
-              <FormTextArea
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Descrizione dettagliata del veicolo..."
+              <FormGroup>
+                <FormLabel>Modello *</FormLabel>
+                <FormInput
+                  type="text"
+                  value={formData.model}
+                  onChange={(e) => handleInputChange('model', e.target.value)}
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Versione</FormLabel>
+                <FormInput
+                  type="text"
+                  value={formData.variant}
+                  onChange={(e) => handleInputChange('variant', e.target.value)}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Anno *</FormLabel>
+                <FormInput
+                  type="number"
+                  value={formData.year}
+                  onChange={(e) => handleInputChange('year', parseInt(e.target.value))}
+                  min="1950"
+                  max={new Date().getFullYear() + 1}
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Chilometri *</FormLabel>
+                <FormInput
+                  type="number"
+                  value={formData.mileage}
+                  onChange={(e) => handleInputChange('mileage', parseInt(e.target.value))}
+                  min="0"
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Prezzo (€) *</FormLabel>
+                <FormInput
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => handleInputChange('price', parseInt(e.target.value))}
+                  min="0"
+                  required
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Alimentazione *</FormLabel>
+                <FormSelect
+                  value={formData.fuelType}
+                  onChange={(e) => handleInputChange('fuelType', e.target.value as FuelType)}
+                  required
+                >
+                  <option value={FuelType.PETROL}>Benzina</option>
+                  <option value={FuelType.DIESEL}>Diesel</option>
+                  <option value={FuelType.ELECTRIC}>Elettrico</option>
+                  <option value={FuelType.HYBRID}>Ibrido</option>
+                  <option value={FuelType.LPG}>GPL</option>
+                  <option value={FuelType.CNG}>Metano</option>
+                </FormSelect>
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Cambio *</FormLabel>
+                <FormSelect
+                  value={formData.transmission}
+                  onChange={(e) => handleInputChange('transmission', e.target.value as TransmissionType)}
+                  required
+                >
+                  <option value={TransmissionType.MANUAL}>Manuale</option>
+                  <option value={TransmissionType.AUTOMATIC}>Automatico</option>
+                  <option value={TransmissionType.SEMI_AUTOMATIC}>Semiautomatico</option>
+                  <option value={TransmissionType.CVT}>CVT</option>
+                </FormSelect>
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Carrozzeria *</FormLabel>
+                <FormSelect
+                  value={formData.bodyType}
+                  onChange={(e) => handleInputChange('bodyType', e.target.value as BodyType)}
+                  required
+                >
+                  <option value={BodyType.SEDAN}>Berlina</option>
+                  <option value={BodyType.HATCHBACK}>Utilitaria</option>
+                  <option value={BodyType.ESTATE}>Station Wagon</option>
+                  <option value={BodyType.SUV}>SUV</option>
+                  <option value={BodyType.COUPE}>Coupé</option>
+                  <option value={BodyType.CONVERTIBLE}>Cabrio</option>
+                  <option value={BodyType.VAN}>Furgone</option>
+                  <option value={BodyType.MINIVAN}>Monovolume</option>
+                </FormSelect>
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Colore</FormLabel>
+                <FormInput
+                  type="text"
+                  value={formData.color}
+                  onChange={(e) => handleInputChange('color', e.target.value)}
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Porte</FormLabel>
+                <FormInput
+                  type="number"
+                  value={formData.doors}
+                  onChange={(e) => handleInputChange('doors', parseInt(e.target.value))}
+                  min="2"
+                  max="6"
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Posti</FormLabel>
+                <FormInput
+                  type="number"
+                  value={formData.seats}
+                  onChange={(e) => handleInputChange('seats', parseInt(e.target.value))}
+                  min="2"
+                  max="9"
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Cilindrata (cc)</FormLabel>
+                <FormInput
+                  type="number"
+                  value={formData.engineSize}
+                  onChange={(e) => handleInputChange('engineSize', parseInt(e.target.value))}
+                  min="0"
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Potenza (kW)</FormLabel>
+                <FormInput
+                  type="number"
+                  value={formData.power}
+                  onChange={(e) => handleInputChange('power', parseInt(e.target.value))}
+                  min="0"
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Cavalli (CV)</FormLabel>
+                <FormInput
+                  type="number"
+                  value={formData.horsepower}
+                  onChange={(e) => handleInputChange('horsepower', parseInt(e.target.value))}
+                  min="0"
+                />
+              </FormGroup>
+
+              <FormGroup>
+                <FormLabel>Proprietari precedenti</FormLabel>
+                <FormInput
+                  type="number"
+                  value={formData.previousOwners}
+                  onChange={(e) => handleInputChange('previousOwners', parseInt(e.target.value))}
+                  min="0"
+                  max="10"
+                />
+              </FormGroup>
+
+              <FormGroup className="full-width">
+                <FormLabel>Sede</FormLabel>
+                <FormSelect
+                  value={formData.location}
+                  onChange={(e) => handleInputChange('location', e.target.value)}
+                >
+                  <option value="Via Bottaia, 2">Via Bottaia, 2</option>
+                  <option value="Via Luigi Galvani, 2">Via Luigi Galvani, 2</option>
+                  <option value="Via Fiorentina, 331">Via Fiorentina, 331</option>
+                </FormSelect>
+              </FormGroup>
+
+              <FormGroup className="full-width">
+                <CheckboxContainer>
+                  <Checkbox
+                    type="checkbox"
+                    checked={formData.isLuxury}
+                    onChange={(e) => handleInputChange('isLuxury', e.target.checked)}
+                  />
+                  <FormLabel style={{ margin: 0 }}>Veicolo Luxury</FormLabel>
+                </CheckboxContainer>
+              </FormGroup>
+
+              <FormGroup className="full-width">
+                <FormLabel>Descrizione</FormLabel>
+                <FormTextArea
+                  value={formData.description}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  placeholder="Descrizione dettagliata del veicolo..."
+                />
+              </FormGroup>
+
+              <FormGroup className="full-width">
+                <FormLabel>Accessori (separati da virgola)</FormLabel>
+                <FormTextArea
+                  value={formData.features}
+                  onChange={(e) => handleInputChange('features', e.target.value)}
+                  placeholder="Es: Climatizzatore, Cerchi in lega, Navigatore satellitare"
+                />
+              </FormGroup>
+            </FormGrid>
+
+            <ImagesSection>
+              <ImagesSectionTitle>
+                Immagini ({imageFiles.length})
+                {isSubmitting && uploadProgress > 0 && (
+                  <span style={{ marginLeft: '10px', color: '#cb1618' }}>
+                    - Upload in corso... {uploadProgress}%
+                  </span>
+                )}
+              </ImagesSectionTitle>
+
+              <ImageUploadArea
+                $isDragOver={isDragOver}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <UploadIcon>
+                  <LuImagePlus />
+                </UploadIcon>
+                <UploadText>
+                  Trascina le immagini qui o clicca per selezionare
+                </UploadText>
+                <UploadSubtext>
+                  Formati supportati: JPG, PNG, WebP (max 10MB per immagine)
+                  <br />
+                  Le immagini verranno automaticamente convertite in WebP e ottimizzate
+                </UploadSubtext>
+              </ImageUploadArea>
+
+              <HiddenFileInput
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={handleFileSelect}
               />
-            </FormGroup>
 
-            <FormGroup className="full-width">
-              <FormLabel>Accessori (separati da virgola)</FormLabel>
-              <FormTextArea
-                value={formData.features}
-                onChange={(e) => handleInputChange('features', e.target.value)}
-                placeholder="Es: Climatizzatore, Cerchi in lega, Navigatore satellitare"
-              />
-            </FormGroup>
-          </FormGrid>
+              {imageFiles.length > 0 && (
+                <ImagePreviewGrid>
+                  {imageFiles.map((imageFile, index) => (
+                    <ImagePreview key={imageFile.id}>
+                      <PreviewImage src={imageFile.preview} alt={`Preview ${index + 1}`} />
+                      {index === 0 && (
+                        <PrimaryImageBadge>Principale</PrimaryImageBadge>
+                      )}
+                      <RemoveImageButton
+                        type="button"
+                        onClick={() => removeImageFile(imageFile.id)}
+                      >
+                        <FaTimes />
+                      </RemoveImageButton>
+                    </ImagePreview>
+                  ))}
+                </ImagePreviewGrid>
+              )}
+            </ImagesSection>
 
-          <ImagesSection>
-            <ImagesSectionTitle>
-              Immagini ({totalImages})
-            </ImagesSectionTitle>
-
-            <ImageUploadArea
-              $isDragOver={isDragOver}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <UploadIcon>
-                <LuImagePlus />
-              </UploadIcon>
-              <UploadText>
-                Trascina le immagini qui o clicca per selezionare
-              </UploadText>
-              <UploadSubtext>
-                Formati supportati: JPG, PNG, WebP (max 10MB per immagine)
-              </UploadSubtext>
-            </ImageUploadArea>
-
-            <HiddenFileInput
-              ref={fileInputRef}
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={handleFileSelect}
-            />
-
-            {totalImages > 0 && (
-              <ImagePreviewGrid>
-                {existingImages.map((image) => (
-                  <ImagePreview key={image.id}>
-                    <PreviewImage src={image.url} alt={image.altText} />
-                    {image.isPrimary && (
-                      <PrimaryImageBadge>Principale</PrimaryImageBadge>
-                    )}
-                    <RemoveImageButton
-                      type="button"
-                      onClick={() => removeExistingImage(image.id)}
-                    >
-                      <FaTrash />
-                    </RemoveImageButton>
-                  </ImagePreview>
-                ))}
-                
-                {uploadedImages.map((file, index) => (
-                  <ImagePreview key={`upload-${index}`}>
-                    <PreviewImage 
-                      src={URL.createObjectURL(file)} 
-                      alt="Nuova immagine" 
-                    />
-                    {existingImages.length === 0 && index === 0 && (
-                      <PrimaryImageBadge>Principale</PrimaryImageBadge>
-                    )}
-                    <RemoveImageButton
-                      type="button"
-                      onClick={() => removeUploadedImage(index)}
-                    >
-                      <FaTrash />
-                    </RemoveImageButton>
-                  </ImagePreview>
-                ))}
-              </ImagePreviewGrid>
-            )}
-          </ImagesSection>
-
-          <FormActions>
-            <Button type="button" variant="outline" onClick={onClose}>
-              Annulla
-            </Button>
-            <Button 
-              type="submit" 
-              variant="primary" 
-              disabled={isSubmitting}
-              loading={isSubmitting}
-            >
-              <FaSave /> {vehicle ? 'Aggiorna' : 'Salva'} Veicolo
-            </Button>
-          </FormActions>
-        </FormContent>
-      </FormContainer>
-    </FormOverlay>
+            <FormActions>
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
+                Annulla
+              </Button>
+              <Button 
+                type="submit" 
+                variant="primary" 
+                disabled={isSubmitting}
+                loading={isSubmitting}
+              >
+                <FaSave /> {vehicle ? 'Aggiorna' : 'Salva'} Veicolo
+              </Button>
+            </FormActions>
+          </FormContent>
+        </FormContainer>
+      </FormOverlay>
+    </>
   );
 };
 
