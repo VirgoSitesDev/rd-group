@@ -188,6 +188,9 @@ const createEmailHtml = (data) => {
             font-size: 18px;
             font-weight: 600;
           }
+          .contact-info div a {
+            color: white !important;
+          }
           .urgent { 
             background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 50%);
             border: 1px solid #ffeaa7; 
@@ -238,7 +241,7 @@ const createEmailHtml = (data) => {
   <body>
       <div class="email-container">
           <div class="header">
-              <img src="https://rdgrouppistoia.netlify.app/Logo_black.png" alt="RD Group Logo" />
+              <img src="https://rd-group.netlify.app/logo.svg" alt="RD Group Logo" />
               <h1>NUOVA RICHIESTA ACQUISIZIONE AUTO</h1>
               <h2>RD Group - ${currentDate}</h2>
           </div>
@@ -246,7 +249,7 @@ const createEmailHtml = (data) => {
           <div class="content">
               <div class="urgent">
                   <h2>AZIONE RICHIESTA</h2>
-                  <p><strong>Contattare il cliente entro 24 ore per fissare un appuntamento di valutazione</strong></p>
+                  <p><strong>Contattare il cliente per fissare un appuntamento di valutazione</strong></p>
               </div>
 
               <div class="section">
@@ -458,7 +461,7 @@ exports.handler = async (event, context) => {
       html: `
       <div style="font-family: 'Manrope', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);">
         <div style="background: #000000; color: white; padding: 40px 20px; text-align: center;">
-          <img src="https://rdgrouppistoia.netlify.app/Logo_black.png" alt="RD Group Logo" style="max-width: 120px; height: auto; margin-bottom: 20px; filter: brightness(0) invert(1);">
+          <img src="https://rd-group.netlify.app/logo.svg" alt="RD Group Logo" style="max-width: 120px; height: auto; margin-bottom: 20px; filter: brightness(0) invert(1);">
           <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 600;">Richiesta Ricevuta!</h1>
         </div>
         <div style="padding: 40px 30px;">
@@ -469,9 +472,8 @@ exports.handler = async (event, context) => {
             <h3 style="color: #000000; margin-top: 0; font-size: 18px; font-weight: 600;">Cosa succede ora:</h3>
             <ul style="color: #333; line-height: 1.8; padding-left: 20px;">
               <li>Un nostro esperto valuterà le foto e informazioni che ci hai inviato</li>
-              <li><strong>Ti contatteremo entro 24 ore</strong> per fissare un appuntamento</li>
+              <li><strong>Ti contatteremo nei prossimi giorni</strong> per fissare un appuntamento</li>
               <li>Valuteremo la tua auto di persona per offrirti il miglior prezzo</li>
-              <li>Pagamento immediato e passaggio di proprietà a carico nostro!</li>
             </ul>
           </div>
           
