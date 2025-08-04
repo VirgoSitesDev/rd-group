@@ -241,7 +241,7 @@ const createEmailHtml = (data) => {
   <body>
       <div class="email-container">
           <div class="header">
-              <img src="https://rd-group.netlify.app/logo.svg" alt="RD Group Logo" />
+              <img src="https://rd-group.netlify.app/logo_white.png" alt="RD Group Logo" />
               <h1>NUOVA RICHIESTA ACQUISIZIONE AUTO</h1>
               <h2>RD Group - ${currentDate}</h2>
           </div>
@@ -461,7 +461,7 @@ exports.handler = async (event, context) => {
       html: `
       <div style="font-family: 'Manrope', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);">
         <div style="background: #000000; color: white; padding: 40px 20px; text-align: center;">
-          <img src="https://rd-group.netlify.app/logo.svg" alt="RD Group Logo" style="max-width: 120px; height: auto; margin-bottom: 20px; filter: brightness(0) invert(1);">
+          <img src="https://rd-group.netlify.app/logo_white.png" alt="RD Group Logo" style="max-width: 120px; height: auto; margin-bottom: 20px; filter: brightness(0) invert(1);">
           <h1 style="margin: 0; color: white; font-size: 28px; font-weight: 600;">Richiesta Ricevuta!</h1>
         </div>
         <div style="padding: 40px 30px;">
