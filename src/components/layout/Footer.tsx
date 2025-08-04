@@ -16,7 +16,7 @@ const NavigationDivider = styled.div`
 `;
 
 const FooterContent = styled.div`
-  max-width: 90vw;
+  max-width: 100vw;
   margin: 0 auto;
   padding: 20px 0px;
   display: grid;
@@ -65,7 +65,7 @@ const ContactSection = styled.div`
 
   h3 {
     margin: 0 0 8px 0;
-    font-size: 1rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: black;
   }
@@ -166,12 +166,14 @@ const Footer: React.FC = () => {
         <ContactSection>
           <div>
             <h3>Telefono</h3>
-            <p className="phone">+39 057 318 7467</p>
+            <p className="phone">RD Group: +39 057 318 7467</p>
+            <p className="phone">RD Luxury: +39 057 318 74672</p>
           </div>
           
           <div>
             <h3>E-Mail</h3>
-            <p>rdautosrlpistoia@gmail.com</p>
+            <p>RD Group: rdautosrlpistoia@gmail.com</p>
+            <p>RD Luxury: rdluxurysrl@gmail.com</p>
           </div>
         </ContactSection>
 

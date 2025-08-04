@@ -7,6 +7,7 @@ import { ThemeProvider } from 'styled-components';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import ErrorFallback from './components/common/ErrorFallback';
+import ScrollToTop from './components/common/ScrollToTop';
 
 import HomePage from './pages/HomePage';
 import CatalogPage from './pages/CatalogPage';
@@ -37,8 +38,6 @@ const AppContent: React.FC = () => {
   const location = useLocation();
   const { data: featuredCars } = useFeaturedCars(1);
   const isHomePage = location.pathname === '/';
-  
-  // Prendi la prima auto in evidenza dal database se disponibile
   const heroFeaturedCar = featuredCars?.cars?.[0];
 
   const heroCarData = heroFeaturedCar ? {
@@ -59,6 +58,8 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="app">
+      <ScrollToTop />
+      
       {isHomePage ? (
         <Header showHero={true} featuredCar={heroCarData} />
       ) : location.pathname !== '/acquistiamo' ? (
