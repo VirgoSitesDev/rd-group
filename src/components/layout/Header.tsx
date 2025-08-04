@@ -567,7 +567,7 @@ const Header: React.FC<HeaderProps> = ({
               isActive={isActiveRoute('/auto')}
               showHero={showHero}
             >
-              Ricerca
+              RD Group
             </NavLink>
             
             <NavLink 
@@ -575,7 +575,7 @@ const Header: React.FC<HeaderProps> = ({
               isActive={isActiveRoute('/luxury')}
               showHero={showHero}
             >
-              Luxury
+              RD Luxury
             </NavLink>
             
             <NavLink 
@@ -639,7 +639,7 @@ const Header: React.FC<HeaderProps> = ({
             isActive={isActiveRoute('/auto')}
             onClick={closeMobileMenu}
           >
-            Ricerca
+            RD Group
           </MobileNavLink>
           
           <MobileNavLink 
@@ -647,7 +647,7 @@ const Header: React.FC<HeaderProps> = ({
             isActive={isActiveRoute('/luxury')}
             onClick={closeMobileMenu}
           >
-            Luxury
+            RD Luxury
           </MobileNavLink>
           
           <MobileNavLink 
