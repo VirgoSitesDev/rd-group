@@ -439,7 +439,7 @@ exports.handler = async (event, context) => {
     }
 
     const msg = {
-      to: process.env.TO_EMAIL || 'rdautosrlpistoia@gmail.com',
+      to: 'rdluxurysrl@gmail.com',
       from: {
         email: process.env.FROM_EMAIL,
         name: 'RD Group - Sistema Acquisizioni'
