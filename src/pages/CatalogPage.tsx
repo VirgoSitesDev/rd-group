@@ -1074,7 +1074,7 @@ const filters = useMemo(() => {
                 <FilterLabel style={{ minWidth: 'fit-content' }}>CV da</FilterLabel>
                 <FilterInput 
                   type="number"
-                  style={{ height: '28px', flex: 1 }}
+                  style={{ height: '28px', width: '100%' }}
                   placeholder="0"
                   onChange={(e) => setLocalFilters(prev => ({ 
                     ...prev, 
@@ -1088,7 +1088,7 @@ const filters = useMemo(() => {
                 <FilterLabel style={{ minWidth: 'fit-content' }}>KW da</FilterLabel>
                 <FilterInput 
                   type="number"
-                  style={{ height: '28px', flex: 1 }}
+                  style={{ height: '28px', width: '100%' }}
                   placeholder="0"
                   onChange={(e) => setLocalFilters(prev => ({ 
                     ...prev, 
