@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { PrivacyPolicyLink, CookiePolicyLink } from '../common/IubendaLinks';
 
 const FooterContainer = styled.footer`
   background-color: ${({ theme }) => theme.colors.background.default};
@@ -152,6 +153,19 @@ const AddressItem = styled.div`
   }
 `;
 
+const PrivacySection = styled.div`
+  padding: ${({ theme }) => theme.spacing.lg} 0;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: ${({ theme }) => theme.spacing.xl};
+
+  @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
+    flex-direction: column;
+    gap: ${({ theme }) => theme.spacing.md};
+  }
+`;
+
 const Footer: React.FC = () => {
   return (
     <FooterContainer>
@@ -193,8 +207,8 @@ const Footer: React.FC = () => {
           <h3>Indirizzo</h3>
           
           <AddressItem>
-            <div className="location-name">Via Bottaia, 2</div>
-            <div className="address">51100 Pistoia PT, Italia</div>
+            <div className="location-name">Via Bottaia, 2G</div>
+            <div className="address">51032 Bottegone PT, Italia</div>
           </AddressItem>
           
           <AddressItem>
@@ -208,6 +222,10 @@ const Footer: React.FC = () => {
           </AddressItem>
         </AddressSection>
       </FooterContent>
+        <PrivacySection>
+          <PrivacyPolicyLink />
+          <CookiePolicyLink />
+        </PrivacySection>
     </FooterContainer>
   );
 };

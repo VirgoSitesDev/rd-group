@@ -63,12 +63,12 @@ const MapContainer = styled.div`
     width: 100%;
     height: 100%;
     border: none;
-    filter: grayscale(100%); /* Cambiato da 20% a 100% per scala di grigi completa */
+    filter: grayscale(100%);
     transition: filter 0.3s ease;
   }
 
   ${LocationCard}:hover & iframe {
-    filter: grayscale(30%); /* Al hover rimane leggermente in scala di grigi */
+    filter: grayscale(30%);
   }
 `;
 
@@ -102,23 +102,29 @@ const LocationsSection: React.FC = () => {
   const locations = [
     {
       name: "Sede Principale",
-      address: "Via Bottaia, 2",
-      fullAddress: "Via Bottaia, 2, 51100 Pistoia PT, Italia",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2879.8!2d10.9167!3d43.9333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12d591a2b1234567%3A0x1234567890abcdef!2sVia%20Bottaia%2C%202%2C%2051100%20Pistoia%20PT%2C%20Italia!5e0!3m2!1sit!2sit!4v1234567890123&markers=size:large%7Ccolor:red%7CVia%20Bottaia%2C%202%2C%2051100%20Pistoia%20PT%2C%20Italia",
-      googleMapsLink: "https://maps.google.com/?q=Via+Bottaia,+2,+51100+Pistoia+PT,+Italia"
+      address: "Via Bottaia, 2G",
+      city: "Bottegone",
+      postalCode: "51032",
+      fullAddress: "Via Bottaia, 2G, 51032 Bottegone PT, Italia",
+      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2881.234!2d10.9702874!3d43.8815537!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132a8ab013d6fa41%3A0x89fbeb8ce50bd426!2sVia%20Bottaia%2C%202G%2C%2051032%20Bottegone%20PT%2C%20Italia!5e0!3m2!1sit!2sit!4v1234567890123",
+      googleMapsLink: "https://www.google.com/maps/place/Via+Bottaia,+2G,+51032+Bottegone+PT/@43.8815537,10.9677125,17z/data=!3m1!4b1!4m6!3m5!1s0x132a8ab013d6fa41:0x89fbeb8ce50bd426!8m2!3d43.8815537!4d10.9702874!16s%2Fg%2F11c10__m73"
     },
     {
       name: "Sede Secondaria",
       address: "Via Luigi Galvani, 2",
+      city: "Pistoia",
+      postalCode: "51100",
       fullAddress: "Via Luigi Galvani, 2, 51100 Pistoia PT, Italia",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2879.8!2d10.9167!3d43.9333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12d591a2b1234567%3A0x1234567890abcdef!2sVia%20Luigi%20Galvani%2C%202%2C%2051100%20Pistoia%20PT%2C%20Italia!5e0!3m2!1sit!2sit!4v1234567890123&markers=size:large%7Ccolor:red%7CVia%20Luigi%20Galvani%2C%202%2C%2051100%20Pistoia%20PT%2C%20Italia",
+      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2879.8!2d10.9167!3d43.9333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12d591a2b1234567%3A0x1234567890abcdef!2sVia%20Luigi%20Galvani%2C%202%2C%2051100%20Pistoia%20PT%2C%20Italia!5e0!3m2!1sit!2sit!4v1234567890123",
       googleMapsLink: "https://maps.google.com/?q=Via+Luigi+Galvani,+2,+51100+Pistoia+PT,+Italia"
     },
     {
       name: "Sede Terza",
       address: "Via Fiorentina, 331",
+      city: "Pistoia",
+      postalCode: "51100",
       fullAddress: "Via Fiorentina, 331, 51100 Pistoia PT, Italia",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2879.8!2d10.9167!3d43.9333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12d591a2b1234567%3A0x1234567890abcdef!2sVia%20Fiorentina%2C%20331%2C%2051100%20Pistoia%20PT%2C%20Italia!5e0!3m2!1sit!2sit!4v1234567890123&markers=size:large%7Ccolor:red%7CVia%20Fiorentina%2C%20331%2C%2051100%20Pistoia%20PT%2C%20Italia",
+      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2879.8!2d10.9167!3d43.9333!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12d591a2b1234567%3A0x1234567890abcdef!2sVia%20Fiorentina%2C%20331%2C%2051100%20Pistoia%20PT%2C%20Italia!5e0!3m2!1sit!2sit!4v1234567890123",
       googleMapsLink: "https://maps.google.com/?q=Via+Fiorentina,+331,+51100+Pistoia+PT,+Italia"
     }
   ];
@@ -145,7 +151,7 @@ const LocationsSection: React.FC = () => {
               <LocationInfo>
                 <LocationAddress>
                   {location.address}<br />
-                  51100 Pistoia PT, Italia
+                  {location.postalCode} {location.city} PT, Italia
                 </LocationAddress>
                 <ActionButton 
                   variant="primary"

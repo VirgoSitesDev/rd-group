@@ -19,6 +19,7 @@ import { theme } from './styles/theme';
 
 import { useFeaturedCars } from './hooks/useCars';
 import AdminPage from './pages/AdminPage';
+import IubendaScript from './components/common/IubendaScript';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,6 +91,14 @@ const App: React.FC = () => {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider theme={theme}>
           <GlobalStyles />
+          <IubendaScript 
+            loadPrivacyControls={true}
+            bannerPosition="bottom"
+            primaryColor="#cb1618"
+            backgroundColor="#000000"
+            textColor="#ffffff"
+            buttonTextColor="#ffffff"
+          />
           <Router>
             <AppContent />
           </Router>

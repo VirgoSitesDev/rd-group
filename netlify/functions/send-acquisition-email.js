@@ -326,7 +326,7 @@ const createEmailHtml = (data) => {
 
           <div class="footer">
               <h3>RD Group - Concessionario Auto Pistoia</h3>
-              <p>Via Bottaia, 2 - 51100 Pistoia (PT)</p>
+              <p>Via Bottaia, 2G - 51100 Pistoia (PT)</p>
               <p>+39 057 318 7467 | rdautosrlpistoia@gmail.com</p>
               <hr style="margin: 20px 0; border: none; border-top: 1px solid #e9ecef;">
               <p style="font-size: 12px;">
@@ -491,7 +491,7 @@ exports.handler = async (event, context) => {
         </div>
         <div style="background: #f8f9fa; padding: 25px; text-align: center; font-size: 14px; color: #6c757d; border-top: 1px solid #e9ecef;">
           <strong style="color: #000000;">RD Group</strong><br>
-          Via Bottaia, 2 - 51100 Pistoia (PT)<br>
+          Via Bottaia, 2G - 51100 Pistoia (PT)<br>
           RD Group: +39 057 318 7467 | RD Luxury: +39 057 318 74672<br>
           rdautosrlpistoia@gmail.com | rdluxurysrl@gmail.com
         </div>

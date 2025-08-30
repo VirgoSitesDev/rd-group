@@ -106,7 +106,6 @@ function generateSlug(marca: string, modello: string, id: number): string {
   return `${marcaClean}-${modelloClean}-${id}`;
 }
 
-// 🆕 Funzione per ottenere le informazioni del dealer in base al tipo di auto
 function getDealerInfo(isLuxury: boolean) {
   if (isLuxury) {
     return {
@@ -129,7 +128,7 @@ function getDealerInfo(isLuxury: boolean) {
       phone: '+39 057 318 7467',
       email: 'rdautosrlpistoia@gmail.com',
       location: {
-        address: 'Via Bottaia di San Sebastiano, 2L',
+        address: 'Via Bottaia, 2G',
         city: 'Pistoia',
         region: 'Toscana',
         postalCode: '51100',
@@ -139,7 +138,6 @@ function getDealerInfo(isLuxury: boolean) {
   }
 }
 
-// 🆕 Funzione per ottenere l'indirizzo della sede principale in base al tipo di auto
 function getMainLocation(isLuxury: boolean) {
   if (isLuxury) {
     return {
@@ -151,10 +149,10 @@ function getMainLocation(isLuxury: boolean) {
     };
   } else {
     return {
-      address: 'Via Bottaia di San Sebastiano, 2L',
-      city: 'Pistoia',
+      address: 'Via Bottaia, 2G',
+      city: 'Bottegone',
       region: 'Toscana',
-      postalCode: '51100',
+      postalCode: '51032',
       country: 'Italia',
     };
   }
