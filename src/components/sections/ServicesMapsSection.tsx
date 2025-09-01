@@ -102,12 +102,12 @@ const LocationsSection: React.FC = () => {
   const locations = [
     {
       name: "Sede Principale",
-      address: "Via Bottaia, 2G",
+      address: "Via Bottaia di San Sebastiano, 2L",
       city: "Bottegone",
-      postalCode: "51032",
-      fullAddress: "Via Bottaia, 2G, 51032 Bottegone PT, Italia",
-      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2881.234!2d10.9702874!3d43.8815537!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x132a8ab013d6fa41%3A0x89fbeb8ce50bd426!2sVia%20Bottaia%2C%202G%2C%2051032%20Bottegone%20PT%2C%20Italia!5e0!3m2!1sit!2sit!4v1234567890123",
-      googleMapsLink: "https://www.google.com/maps/place/Via+Bottaia,+2G,+51032+Bottegone+PT/@43.8815537,10.9677125,17z/data=!3m1!4b1!4m6!3m5!1s0x132a8ab013d6fa41:0x89fbeb8ce50bd426!8m2!3d43.8815537!4d10.9702874!16s%2Fg%2F11c10__m73"
+      postalCode: "51100",
+      fullAddress: "Via Bottaia di San Sebastiano, 2L, Italia",
+      mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d11519.456!2d10.9677125!3d43.8815537!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDPCsDUyJzUzLjYiTiAxMMKwNTgnMTcuNyJF!5e0!3m2!1sit!2sit!4v1735046500000",
+      googleMapsLink: "https://maps.google.com/?q=Via+Bottaia+di+San+Sebastiano,+2L,+51100+Pistoia+PT,+Italia"
     },
     {
       name: "Sede Secondaria",

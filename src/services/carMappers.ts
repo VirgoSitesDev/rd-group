@@ -111,7 +111,7 @@ function getDealerInfo(isLuxury: boolean) {
     return {
       id: 'rd-luxury-1',
       name: 'RD Luxury',
-      phone: '+39 057 318 74672',
+      phone: '+39 0573 1941223',
       email: 'rdluxurysrl@gmail.com',
       location: {
         address: 'Via Luigi Galvani, 2',
@@ -125,10 +125,10 @@ function getDealerInfo(isLuxury: boolean) {
     return {
       id: 'rd-group-1',
       name: 'RD Group',
-      phone: '+39 057 318 7467',
+      phone: '+39 057 318 74672',
       email: 'rdautosrlpistoia@gmail.com',
       location: {
-        address: 'Via Bottaia, 2G',
+        address: 'Via Bottaia di San Sebastiano, 2L',
         city: 'Pistoia',
         region: 'Toscana',
         postalCode: '51100',
@@ -149,10 +149,10 @@ function getMainLocation(isLuxury: boolean) {
     };
   } else {
     return {
-      address: 'Via Bottaia, 2G',
+      address: 'Via Bottaia di San Sebastiano, 2L',
       city: 'Bottegone',
       region: 'Toscana',
-      postalCode: '51032',
+      postalCode: '51100',
       country: 'Italia',
     };
   }

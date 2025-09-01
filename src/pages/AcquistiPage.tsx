@@ -632,7 +632,7 @@ const AcquistiPage: React.FC = () => {
       
       alert(`❌ Errore nell'invio: ${errorMessage}
       
-  Riprova più tardi o contattaci direttamente al +39 057 318 7467.`);
+  Riprova più tardi o contattaci direttamente al +39 057 318 74672.`);
     } finally {
       setIsSubmitting(false);
     }

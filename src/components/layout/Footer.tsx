@@ -180,8 +180,8 @@ const Footer: React.FC = () => {
         <ContactSection>
           <div>
             <h3>Telefono</h3>
-            <p className="phone">RD Group: +39 057 318 7467</p>
-            <p className="phone">RD Luxury: +39 057 318 74672</p>
+            <p className="phone">RD Group: +39 057 318 74672</p>
+            <p className="phone">RD Luxury: +39 0573 1941223</p>
           </div>
           
           <div>
@@ -194,8 +194,8 @@ const Footer: React.FC = () => {
         <HoursSection>
           <h3>Lunedì - Sabato</h3>
           <div>
-            <p>08:30 - 13:00</p>
-            <p>14:30 - 19:30</p>
+            <p>09:00 - 13:00</p>
+            <p>15:00 - 19:00</p>
           </div>
           <div>
             <h3>Domenica</h3>
@@ -207,8 +207,8 @@ const Footer: React.FC = () => {
           <h3>Indirizzo</h3>
           
           <AddressItem>
-            <div className="location-name">Via Bottaia, 2G</div>
-            <div className="address">51032 Bottegone PT, Italia</div>
+            <div className="location-name">Via Bottaia di San Sebastiano, 2L</div>
+            <div className="address">51100 Pistoia PT, Italia</div>
           </AddressItem>
           
           <AddressItem>

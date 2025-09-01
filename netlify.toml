@@ -21,7 +21,7 @@
 # Variabili ambiente per produzione
 [context.production.environment]
   VITE_APP_NAME = "RD Group"
-  VITE_COMPANY_PHONE = "+39 057 318 7467"
+  VITE_COMPANY_PHONE = "+39 057 318 74672"
   VITE_COMPANY_EMAIL = "rdautosrlpistoia@gmail.com"
   VITE_SITE_URL = "https://rdgroup.netlify.app"
   VITE_ENABLE_ANALYTICS = "true"

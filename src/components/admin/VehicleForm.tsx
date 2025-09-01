@@ -354,7 +354,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onClose, onSuccess }
     features: vehicle?.features?.join(', ') || '',
     isLuxury: vehicle?.isLuxury || false,
     condition: vehicle?.condition || CarCondition.USED,
-    location: vehicle?.location?.address || 'Via Bottaia, 2G',
+    location: vehicle?.location?.address || 'Via Bottaia di San Sebastiano, 2L',
   });
 
   const handleInputChange = (field: keyof FormData, value: string | number | boolean) => {
@@ -443,10 +443,10 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onClose, onSuccess }
         dealer: {
           id: 'rd-group-1',
           name: 'RD Group',
-          phone: '+39 057 318 7467',
+          phone: '+39 057 318 74672',
           email: 'rdautosrlpistoia@gmail.com',
           location: {
-            address: 'Via Bottaia, 2G',
+            address: 'Via Bottaia di San Sebastiano, 2L',
             city: 'Pistoia',
             region: 'Toscana',
             postalCode: '51100',
@@ -707,7 +707,7 @@ const VehicleForm: React.FC<VehicleFormProps> = ({ vehicle, onClose, onSuccess }
                   value={formData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
                 >
-                  <option value="Via Bottaia, 2G">Via Bottaia, 2G</option>
+                  <option value="Via Bottaia di San Sebastiano, 2L">Via Bottaia di San Sebastiano, 2L</option>
                   <option value="Via Luigi Galvani, 2">Via Luigi Galvani, 2</option>
                   <option value="Via Fiorentina, 331">Via Fiorentina, 331</option>
                 </FormSelect>

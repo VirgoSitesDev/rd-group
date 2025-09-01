@@ -326,8 +326,8 @@ const createEmailHtml = (data) => {
 
           <div class="footer">
               <h3>RD Group - Concessionario Auto Pistoia</h3>
-              <p>Via Bottaia, 2G - 51100 Pistoia (PT)</p>
-              <p>+39 057 318 7467 | rdautosrlpistoia@gmail.com</p>
+              <p>Via Bottaia di San Sebastiano 2L - Pistoia 51100</p>
+              <p>+39 057 318 74672 | rdautosrlpistoia@gmail.com</p>
               <hr style="margin: 20px 0; border: none; border-top: 1px solid #e9ecef;">
               <p style="font-size: 12px;">
                   Email generata automaticamente dal sistema di acquisizione<br>
@@ -480,8 +480,8 @@ exports.handler = async (event, context) => {
           <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; margin: 30px 0; text-align: center; border: 1px solid #e9ecef;">
             <h3 style="color: #000000; margin-top: 0; font-size: 18px; font-weight: 600;">Hai fretta?</h3>
             <p style="margin-bottom: 15px; color: #333;">Chiamaci subito:</p>
-            <p style="margin: 8px 0;"><strong style="font-size: 18px; color: #000000;">RD Group: +39 057 318 7467</strong></p>
-            <p style="margin: 8px 0;"><strong style="font-size: 18px; color: #000000;">RD Luxury: +39 057 318 74672</strong></p>
+            <p style="margin: 8px 0;"><strong style="font-size: 18px; color: #000000;">RD Group: +39 057 318 74672</strong></p>
+            <p style="margin: 8px 0;"><strong style="font-size: 18px; color: #000000;">RD Luxury: +39 0573 1941223</strong></p>
             <p style="margin-top: 15px; color: #6c757d; font-size: 14px;"><strong>Orari:</strong> Lunedì-Sabato 08:30-13:00 / 14:30-19:30</p>
           </div>
           
@@ -491,8 +491,8 @@ exports.handler = async (event, context) => {
         </div>
         <div style="background: #f8f9fa; padding: 25px; text-align: center; font-size: 14px; color: #6c757d; border-top: 1px solid #e9ecef;">
           <strong style="color: #000000;">RD Group</strong><br>
-          Via Bottaia, 2G - 51100 Pistoia (PT)<br>
-          RD Group: +39 057 318 7467 | RD Luxury: +39 057 318 74672<br>
+          Via Bottaia di San Sebastiano 2L - Pistoia 51100<br>
+          RD Group: +39 057 318 74672 | RD Luxury: +39 0573 1941223<br>
           rdautosrlpistoia@gmail.com | rdluxurysrl@gmail.com
         </div>
       </div>
