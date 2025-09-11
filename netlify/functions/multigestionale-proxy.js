@@ -23,16 +23,11 @@ exports.handler = async (event, context) => {
 	}
   
 	try {
-	  // Estrai i parametri dalla query string
 	  const params = new URLSearchParams(event.queryStringParameters || {});
-	  
-	  // URL base di Multigestionale
+
 	  const baseUrl = 'https://motori.multigestionale.com/api/xml/';
 	  const targetUrl = `${baseUrl}?${params.toString()}`;
-  
-	  console.log('Proxy request to:', targetUrl);
-  
-	  // Effettua la richiesta a Multigestionale
+
 	  const response = await fetch(targetUrl, {
 		method: 'GET',
 		headers: {
@@ -47,8 +42,7 @@ exports.handler = async (event, context) => {
 	  }
   
 	  const xmlData = await response.text();
-	  
-	  // Verifica che la risposta non sia vuota
+
 	  if (!xmlData || xmlData.trim() === '') {
 		throw new Error('Risposta XML vuota da Multigestionale');
 	  }
@@ -58,7 +52,7 @@ exports.handler = async (event, context) => {
 		headers: {
 		  ...headers,
 		  'Content-Type': 'application/xml',
-		  'Cache-Control': 'public, max-age=300' // Cache per 5 minuti
+		  'Cache-Control': 'public, max-age=300'
 		},
 		body: xmlData
 	  };
