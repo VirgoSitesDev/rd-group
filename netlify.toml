@@ -10,6 +10,10 @@
   to = "/index.html"
   status = 200
 
+# Plugin per installare automaticamente le dipendenze delle functions
+[[plugins]]
+  package = "@netlify/plugin-functions-install-core"
+
 # Configurazione per i form Netlify
 [build.processing]
   skip_processing = false
@@ -40,6 +44,14 @@
 # Headers specifici per le API
 [[headers]]
   for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, Authorization"
+
+# Headers per le Netlify Functions
+[[headers]]
+  for = "/.netlify/functions/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
