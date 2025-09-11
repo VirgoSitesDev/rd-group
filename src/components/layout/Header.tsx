@@ -21,24 +21,24 @@ interface HeaderProps {
   backgroundImage?: string;
 }
 
-const HeaderContainer = styled.header<{ showHero: boolean }>`
-  height: ${({ showHero }) => showHero ? '100vh' : '240px'};
-  overflow: ${({ showHero }) => showHero ? 'hidden' : 'visible'};
-  position: ${({ showHero }) => showHero ? 'relative' : 'relative'};
+const HeaderContainer = styled.header<{ $showHero: boolean }>`
+  height: ${({ $showHero }) => $showHero ? '100vh' : '240px'};
+  overflow: ${({ $showHero }) => $showHero ? 'hidden' : 'visible'};
+  position: ${({ $showHero }) => $showHero ? 'relative' : 'relative'};
   top: 0;
   left: 0;
   right: 0;
   z-index: 1;
   width: 100%;
-  background: ${({ showHero }) => showHero ? 'transparent' : '#000000'};
+  background: ${({ $showHero }) => $showHero ? 'transparent' : '#000000'};
 
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
-    height: ${({ showHero }) => showHero ? '100vh' : '110px'};
+    height: ${({ $showHero }) => $showHero ? '100vh' : '110px'};
   }
 `;
 
-const BackgroundOverlay = styled.div<{ showHero: boolean; backgroundImage?: string }>`
-  display: ${({ showHero }) => showHero ? 'block' : 'none'};
+const BackgroundOverlay = styled.div<{ $showHero: boolean; backgroundImage?: string }>`
+  display: ${({ $showHero }) => $showHero ? 'block' : 'none'};
   position: absolute;
   top: 0;
   left: 0;
@@ -58,8 +58,8 @@ const BackgroundOverlay = styled.div<{ showHero: boolean; backgroundImage?: stri
   }
 `;
 
-const GradientOverlay = styled.div<{ showHero: boolean }>`
-  display: ${({ showHero }) => showHero ? 'block' : 'none'};
+const GradientOverlay = styled.div<{ $showHero: boolean }>`
+  display: ${({ $showHero }) => $showHero ? 'block' : 'none'};
   position: absolute;
   top: 0;
   left: 0;
@@ -68,8 +68,8 @@ const GradientOverlay = styled.div<{ showHero: boolean }>`
   z-index: 2;
 `;
 
-const NavigationBar = styled.div<{ showHero: boolean }>`
-  position: ${({ showHero }) => showHero ? 'absolute' : 'relative'};
+const NavigationBar = styled.div<{ $showHero: boolean }>`
+  position: ${({ $showHero }) => $showHero ? 'absolute' : 'relative'};
   top: 0;
   z-index: ${({ theme }) => theme.zIndex.sticky};
   width: 100%;
@@ -170,10 +170,10 @@ const NavLinksContainer = styled.div`
   }
 `;
 
-const NavLink = styled(Link)<{ isActive: boolean; showHero: boolean }>`
-  color: ${({ showHero, theme }) => showHero ? '#ffffff' : '#ffffff'};
+const NavLink = styled(Link)<{ $isActive: boolean; $showHero: boolean }>`
+  color: ${({ $showHero, theme }) => $showHero ? '#ffffff' : '#ffffff'};
   font-family: ${({ theme }) => theme.typography.fontFamily};
-  font-size: ${({ showHero }) => showHero ? '1rem' : '1rem'};
+  font-size: ${({ $showHero }) => $showHero ? '1rem' : '1rem'};
   font-weight: 700;
   letter-spacing: 0;
   line-height: normal;
@@ -181,7 +181,7 @@ const NavLink = styled(Link)<{ isActive: boolean; showHero: boolean }>`
   text-decoration: none;
   text-transform: uppercase;
   transition: all 0.2s ease;
-  opacity: ${({ isActive }) => isActive ? 1 : 0.8};
+  opacity: ${({ $isActive }) => $isActive ? 1 : 0.8};
 
   &:hover {
     opacity: 1;
@@ -219,7 +219,7 @@ const MobileMenuButton = styled.button`
   }
 `;
 
-const MobileMenuOverlay = styled.div<{ isOpen: boolean }>`
+const MobileMenuOverlay = styled.div<{ $isOpen: boolean }>`
   display: none;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
@@ -230,14 +230,14 @@ const MobileMenuOverlay = styled.div<{ isOpen: boolean }>`
     right: 0;
     bottom: 0;
     background: rgba(0, 0, 0, 0.5);
-    opacity: ${({ isOpen }) => isOpen ? 1 : 0};
-    visibility: ${({ isOpen }) => isOpen ? 'visible' : 'hidden'};
+    opacity: ${({ $isOpen }) => $isOpen ? 1 : 0};
+    visibility: ${({ $isOpen }) => $isOpen ? 'visible' : 'hidden'};
     transition: opacity 0.3s ease, visibility 0.3s ease;
     z-index: 999;
   }
 `;
 
-const MobileMenu = styled.div<{ isOpen: boolean }>`
+const MobileMenu = styled.div<{ $isOpen: boolean }>`
   display: none;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.md}) {
@@ -249,7 +249,7 @@ const MobileMenu = styled.div<{ isOpen: boolean }>`
     height: 100vh;
     width: 280px;
     background: #000;
-    transform: translateX(${({ isOpen }) => isOpen ? '0' : '100%'});
+    transform: translateX(${({ $isOpen }) => $isOpen ? '0' : '100%'});
     transition: transform 0.3s ease;
     z-index: 1000;
     padding: ${({ theme }) => theme.spacing.xl};
@@ -270,17 +270,18 @@ const MobileNavLinks = styled.div`
   gap: ${({ theme }) => theme.spacing.lg};
 `;
 
-const MobileNavLink = styled(Link)<{ isActive: boolean }>`
+const MobileNavLink = styled(Link)<{ $isActive: boolean }>`
   color: white;
   font-size: 1.2rem;
   font-weight: 600;
   text-decoration: none;
   padding: ${({ theme }) => theme.spacing.sm} 0;
   transition: all 0.2s ease;
+  opacity: ${({ $isActive }) => $isActive ? 1 : 0.8};
 `;
 
-const HeroContentContainer = styled.div<{ showHero: boolean }>`
-  display: ${({ showHero }) => showHero ? 'flex' : 'none'};
+const HeroContentContainer = styled.div<{ $showHero: boolean }>`
+  display: ${({ $showHero }) => $showHero ? 'flex' : 'none'};
   position: absolute;
   bottom: 0;
   left: 0;
@@ -542,11 +543,11 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <HeaderContainer showHero={showHero}>
-      {showHero && <BackgroundOverlay showHero={showHero} backgroundImage={backgroundImage} />}
-      {showHero && <GradientOverlay showHero={showHero} />}
+    <HeaderContainer $showHero={showHero}>
+      {showHero && <BackgroundOverlay $showHero={showHero} backgroundImage={backgroundImage} />}
+      {showHero && <GradientOverlay $showHero={showHero} />}
 
-      <NavigationBar showHero={showHero}>
+      <NavigationBar $showHero={showHero}>
         <LogoSection to="/">
           <LogoVector className="hide-mobile">
             <img src="/logo.svg" alt="RD Group Logo" />
@@ -564,24 +565,24 @@ const Header: React.FC<HeaderProps> = ({
           <NavLinksContainer>
             <NavLink 
               to="/auto" 
-              isActive={isActiveRoute('/auto')}
-              showHero={showHero}
+              $isActive={isActiveRoute('/auto')}
+              $showHero={showHero}
             >
               RD Group
             </NavLink>
             
             <NavLink 
               to="/auto?luxury=true" 
-              isActive={isActiveRoute('/luxury')}
-              showHero={showHero}
+              $isActive={isActiveRoute('/luxury')}
+              $showHero={showHero}
             >
               RD Luxury
             </NavLink>
             
             <NavLink 
               to="/#sedi" 
-              isActive={isActiveRoute('/sedi')}
-              showHero={showHero}
+              $isActive={isActiveRoute('/sedi')}
+              $showHero={showHero}
               onClick={(e) => {
                 if (location.pathname === '/') {
                   e.preventDefault();
@@ -597,16 +598,16 @@ const Header: React.FC<HeaderProps> = ({
             
             <NavLink 
               to="/acquistiamo" 
-              isActive={isActiveRoute('/acquistiamo')}
-              showHero={showHero}
+              $isActive={isActiveRoute('/acquistiamo')}
+              $showHero={showHero}
             >
               Acquistiamo la tua auto
             </NavLink>
             
             <NavLink 
               to="/#contatti" 
-              isActive={isActiveRoute('/contatti')}
-              showHero={showHero}
+              $isActive={isActiveRoute('/contatti')}
+              $showHero={showHero}
               onClick={(e) => {
                 if (location.pathname === '/') {
                   e.preventDefault();
@@ -625,8 +626,8 @@ const Header: React.FC<HeaderProps> = ({
         </NavigationSection>
       </NavigationBar>
 
-      <MobileMenuOverlay isOpen={isMobileMenuOpen} onClick={closeMobileMenu} />
-      <MobileMenu isOpen={isMobileMenuOpen}>
+      <MobileMenuOverlay $isOpen={isMobileMenuOpen} onClick={closeMobileMenu} />
+      <MobileMenu $isOpen={isMobileMenuOpen}>
         <MobileMenuHeader>
           <MobileMenuButton onClick={closeMobileMenu}>
             <FaTimes />
@@ -636,7 +637,7 @@ const Header: React.FC<HeaderProps> = ({
         <MobileNavLinks>
           <MobileNavLink 
             to="/auto" 
-            isActive={isActiveRoute('/auto')}
+            $isActive={isActiveRoute('/auto')}
             onClick={closeMobileMenu}
           >
             RD Group
@@ -644,7 +645,7 @@ const Header: React.FC<HeaderProps> = ({
           
           <MobileNavLink 
             to="/auto?luxury=true" 
-            isActive={isActiveRoute('/luxury')}
+            $isActive={isActiveRoute('/luxury')}
             onClick={closeMobileMenu}
           >
             RD Luxury
@@ -652,7 +653,7 @@ const Header: React.FC<HeaderProps> = ({
           
           <MobileNavLink 
             to="/#sedi" 
-            isActive={isActiveRoute('/sedi')}
+            $isActive={isActiveRoute('/sedi')}
             onClick={(e) => {
               closeMobileMenu();
               if (location.pathname === '/') {
@@ -678,7 +679,7 @@ const Header: React.FC<HeaderProps> = ({
           
           <MobileNavLink 
             to="/acquistiamo" 
-            isActive={isActiveRoute('/acquistiamo')}
+            $isActive={isActiveRoute('/acquistiamo')}
             onClick={closeMobileMenu}
           >
             Acquistiamo la tua auto
@@ -686,7 +687,7 @@ const Header: React.FC<HeaderProps> = ({
           
           <MobileNavLink 
             to="/#contatti" 
-            isActive={isActiveRoute('/contatti')}
+            $isActive={isActiveRoute('/contatti')}
             onClick={(e) => {
               closeMobileMenu();
               if (location.pathname === '/') {
@@ -722,7 +723,7 @@ const Header: React.FC<HeaderProps> = ({
       </MobileMenu>
 
       {showHero && (
-        <HeroContentContainer showHero={showHero}>
+        <HeroContentContainer $showHero={showHero}>
           <LeftSection>
             <LuxurySection>
               <LuxuryTitle>LUXURY</LuxuryTitle>

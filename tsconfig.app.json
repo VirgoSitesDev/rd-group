@@ -8,20 +8,17 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
-    /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
 
-    /* Linting - FIXED: Removed invalid options */
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
 
-    /* Path mapping */
     "baseUrl": "./src",
     "paths": {
       "@/*": ["./*"],
@@ -34,11 +31,9 @@
       "@utils/*": ["./utils/*"]
     },
 
-    /* Type definitions - FIXED: Removed styled-components from types array */
     "typeRoots": ["../node_modules/@types"],
     "types": ["vite/client"],
-    
-    /* Additional options for compatibility */
+
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,

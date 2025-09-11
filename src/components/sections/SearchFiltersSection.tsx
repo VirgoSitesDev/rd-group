@@ -80,7 +80,7 @@ const FilterLabel = styled.label`
   }
 `;
 
-const DropdownContainer = styled.div<{ isOpen: boolean }>`
+const DropdownContainer = styled.div<{ $isOpen: boolean }>`
   position: absolute;
   top: 100%;
   left: 0;
@@ -90,12 +90,12 @@ const DropdownContainer = styled.div<{ isOpen: boolean }>`
   border-radius: ${({ theme }) => theme.borderRadius.md};
   box-shadow: ${({ theme }) => theme.shadows.md};
   z-index: 1000;
-  max-height: ${({ isOpen }) => isOpen ? '200px' : '0'};
+  max-height: ${({ $isOpen }) => $isOpen ? '200px' : '0'};
   overflow-y: auto;
-  opacity: ${({ isOpen }) => isOpen ? 1 : 0};
-  transform: ${({ isOpen }) => isOpen ? 'translateY(0)' : 'translateY(-10px)'};
+  opacity: ${({ $isOpen }) => $isOpen ? 1 : 0};
+  transform: ${({ $isOpen }) => $isOpen ? 'translateY(0)' : 'translateY(-10px)'};
   transition: all 0.2s ease;
-  pointer-events: ${({ isOpen }) => isOpen ? 'all' : 'none'};
+  pointer-events: ${({ $isOpen }) => $isOpen ? 'all' : 'none'};
 `;
 
 const DropdownItem = styled.div`
@@ -330,7 +330,7 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
                 {getDisplayValue('make')}
                 <FaChevronDown style={{ transform: openDropdown === 'make' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </FilterLabel>
-              <DropdownContainer isOpen={openDropdown === 'make'}>
+              <DropdownContainer $isOpen={openDropdown === 'make'}>
                 <DropdownItem onClick={() => selectDropdownValue('make', '')}>
                   Tutte le marche
                 </DropdownItem>
@@ -348,7 +348,7 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
                 {getDisplayValue('fuelType')}
                 <FaChevronDown style={{ transform: openDropdown === 'fuelType' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </FilterLabel>
-              <DropdownContainer isOpen={openDropdown === 'fuelType'}>
+              <DropdownContainer $isOpen={openDropdown === 'fuelType'}>
                 <DropdownItem onClick={() => selectDropdownValue('fuelType', '')}>
                   Tutte
                 </DropdownItem>
@@ -379,7 +379,7 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
                 {getDisplayValue('mileageMax')}
                 <FaChevronDown style={{ transform: openDropdown === 'mileage' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </FilterLabel>
-              <DropdownContainer isOpen={openDropdown === 'mileage'}>
+              <DropdownContainer $isOpen={openDropdown === 'mileage'}>
                 <DropdownItem onClick={() => setFilters(prev => ({ ...prev, mileageMax: undefined }))}>
                   Tutti i km
                 </DropdownItem>
@@ -421,7 +421,7 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
                   opacity: filters.make?.length ? 1 : 0.5
                 }} />
               </FilterLabel>
-              <DropdownContainer isOpen={openDropdown === 'model' && !!filters.make?.length}>
+              <DropdownContainer $isOpen={openDropdown === 'model' && !!filters.make?.length}>
                 <DropdownItem onClick={() => selectDropdownValue('model', '')}>
                   Tutti i modelli
                 </DropdownItem>
@@ -439,7 +439,7 @@ const SearchFiltersSection: React.FC<SearchFiltersProps> = ({ onSearch }) => {
                 {getDisplayValue('transmission')}
                 <FaChevronDown style={{ transform: openDropdown === 'transmission' ? 'rotate(180deg)' : 'rotate(0deg)' }} />
               </FilterLabel>
-              <DropdownContainer isOpen={openDropdown === 'transmission'}>
+              <DropdownContainer $isOpen={openDropdown === 'transmission'}>
                 <DropdownItem onClick={() => selectDropdownValue('transmission', '')}>
                   Tutti
                 </DropdownItem>

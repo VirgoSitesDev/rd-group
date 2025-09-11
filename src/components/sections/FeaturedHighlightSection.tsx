@@ -111,13 +111,14 @@ const CarCard = styled.div`
 const CarImageContainer = styled.div`
   position: relative;
   flex: 1;
-  min-height: 300px;
+  min-height: 55vh;
   background: #f5f5f5;
   overflow: hidden;
 
   img {
     width: 100%;
     height: 100%;
+    max-height: 55vh;
     object-fit: cover;
   }
 

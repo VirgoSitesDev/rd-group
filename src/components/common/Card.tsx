@@ -56,24 +56,29 @@ const getCardPadding = (padding: CardProps['padding'], theme: any) => {
   }
 };
 
-const StyledCard = styled.div<CardProps>`
-  ${({ variant, theme }) => getCardVariant(variant, theme)}
+const StyledCard = styled.div<{
+  $variant?: CardProps['variant'];
+  $padding?: CardProps['padding'];
+  $hoverable?: boolean;
+  $clickable?: boolean;
+}>`
+  ${({ $variant, theme }) => getCardVariant($variant, theme)}
   
-  padding: ${({ padding, theme }) => getCardPadding(padding, theme)};
+  padding: ${({ $padding, theme }) => getCardPadding($padding, theme)};
   border-radius: ${({ theme }) => theme.borderRadius.lg};
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
-  cursor: ${({ clickable }) => clickable ? 'pointer' : 'default'};
+  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
 
-  ${({ hoverable, theme }) => hoverable && `
+  ${({ $hoverable, theme }) => $hoverable && `
     &:hover {
       transform: translateY(-4px);
       box-shadow: ${theme.shadows.xl};
     }
   `}
 
-  ${({ clickable, hoverable, theme }) => clickable && !hoverable && `
+  ${({ $clickable, $hoverable, theme }) => $clickable && !$hoverable && `
     &:hover {
       box-shadow: ${theme.shadows.md};
     }
@@ -115,10 +120,10 @@ const Card: React.FC<CardProps> = ({
 
   return (
     <StyledCard
-      variant={variant}
-      padding={padding}
-      hoverable={hoverable}
-      clickable={clickable}
+      $variant={variant}
+      $padding={padding}
+      $hoverable={hoverable}
+      $clickable={clickable}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={clickable ? 0 : undefined}

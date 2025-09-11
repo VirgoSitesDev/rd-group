@@ -1,4 +1,5 @@
 export interface Car {
+	slug: string;
 	id: string;
 	autoscout24Id?: string;
 	make: string;

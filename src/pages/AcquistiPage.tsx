@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styled from 'styled-components';
-import { FaArrowRight, FaTrash, FaTimes} from 'react-icons/fa';
+import { FaArrowRight, FaTimes} from 'react-icons/fa';
 import { LuImagePlus } from "react-icons/lu";
 
 import Container from '../components/layout/Container';
@@ -8,7 +8,6 @@ import ActionButton from '../components/common/ActionButton';
 import Header from '../components/layout/Header';
 import LocationsSection from '@/components/sections/ServicesMapsSection';
 import { useFeaturedCars } from '../hooks/useCars';
-import { uploadVehicleImages } from '../services/uploadService';
 
 const AcquistiPageContainer = styled.div`
   background: ${({ theme }) => theme.colors.background.default};
@@ -299,26 +298,6 @@ const MainImageBadge = styled.div`
   z-index: 10;
 `;
 
-const UploadProgress = styled.div<{ $progress: number }>`
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-  background: rgba(0, 0, 0, 0.1);
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: ${({ $progress }) => $progress}%;
-    background: ${({ theme }) => theme.colors.primary.main};
-    transition: width 0.3s ease;
-  }
-`;
-
 const ButtonContainer = styled.div`
   display: flex;
   justify-content: flex-end;
@@ -350,10 +329,6 @@ interface ImageFile {
   file: File;
   preview: string;
   id: string;
-  isUploading?: boolean;
-  uploadProgress?: number;
-  error?: string;
-  url?: string;
 }
 
 const AcquistiPage: React.FC = () => {
@@ -378,8 +353,6 @@ const AcquistiPage: React.FC = () => {
   const MAX_IMAGES = 6;
   const MAX_FILE_SIZE = 10 * 1024 * 1024;
   const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-
-
 
   useEffect(() => {
     document.title = 'Acquisizione Auto - RD Group Pistoia | Vendiamo la tua Auto';
@@ -421,9 +394,6 @@ const AcquistiPage: React.FC = () => {
           file,
           preview: URL.createObjectURL(file),
           id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-          isUploading: false,
-          uploadProgress: 0,
-          error: undefined
         };
         newImages.push(imageFile);
       }
@@ -489,110 +459,41 @@ const AcquistiPage: React.FC = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
     if (images.length < 6) {
-      e.preventDefault();
-      alert('⚠️ Aggiungi 6 immagini per procedere');
+      alert('⚠️ Aggiungi almeno 6 immagini per procedere');
       return;
     }
-  
-    e.preventDefault();
+
     setIsSubmitting(true);
-  
+
     try {
-      let imageUrls: string[] = [];
-  
-      // 📤 CARICAMENTO IMMAGINI
-      if (images.length > 0) {
-        console.log('📤 Caricamento immagini su cloud...');
-        
-        setImages(prev => prev.map(img => ({ 
-          ...img, 
-          isUploading: true, 
-          uploadProgress: 0 
-        })));
-  
-        try {
-          const imageFiles = images.map(img => img.file);
-          
-          const uploadedUrls = await uploadVehicleImages(imageFiles, (completed, total) => {
-            const progress = Math.round((completed / total) * 100);
-            setImages(prev => prev.map(img => ({ 
-              ...img, 
-              uploadProgress: progress 
-            })));
-          });
-  
-          imageUrls = uploadedUrls;
-          console.log('✅ Immagini caricate:', imageUrls);
-  
-          setImages(prev => prev.map((img, index) => ({ 
-            ...img, 
-            isUploading: false, 
-            uploadProgress: 100,
-            url: uploadedUrls[index]
-          })));
-  
-        } catch (uploadError) {
-          console.error('❌ Errore caricamento immagini:', uploadError);
-          alert('❌ Errore nel caricamento delle immagini. Riprova più tardi.');
-          setIsSubmitting(false);
-          return;
-        }
-      }
-  
-      // 📧 INVIA EMAIL CON SENDGRID
-      const emailData = {
-        customerData: {
-          nome: formData.nome,
-          cognome: formData.cognome,
-          mail: formData.mail,
-          telefono: formData.telefono
-        },
-        vehicleData: {
-          marca: formData.marca,
-          anno: formData.anno,
-          km: formData.km,
-          note: formData.note
-        },
-        images: imageUrls,
-        summaryUrl: `${window.location.origin}/riepilogo-acquisizione/${Date.now()}`
-      };
-      
-      console.log('📤 Invio email con SendGrid...', emailData);
-      
-      const response = await fetch('/.netlify/functions/send-acquisition-email', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(emailData)
+      const formDataToSend = new FormData();
+      formDataToSend.append('form-name', 'acquisizione');
+
+      Object.entries(formData).forEach(([key, value]) => {
+        formDataToSend.append(key, value);
       });
-      
-      let result;
-      try {
-        const responseText = await response.text();
-        console.log('📡 Response text:', responseText);
-        result = JSON.parse(responseText);
-      } catch (parseError) {
-        console.error('❌ Errore parsing risposta:', parseError);
-        throw new Error(`Errore del server (Status: ${response.status}). Controlla le environment variables di Netlify.`);
-      }
-  
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${result.message || 'Errore del server'}`);
-      }
-  
-      if (result.success) {
-        // ✅ SUCCESSO
+
+      images.forEach((image, index) => {
+        formDataToSend.append(`image-${index}`, image.file);
+      });
+
+      const response = await fetch('/', {
+        method: 'POST',
+        body: formDataToSend
+      });
+
+      if (response.ok) {
         alert(`Richiesta inviata con successo!
-  
-  Ti contatteremo presto per la valutazione della tua auto.
-  
-  Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.
-  
-  Controlla la tua email per la conferma!`);
-        
-        // Resetta il form
+
+Ti contatteremo presto per la valutazione della tua auto.
+
+Un nostro esperto ti ricontatterà entro 24 ore per fissare un appuntamento.
+
+Grazie per aver scelto RD Group!`);
+
         setFormData({
           nome: '',
           cognome: '',
@@ -608,31 +509,14 @@ const AcquistiPage: React.FC = () => {
         setImages([]);
         
       } else {
-        throw new Error(result.message || 'Errore nell\'invio email');
+        throw new Error(`HTTP ${response.status}`);
       }
       
     } catch (error) {
-      console.error('❌ Errore invio form:', error);
-  
-      let errorMessage = 'Errore sconosciuto';
+      console.error('Errore invio form:', error);
+      alert(`Errore nell'invio del modulo. 
       
-      if (error instanceof Error) {
-        errorMessage = error.message;
-      } else if (typeof error === 'string') {
-        errorMessage = error;
-      } else if (error && typeof error === 'object' && 'message' in error) {
-        errorMessage = String((error as any).message);
-      }
-      
-      if (errorMessage.includes('SENDGRID_API_KEY')) {
-        errorMessage = 'Configurazione email non trovata. Contatta l\'amministratore.';
-      } else if (errorMessage.includes('FROM_EMAIL')) {
-        errorMessage = 'Configurazione email mittente non trovata. Contatta l\'amministratore.';
-      }
-      
-      alert(`❌ Errore nell'invio: ${errorMessage}
-      
-  Riprova più tardi o contattaci direttamente al +39 057 318 74672.`);
+Riprova più tardi o contattaci direttamente al +39 057 318 74672.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -676,9 +560,6 @@ const AcquistiPage: React.FC = () => {
             >
               <FaTimes />
             </RemoveImageButton>
-            {images[0].isUploading && (
-              <UploadProgress $progress={images[0].uploadProgress || 0} />
-            )}
           </ImagePreview>
         ) : (
           <>
@@ -728,9 +609,6 @@ const AcquistiPage: React.FC = () => {
               >
                 <FaTimes />
               </RemoveImageButton>
-              {hasImage.isUploading && (
-                <UploadProgress $progress={hasImage.uploadProgress || 0} />
-              )}
             </ImagePreview>
           ) : (
             <>
@@ -773,25 +651,6 @@ const AcquistiPage: React.FC = () => {
 
   return (
     <AcquistiPageContainer>
-      <form 
-        name="acquisizione" 
-        data-netlify="true"
-        hidden
-        style={{ display: 'none' }}
-      >
-        <input name="customer_name" />
-        <input name="customer_email" />
-        <input name="customer_phone" />
-        <input name="vehicle_make" />
-        <input name="vehicle_year" />
-        <input name="vehicle_km" />
-        <textarea name="vehicle_notes"></textarea>
-        <input name="summary_url" />
-        <input name="images_count" />
-        <textarea name="images_urls"></textarea>
-        <textarea name="messaggio"></textarea>
-      </form>
-  
       <Header 
         showHero={true} 
         featuredCar={featuredCarForContacts}
@@ -811,11 +670,9 @@ const AcquistiPage: React.FC = () => {
                 data-netlify="true"
                 name="acquisizione"
                 method="POST"
+                encType="multipart/form-data"
               >
                 <input type="hidden" name="form-name" value="acquisizione" />
-                <div style={{ display: 'none' }}>
-                  <input name="bot-field" />
-                </div>
                 
                 <FormInnerGrid>
                   <FormFieldsColumn>
@@ -824,6 +681,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="text"
                         id="nome"
+                        name="nome"
                         value={formData.nome}
                         onChange={(e) => handleInputChange('nome', e.target.value)}
                         placeholder='Nome'
@@ -836,6 +694,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="text"
                         id="cognome"
+                        name="cognome"
                         value={formData.cognome}
                         onChange={(e) => handleInputChange('cognome', e.target.value)}
                         placeholder='Cognome'
@@ -848,6 +707,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="email"
                         id="mail"
+                        name="mail"
                         value={formData.mail}
                         onChange={(e) => handleInputChange('mail', e.target.value)}
                         placeholder='example@gmail.com'
@@ -860,6 +720,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="tel"
                         id="telefono"
+                        name="telefono"
                         value={formData.telefono}
                         onChange={(e) => handleInputChange('telefono', e.target.value)}
                         placeholder='+39 000 000 0000'
@@ -871,6 +732,7 @@ const AcquistiPage: React.FC = () => {
                       <FormLabel htmlFor="marca">Marca</FormLabel>
                       <FormInput
                         id="marca"
+                        name="marca"
                         value={formData.marca}
                         onChange={(e) => handleInputChange('marca', e.target.value)}
                         placeholder='Ex: Mercedes, BMW, etc...'
@@ -882,6 +744,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="number"
                         id="anno"
+                        name="anno"
                         value={formData.anno}
                         onChange={(e) => handleInputChange('anno', e.target.value)}
                         placeholder="2020"
@@ -893,6 +756,7 @@ const AcquistiPage: React.FC = () => {
                       <FormInput
                         type="number"
                         id="km"
+                        name="km"
                         value={formData.km}
                         onChange={(e) => handleInputChange('km', e.target.value)}
                         placeholder="Es. 100000"
@@ -903,6 +767,7 @@ const AcquistiPage: React.FC = () => {
                       <FormLabel htmlFor="note">Altre note</FormLabel>
                       <FormTextArea
                         id="note"
+                        name="note"
                         value={formData.note}
                         onChange={(e) => handleInputChange('note', e.target.value)}
                         placeholder="Inserisci qui eventuali note"

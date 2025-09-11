@@ -18,7 +18,6 @@ import { GlobalStyles } from './styles/GlobalStyles';
 import { theme } from './styles/theme';
 
 import { useFeaturedCars } from './hooks/useCars';
-import AdminPage from './pages/AdminPage';
 import IubendaScript from './components/common/IubendaScript';
 
 const queryClient = new QueryClient({
@@ -26,7 +25,7 @@ const queryClient = new QueryClient({
     queries: {
       refetchOnWindowFocus: false,
       retry: 3,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
     },
   },
 });
@@ -70,7 +69,6 @@ const AppContent: React.FC = () => {
       <main className={`main-content ${!isHomePage ? 'with-normal-header' : ''}`}>
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/admin" element={<AdminPage />} />
           <Route path="/auto" element={<CatalogPage />} />
           <Route path="/auto/:slug" element={<CarDetailPage />} />
           <Route path="/luxury" element={<LuxuryRedirect />} />

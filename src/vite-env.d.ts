@@ -5,9 +5,6 @@ interface ImportMetaEnv {
 	readonly VITE_AUTOSCOUT24_API_URL: string
 	readonly VITE_AUTOSCOUT24_API_KEY: string
 	readonly VITE_AUTOSCOUT24_DEALER_ID: string
-	readonly VITE_SUPABASE_URL: string
-	readonly VITE_SUPABASE_ANON_KEY: string
-	readonly VITE_SUPABASE_SERVICE_ROLE_KEY: string
 	readonly VITE_APP_NAME: string
 	readonly VITE_APP_DESCRIPTION: string
 	readonly VITE_COMPANY_NAME: string
@@ -18,6 +15,8 @@ interface ImportMetaEnv {
 	readonly VITE_ENABLE_CONTACT_FORM: string
 	readonly VITE_ENABLE_FINANCING_CALCULATOR: string
 	readonly VITE_DEBUG_MODE: string
+	readonly VITE_MULTIGESTIONALE_CC_GROUP: string
+	readonly VITE_MULTIGESTIONALE_CC_LUXURY: string
   }
   
   interface ImportMeta {

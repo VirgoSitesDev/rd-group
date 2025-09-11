@@ -40,28 +40,31 @@ const getPadding = (size: ContainerProps['padding'], theme: any) => {
   }
 };
 
-const ContainerWrapper = styled.div<ContainerProps>`
-  max-width: ${({ maxWidth }) => getMaxWidth(maxWidth)};
+const ContainerWrapper = styled.div<{
+  $maxWidth?: ContainerProps['maxWidth'];
+  $padding?: ContainerProps['padding'];
+}>`
+  max-width: ${({ $maxWidth }) => getMaxWidth($maxWidth)};
   margin: 0 auto;
-  padding: ${({ padding, theme }) => getPadding(padding, theme)};
+  padding: ${({ $padding, theme }) => getPadding($padding, theme)};
   width: 100%;
 
   @media (min-width: ${({ theme }) => theme.breakpoints.sm}) {
-    padding: ${({ padding, theme }) => 
-      padding === 'none' ? '0' : 
-      padding === 'sm' ? `0 ${theme.spacing.md}` :
-      padding === 'md' ? `0 ${theme.spacing.lg}` :
-      padding === 'lg' ? `0 ${theme.spacing.xl}` :
+    padding: ${({ $padding, theme }) => 
+      $padding === 'none' ? '0' : 
+      $padding === 'sm' ? `0 ${theme.spacing.md}` :
+      $padding === 'md' ? `0 ${theme.spacing.lg}` :
+      $padding === 'lg' ? `0 ${theme.spacing.xl}` :
       `0 ${theme.spacing.lg}`
     };
   }
 
   @media (min-width: ${({ theme }) => theme.breakpoints.lg}) {
-    padding: ${({ padding, theme }) => 
-      padding === 'none' ? '0' : 
-      padding === 'sm' ? `0 ${theme.spacing.lg}` :
-      padding === 'md' ? `0 ${theme.spacing.xl}` :
-      padding === 'lg' ? `0 ${theme.spacing.xxl}` :
+    padding: ${({ $padding, theme }) => 
+      $padding === 'none' ? '0' : 
+      $padding === 'sm' ? `0 ${theme.spacing.lg}` :
+      $padding === 'md' ? `0 ${theme.spacing.xl}` :
+      $padding === 'lg' ? `0 ${theme.spacing.xxl}` :
       `0 ${theme.spacing.xl}`
     };
   }
@@ -75,8 +78,8 @@ const Container: React.FC<ContainerProps> = ({
 }) => {
   return (
     <ContainerWrapper 
-      maxWidth={maxWidth} 
-      padding={padding}
+      $maxWidth={maxWidth} 
+      $padding={padding}
       className={className}
     >
       {children}

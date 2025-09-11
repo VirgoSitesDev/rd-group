@@ -2,57 +2,54 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react({
-      babel: {
-        plugins: [
-          [
-            'babel-plugin-styled-components',
-            {
-              displayName: true,
-              fileName: false
-            }
-          ]
-        ]
-      }
-    })
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      '@components': path.resolve(__dirname, './src/components'),
-      '@pages': path.resolve(__dirname, './src/pages'),
-      '@hooks': path.resolve(__dirname, './src/hooks'),
-      '@services': path.resolve(__dirname, './src/services'),
-      '@types': path.resolve(__dirname, './src/types'),
-      '@styles': path.resolve(__dirname, './src/styles'),
-      '@utils': path.resolve(__dirname, './src/utils'),
-    }
-  },
-  server: {
-    port: 3000,
-    host: true
+    },
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['styled-components', 'react-icons'],
-          query: ['@tanstack/react-query']
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          query: ['@tanstack/react-query'],
+          styled: ['styled-components'],
+          icons: ['react-icons'],
+        },
+      },
+    },
+  },
+  server: {
+    port: 3000,
+    host: true,
+    proxy: {
+      '/api/multigestionale': {
+        target: 'https://motori.multigestionale.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/multigestionale/, '/api/xml'),
+        configure: (proxy, _options) => {
+          proxy.on('error', (err, _req, _res) => {
+          });
+          proxy.on('proxyReq', (proxyReq, req, _res) => {
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+          });
+        },
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'application/xml, text/xml, */*',
+          'Cache-Control': 'no-cache'
         }
       }
     }
   },
-  optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'styled-components']
-  },
-  // FIXED: Aggiungi questa configurazione per supportare i tipi TypeScript
-  define: {
-    global: 'globalThis',
+  preview: {
+    port: 3000,
+    host: true,
   },
 })

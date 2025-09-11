@@ -8,12 +8,11 @@ declare module 'styled-components' {
         contrastText: string;
       };
       background: {
+        transparent: string;
         default: string;
         paper: string;
-        transparent: string;
       };
       text: {
-        primary: string;
         primary: string;
       };
       error: string;

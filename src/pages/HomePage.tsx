@@ -3,11 +3,9 @@ import { useLocation } from 'react-router-dom';
 import SearchFiltersSection from '../components/sections/SearchFiltersSection';
 import ServicesMapsSection from '../components/sections/ServicesMapsSection';
 import OurServices from '../components/sections/Services';
-import { useCarManagement } from '../hooks/useCars';
-import WhoWeAre from '@/components/sections/WhoWeAre';
+import WhoWeAre from '../components/sections/WhoWeAre';
 
 const HomePage: React.FC = () => {
-  const { syncStatus } = useCarManagement();
   const location = useLocation();
 
   useEffect(() => {
@@ -43,19 +41,6 @@ const HomePage: React.FC = () => {
       <ServicesMapsSection />
       <OurServices />
       <WhoWeAre />
-
-      {/* Sync Status (solo in sviluppo)
-      {import.meta.env.DEV && syncStatus && (
-        <Container>
-          <Card style={{ margin: '2rem 0' }}>
-            <h4>Stato Sincronizzazione Autoscout24</h4>
-            <p>Ultima sincronizzazione: {syncStatus.lastSync.toLocaleString()}</p>
-            <p>Veicoli totali: {syncStatus.totalItems}</p>
-            <p>Sincronizzati: {syncStatus.syncedItems}</p>
-            <p>Errori: {syncStatus.failedItems}</p>
-          </Card>
-        </Container>
-      )} */}
     </>
   );
 };

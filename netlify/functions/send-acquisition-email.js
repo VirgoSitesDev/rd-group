@@ -341,7 +341,6 @@ const createEmailHtml = (data) => {
 };
 
 exports.handler = async (event, context) => {
-  // Headers CORS
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
@@ -349,7 +348,6 @@ exports.handler = async (event, context) => {
     'Content-Type': 'application/json'
   };
 
-  // Gestisci preflight CORS
   if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 200,
@@ -358,7 +356,6 @@ exports.handler = async (event, context) => {
     };
   }
 
-  // Solo POST permesso
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -383,7 +380,6 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Verifica FROM_EMAIL
     if (!process.env.FROM_EMAIL) {
       console.error('FROM_EMAIL non configurata');
       return {
@@ -413,7 +409,6 @@ exports.handler = async (event, context) => {
       };
     }
 
-    // Validazione base con dettagli
     if (!data.customerData) {
       console.error('customerData mancante');
       return {

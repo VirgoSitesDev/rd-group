@@ -151,11 +151,16 @@ const getButtonSize = (size: ButtonProps['size'], theme: any) => {
   }
 };
 
-const StyledButton = styled.button<ButtonProps>`
-  ${({ variant, theme }) => getButtonStyles(variant, theme)}
-  ${({ size, theme }) => getButtonSize(size, theme)}
+const StyledButton = styled.button<{
+  $variant?: ButtonProps['variant'];
+  $size?: ButtonProps['size'];
+  $fullWidth?: boolean;
+  $loading?: boolean;
+}>`
+  ${({ $variant, theme }) => getButtonStyles($variant, theme)}
+  ${({ $size, theme }) => getButtonSize($size, theme)}
   
-  width: ${({ fullWidth }) => fullWidth ? '100%' : 'auto'};
+  width: ${({ $fullWidth }) => $fullWidth ? '100%' : 'auto'};
   border-radius: ${({ theme }) => theme.borderRadius.md};
   font-weight: 600;
   font-family: inherit;
@@ -183,7 +188,7 @@ const StyledButton = styled.button<ButtonProps>`
   }
 
   /* Loading state */
-  ${({ loading }) => loading && `
+  ${({ $loading }) => $loading && `
     pointer-events: none;
     
     &::after {
@@ -204,8 +209,8 @@ const StyledButton = styled.button<ButtonProps>`
   `}
 `;
 
-const ButtonContent = styled.span<{ loading?: boolean }>`
-  opacity: ${({ loading }) => loading ? 0 : 1};
+const ButtonContent = styled.span<{ $loading?: boolean }>`
+  opacity: ${({ $loading }) => $loading ? 0 : 1};
   transition: opacity 0.2s ease;
 `;
 
@@ -227,11 +232,11 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   return (
     <StyledButton
-      variant={variant}
-      size={size}
-      fullWidth={fullWidth}
+      $variant={variant}
+      $size={size}
+      $fullWidth={fullWidth}
+      $loading={loading}
       disabled={disabled || loading}
-      loading={loading}
       onClick={onClick}
       type={type}
       className={className}
@@ -241,7 +246,7 @@ const Button: React.FC<ButtonProps> = ({
       href={href}
       {...restProps}
     >
-      <ButtonContent loading={loading}>
+      <ButtonContent $loading={loading}>
         {children}
       </ButtonContent>
     </StyledButton>

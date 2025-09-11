@@ -122,8 +122,8 @@ interface ContactFormData {
 		}
 	  },
 	  onError: (error) => {
-		console.error('❌ Errore invio contatto:', error);
-		alert('❌ Errore di connessione. Riprova più tardi o chiamaci direttamente.');
+		console.error('Errore invio contatto:', error);
+		alert('Errore di connessione. Riprova più tardi o chiamaci direttamente.');
 	  }
 	});
   };
@@ -141,8 +141,8 @@ interface ContactFormData {
 		}
 	  },
 	  onError: (error) => {
-		console.error('❌ Errore invio acquisizione:', error);
-		alert('❌ Errore di connessione. Riprova più tardi o chiamaci direttamente.');
+		console.error('Errore invio acquisizione:', error);
+		alert('Errore di connessione. Riprova più tardi o chiamaci direttamente.');
 	  }
 	});
   };
