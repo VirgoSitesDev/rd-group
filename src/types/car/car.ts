@@ -170,7 +170,7 @@ export interface Car {
   }
 
   export interface CarSorting {
-	field: 'price' | 'year' | 'mileage' | 'createdAt' | 'make' | 'model';
+	field: 'price' | 'year' | 'mileage' | 'createdAt' | 'updatedAt' | 'make' | 'model'; // ✅ Aggiunto 'updatedAt'
 	direction: 'asc' | 'desc';
   }
 

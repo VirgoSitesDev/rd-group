@@ -205,7 +205,7 @@ class MultigestionalService {
       const match = dateStr.match(/(\d{4})/);
       return match ? parseInt(match[1]) : new Date().getFullYear();
     };
-
+  
     const mapFuelType = (fuel: string): string => {
       const fuelMap: Record<string, string> = {
         'Benzina': 'petrol',
@@ -217,7 +217,7 @@ class MultigestionalService {
       };
       return fuelMap[fuel] || 'petrol';
     };
-
+  
     const mapTransmission = (transmission: string): string => {
       const transmissionMap: Record<string, string> = {
         'Manuale': 'manual',
@@ -227,7 +227,7 @@ class MultigestionalService {
       };
       return transmissionMap[transmission] || 'manual';
     };
-
+  
     const mapBodyType = (category: string): string => {
       const bodyMap: Record<string, string> = {
         'Berlina': 'sedan',
@@ -239,7 +239,7 @@ class MultigestionalService {
       };
       return bodyMap[category] || 'sedan';
     };
-
+  
     const processImages = (images: any, companyLogo: string): any[] => {
       const imageList: string[] = [];
       
@@ -254,7 +254,7 @@ class MultigestionalService {
       if (imageList.length === 0 && companyLogo) {
         imageList.push(companyLogo);
       }
-
+  
       return imageList.map((url, index) => ({
         id: `img-${mgCar.ad_number}-${index}`,
         url: url,
@@ -263,12 +263,50 @@ class MultigestionalService {
         order: index,
       }));
     };
+  
+    const parseLastUpdate = (dateStr: string): Date => {
+      if (!dateStr) return new Date();
+      
+      try {
+        const [datePart, timePart] = dateStr.split(' ');
+        if (!datePart) return new Date();
+        
+        const [day, month, year] = datePart.split('-');
+        const [hours = '00', minutes = '00'] = (timePart || '00:00').split(':');
+        
+        return new Date(
+          parseInt(year), 
+          parseInt(month) - 1,
+          parseInt(day),
+          parseInt(hours),
+          parseInt(minutes)
+        );
+      } catch (error) {
+        console.warn('Errore parsing data:', dateStr, error);
+        return new Date();
+      }
+    };
 
+    const lastUpdateDate = parseLastUpdate(mgCar.last_update);
+    const now = new Date();
+    const daysSinceUpdate = (now.getTime() - lastUpdateDate.getTime()) / (1000 * 60 * 60 * 24);
+
+    const getAvailabilityStatus = (): 'available' | 'hidden' | 'pending' => {
+      if (daysSinceUpdate > 7) {
+        return 'hidden';
+      }
+
+      if (daysSinceUpdate > 3) {
+        return 'pending';
+      }
+      return 'available';
+    };
+  
     const year = parseYear(mgCar.first_registration_date);
     const slug = `${mgCar.make.toLowerCase()}-${mgCar.model.toLowerCase()}-${mgCar.ad_number}`
       .replace(/[^a-z0-9-]/g, '')
       .replace(/-+/g, '-');
-
+  
     return {
       id: mgCar.ad_number,
       slug: slug,
@@ -303,10 +341,12 @@ class MultigestionalService {
       },
       isLuxury: config.isLuxury,
       condition: 'used' as any,
-      availability: 'available' as any,
+
+      availability: getAvailabilityStatus() as any,
+      
       createdAt: new Date(),
-      updatedAt: new Date(),
-      lastSyncAt: new Date(),
+      updatedAt: lastUpdateDate,
+      lastSyncAt: lastUpdateDate,
     } as Car;
   }
 
@@ -338,7 +378,7 @@ class MultigestionalService {
             sort: 'insertion_date',
             invert: 1,
           };
-
+  
           const data = await this.makeRequest(config, params);
           
           let vehicles: MultigestionaleCar[] = [];
@@ -373,16 +413,26 @@ class MultigestionalService {
               num_seats: el.num_seats || '',
             }));
           }
-
+  
           const convertedCars = vehicles.map(v => this.convertToCarFormat(v, config));
           allCars.push(...convertedCars);
-
+  
         } catch (error) {
           console.error(`Errore recupero auto ${config.dealerName}:`, error);
         }
       }
 
-      let filteredVehicles = allCars;
+      let filteredVehicles = allCars.filter(vehicle => {
+        if (vehicle.availability === 'hidden') {
+          return false;
+        }
+        return true;
+      });
+
+      const totalCars = allCars.length;
+      const hiddenCount = allCars.filter(v => v.availability === 'hidden').length;
+      const pendingCount = allCars.filter(v => v.availability === 'pending').length;
+      const visibleCount = filteredVehicles.length;
 
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase();
@@ -392,37 +442,37 @@ class MultigestionalService {
           (v.description?.toLowerCase().includes(searchTerm))
         );
       }
-
+  
       if (filters.make?.length) {
         filteredVehicles = filteredVehicles.filter(v => 
           filters.make!.includes(v.make)
         );
       }
-
+  
       if (filters.model?.length) {
         filteredVehicles = filteredVehicles.filter(v => 
           filters.model!.includes(v.model)
         );
       }
-
+  
       if (filters.fuelType?.length) {
         filteredVehicles = filteredVehicles.filter(v => 
           filters.fuelType!.includes(v.fuelType as any)
         );
       }
-
+  
       if (filters.transmission?.length) {
         filteredVehicles = filteredVehicles.filter(v => 
           filters.transmission!.includes(v.transmission as any)
         );
       }
-
+  
       if (filters.bodyType?.length) {
         filteredVehicles = filteredVehicles.filter(v => 
           filters.bodyType!.includes(v.bodyType as any)
         );
       }
-
+  
       if (filters.color?.length) {
         filteredVehicles = filteredVehicles.filter(v => 
           filters.color!.some(color => 
@@ -430,35 +480,35 @@ class MultigestionalService {
           )
         );
       }
-
+  
       if (filters.priceMin) {
         filteredVehicles = filteredVehicles.filter(v => v.price >= filters.priceMin!);
       }
-
+  
       if (filters.priceMax) {
         filteredVehicles = filteredVehicles.filter(v => v.price <= filters.priceMax!);
       }
-
+  
       if (filters.yearMin) {
         filteredVehicles = filteredVehicles.filter(v => v.year >= filters.yearMin!);
       }
-
+  
       if (filters.yearMax) {
         filteredVehicles = filteredVehicles.filter(v => v.year <= filters.yearMax!);
       }
-
+  
       if (filters.mileageMin) {
         filteredVehicles = filteredVehicles.filter(v => v.mileage >= filters.mileageMin!);
       }
-
+  
       if (filters.mileageMax) {
         filteredVehicles = filteredVehicles.filter(v => v.mileage <= filters.mileageMax!);
       }
-
+  
       if (filters.horsepowerMin) {
         filteredVehicles = filteredVehicles.filter(v => v.horsepower >= filters.horsepowerMin!);
       }
-
+  
       if (filters.powerMin) {
         filteredVehicles = filteredVehicles.filter(v => v.power >= filters.powerMin!);
       }
@@ -470,14 +520,21 @@ class MultigestionalService {
           }
         }
 
+        const aUpdate = new Date(a.updatedAt || a.createdAt).getTime();
+        const bUpdate = new Date(b.updatedAt || b.createdAt).getTime();
+        
+        if (aUpdate !== bUpdate) {
+          return bUpdate - aUpdate;
+        }
+
         return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
       });
-
+  
       const totalCount = filteredVehicles.length;
       const startIndex = (page - 1) * limit;
       const endIndex = startIndex + limit;
       const paginatedVehicles = filteredVehicles.slice(startIndex, endIndex);
-
+  
       return {
         cars: paginatedVehicles,
         total: totalCount,
@@ -486,11 +543,11 @@ class MultigestionalService {
         hasMore: endIndex < totalCount,
         filters,
         sorting: {
-          field: 'createdAt',
+          field: 'updatedAt',
           direction: 'desc',
         },
       };
-
+  
     } catch (error) {
       console.error('Errore ricerca veicoli:', error);
       return {
@@ -501,7 +558,7 @@ class MultigestionalService {
         hasMore: false,
         filters,
         sorting: {
-          field: 'createdAt',
+          field: 'updatedAt',
           direction: 'desc',
         },
       };
