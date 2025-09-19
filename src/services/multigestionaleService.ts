@@ -286,21 +286,8 @@ class MultigestionalService {
         return new Date();
       }
     };
-
+  
     const lastUpdateDate = parseLastUpdate(mgCar.last_update);
-    const now = new Date();
-    const daysSinceUpdate = (now.getTime() - lastUpdateDate.getTime()) / (1000 * 60 * 60 * 24);
-
-    const getAvailabilityStatus = (): 'available' | 'hidden' | 'pending' => {
-      if (daysSinceUpdate > 7) {
-        return 'hidden';
-      }
-
-      if (daysSinceUpdate > 3) {
-        return 'pending';
-      }
-      return 'available';
-    };
   
     const year = parseYear(mgCar.first_registration_date);
     const slug = `${mgCar.make.toLowerCase()}-${mgCar.model.toLowerCase()}-${mgCar.ad_number}`
@@ -341,8 +328,7 @@ class MultigestionalService {
       },
       isLuxury: config.isLuxury,
       condition: 'used' as any,
-
-      availability: getAvailabilityStatus() as any,
+      availability: 'available' as any,
       
       createdAt: new Date(),
       updatedAt: lastUpdateDate,
@@ -422,17 +408,7 @@ class MultigestionalService {
         }
       }
 
-      let filteredVehicles = allCars.filter(vehicle => {
-        if (vehicle.availability === 'hidden') {
-          return false;
-        }
-        return true;
-      });
-
-      const totalCars = allCars.length;
-      const hiddenCount = allCars.filter(v => v.availability === 'hidden').length;
-      const pendingCount = allCars.filter(v => v.availability === 'pending').length;
-      const visibleCount = filteredVehicles.length;
+      let filteredVehicles = allCars;
 
       if (filters.search) {
         const searchTerm = filters.search.toLowerCase();
