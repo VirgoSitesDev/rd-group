@@ -199,7 +199,57 @@ class MultigestionalService {
     }
   }
 
-  private convertToCarFormat(mgCar: MultigestionaleCar, config: MultigestionalConfig): Car {
+  private convertToCarFormat(mgCar: MultigestionaleCar, config: MultigestionalConfig): Car | null {
+    if (!mgCar.ad_number || !mgCar.title || !mgCar.make || !mgCar.model) {
+      console.warn(`🗑️ Auto ${mgCar.ad_number || 'sconosciuta'} ha dati mancanti, probabilmente rimossa dal sistema`);
+      return null;
+    }
+
+    const rawPrice = mgCar.price?.replace(/[^\d.,]/g, '').replace(',', '.') || '0';
+    const price = parseFloat(rawPrice);
+    if (price <= 0) {
+      console.warn(`💰 Auto ${mgCar.ad_number} ha prezzo non valido (${mgCar.price}), potrebbe essere scaduta`);
+      return null;
+    }
+
+    const parseLastUpdate = (dateStr: string | any): Date => {
+      if (!dateStr) return new Date('2020-01-01');
+  
+      if (typeof dateStr === 'object') {
+        console.warn('⚠️ last_update è un oggetto:', dateStr);
+        return new Date();
+      }
+  
+      const dateString = String(dateStr);
+      
+      try {
+        const [datePart, timePart] = dateString.split(' ');
+        if (!datePart) return new Date();
+        
+        const [day, month, year] = datePart.split('-');
+        const [hours = '00', minutes = '00'] = (timePart || '00:00').split(':');
+        
+        return new Date(
+          parseInt(year), 
+          parseInt(month) - 1,
+          parseInt(day),
+          parseInt(hours),
+          parseInt(minutes)
+        );
+      } catch (error) {
+        console.warn('📅 Errore parsing data:', dateString, error);
+        return new Date('2020-01-01');
+      }
+    };
+  
+    const lastUpdateDate = parseLastUpdate(mgCar.last_update);
+
+    const daysSinceUpdate = (Date.now() - lastUpdateDate.getTime()) / (1000 * 60 * 60 * 24);
+    
+    if (daysSinceUpdate > 60) {
+      console.warn(`⏰ Auto ${mgCar.ad_number} non aggiornata da ${Math.round(daysSinceUpdate)} giorni, potrebbe essere scaduta`);
+    }
+  
     const parseYear = (dateStr: string): number => {
       if (!dateStr) return new Date().getFullYear();
       const match = dateStr.match(/(\d{4})/);
@@ -264,41 +314,12 @@ class MultigestionalService {
       }));
     };
   
-    const parseLastUpdate = (dateStr: string | any): Date => {
-      if (!dateStr) return new Date();
-
-      if (typeof dateStr === 'object') {
-        return new Date();
-      }
-
-      const dateString = String(dateStr);
-      
-      try {
-        const [datePart, timePart] = dateString.split(' ');
-        if (!datePart) return new Date();
-        
-        const [day, month, year] = datePart.split('-');
-        const [hours = '00', minutes = '00'] = (timePart || '00:00').split(':');
-        
-        return new Date(
-          parseInt(year), 
-          parseInt(month) - 1,
-          parseInt(day),
-          parseInt(hours),
-          parseInt(minutes)
-        );
-      } catch (error) {
-        console.warn('Errore parsing data:', dateString, error);
-        return new Date();
-      }
-    };
-  
-    const lastUpdateDate = parseLastUpdate(mgCar.last_update);
-  
     const year = parseYear(mgCar.first_registration_date);
     const slug = `${mgCar.make.toLowerCase()}-${mgCar.model.toLowerCase()}-${mgCar.ad_number}`
       .replace(/[^a-z0-9-]/g, '')
       .replace(/-+/g, '-');
+
+    console.log(`✅ Auto ${mgCar.ad_number} processata correttamente (aggiornata ${Math.round(daysSinceUpdate)} giorni fa)`);
   
     return {
       id: mgCar.ad_number,
@@ -309,7 +330,7 @@ class MultigestionalService {
       variant: mgCar.version || '',
       year: year,
       mileage: parseInt(mgCar.mileage?.replace(/\D/g, '') || '0'),
-      price: parseFloat(mgCar.price?.replace(/[^\d.,]/g, '').replace(',', '.') || '0'),
+      price: price,
       currency: 'EUR',
       fuelType: mapFuelType(mgCar.fuel_type) as any,
       transmission: mapTransmission(mgCar.transmission_type || mgCar.gearbox || 'Manuale') as any,
@@ -406,7 +427,9 @@ class MultigestionalService {
             }));
           }
   
-          const convertedCars = vehicles.map(v => this.convertToCarFormat(v, config));
+          const convertedCars = vehicles
+          .map(v => this.convertToCarFormat(v, config))
+          .filter((car): car is Car => car !== null);
           allCars.push(...convertedCars);
   
         } catch (error) {
