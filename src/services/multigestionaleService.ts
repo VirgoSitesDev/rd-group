@@ -264,11 +264,18 @@ class MultigestionalService {
       }));
     };
   
-    const parseLastUpdate = (dateStr: string): Date => {
+    const parseLastUpdate = (dateStr: string | any): Date => {
       if (!dateStr) return new Date();
+
+      if (typeof dateStr === 'object') {
+        console.warn('last_update è un oggetto:', dateStr);
+        return new Date();
+      }
+
+      const dateString = String(dateStr);
       
       try {
-        const [datePart, timePart] = dateStr.split(' ');
+        const [datePart, timePart] = dateString.split(' ');
         if (!datePart) return new Date();
         
         const [day, month, year] = datePart.split('-');
@@ -282,7 +289,7 @@ class MultigestionalService {
           parseInt(minutes)
         );
       } catch (error) {
-        console.warn('Errore parsing data:', dateStr, error);
+        console.warn('Errore parsing data:', dateString, error);
         return new Date();
       }
     };
