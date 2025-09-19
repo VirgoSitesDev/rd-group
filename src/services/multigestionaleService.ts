@@ -208,15 +208,23 @@ class MultigestionalService {
   }
 
   private convertToCarFormat(mgCar: MultigestionaleCar, config: MultigestionalConfig): Car | null {
+    const blacklistedIds = ['14704913', '14666380'];
+  
+    if (blacklistedIds.includes(mgCar.ad_number)) {
+      return null;
+    }
+
     if (!mgCar.ad_number || !mgCar.title || !mgCar.make || !mgCar.model) {
-      console.warn(`🗑️ Auto ${mgCar.ad_number || 'sconosciuta'} ha dati mancanti, probabilmente rimossa dal sistema`);
+      return null;
+    }
+
+    if (!mgCar.ad_number || !mgCar.title || !mgCar.make || !mgCar.model) {
       return null;
     }
 
     const rawPrice = mgCar.price?.replace(/[^\d.,]/g, '').replace(',', '.') || '0';
     const price = parseFloat(rawPrice);
     if (price <= 0) {
-      console.warn(`💰 Auto ${mgCar.ad_number} ha prezzo non valido (${mgCar.price}), potrebbe essere scaduta`);
       return null;
     }
 
@@ -224,7 +232,6 @@ class MultigestionalService {
       if (!dateStr) return new Date('2020-01-01');
   
       if (typeof dateStr === 'object') {
-        console.warn('⚠️ last_update è un oggetto:', dateStr);
         return new Date();
       }
   
@@ -245,7 +252,6 @@ class MultigestionalService {
           parseInt(minutes)
         );
       } catch (error) {
-        console.warn('📅 Errore parsing data:', dateString, error);
         return new Date('2020-01-01');
       }
     };
@@ -255,7 +261,6 @@ class MultigestionalService {
     const daysSinceUpdate = (Date.now() - lastUpdateDate.getTime()) / (1000 * 60 * 60 * 24);
     
     if (daysSinceUpdate > 60) {
-      console.warn(`⏰ Auto ${mgCar.ad_number} non aggiornata da ${Math.round(daysSinceUpdate)} giorni, potrebbe essere scaduta`);
     }
   
     const parseYear = (dateStr: string): number => {
