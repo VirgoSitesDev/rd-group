@@ -268,7 +268,6 @@ class MultigestionalService {
       if (!dateStr) return new Date();
 
       if (typeof dateStr === 'object') {
-        console.warn('last_update è un oggetto:', dateStr);
         return new Date();
       }
 
