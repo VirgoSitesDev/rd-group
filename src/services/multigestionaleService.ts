@@ -147,9 +147,10 @@ class MultigestionalService {
       cc: config.customerCode,
       engine: 'car',
       show: 'all',
+      showads: '1',
       ...params
     };
-
+  
     try {
       let url: string;
       
@@ -162,9 +163,16 @@ class MultigestionalService {
         });
         url = urlObj.toString();
       } else {
-        url = `${this.baseURL}?${new URLSearchParams(finalParams).toString()}`;
+        const stringParams: Record<string, string> = {};
+        Object.entries(finalParams).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && value !== '') {
+            stringParams[key] = String(value);
+          }
+        });
+        
+        url = `${this.baseURL}?${new URLSearchParams(stringParams).toString()}`;
       }
-
+  
       const response = await fetch(url, {
         method: 'GET',
         headers: {
@@ -172,11 +180,11 @@ class MultigestionalService {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
       });
-
+  
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-
+  
       const contentType = response.headers.get('content-type');
       
       if (contentType?.includes('application/json')) {
@@ -192,7 +200,7 @@ class MultigestionalService {
         }
         return this.parseXML(xmlText);
       }
-
+  
     } catch (error) {
       console.error(`Errore chiamata ${config.dealerName}:`, error);
       throw error;
