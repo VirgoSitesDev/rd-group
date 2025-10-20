@@ -351,8 +351,16 @@ class MultigestionalService {
         }
       }
 
+      // Debug: Log processed images
+      if (imageList.length > 0) {
+        console.log(`🖼️  Car ${mgCar.ad_number} (${mgCar.make} ${mgCar.model}): ${imageList.length} images processed`);
+      } else if (parseInt(imageCount) > 0) {
+        console.warn(`⚠️ Car ${mgCar.ad_number} (${mgCar.make} ${mgCar.model}): Expected ${imageCount} images but got 0`);
+      }
+
       if (imageList.length === 0 && companyLogo) {
         imageList.push(companyLogo);
+        console.warn(`⚠️ Car ${mgCar.ad_number}: Using fallback company logo`);
       }
 
       return imageList.map((url, index) => ({
