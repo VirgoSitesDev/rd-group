@@ -377,7 +377,8 @@ class MultigestionalService {
       price: price,
       currency: 'EUR',
       fuelType: mapFuelType(mgCar.fuel_type) as any,
-      transmission: mapTransmission(mgCar.transmission_type || mgCar.gearbox) as any,
+      // Note: 'gearbox' contains transmission (Manuale/Automatico), 'transmission_type' contains traction (Anteriore/Posteriore/4x4)
+      transmission: mapTransmission(mgCar.gearbox || mgCar.transmission_type) as any,
       bodyType: mapBodyType(mgCar.vehicle_category) as any,
       doors: parseInt(mgCar.doors_count || '5'),
       seats: parseInt(mgCar.num_seats || '5'),
@@ -442,20 +443,6 @@ class MultigestionalService {
           
           if (data?.element) {
             const elements = Array.isArray(data.element) ? data.element : [data.element];
-
-            // Debug: Log first vehicle to see what API returns
-            if (elements.length > 0 && elements[0]) {
-              console.log('🔍 DEBUG - First vehicle RAW data from API:', elements[0]);
-              console.log('🔍 DEBUG - ALL fields from API element:',
-                Object.keys(elements[0]).filter(key =>
-                  key.toLowerCase().includes('trans') ||
-                  key.toLowerCase().includes('gear') ||
-                  key.toLowerCase().includes('traz') ||
-                  key.toLowerCase().includes('cambio')
-                )
-              );
-            }
-
             vehicles = elements.filter((el: any) => el && el.ad_number).map((el: any) => ({
               ad_number: el.ad_number || '',
               title: el.title || '',
