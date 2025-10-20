@@ -317,6 +317,7 @@ class MultigestionalService {
         'Monovolume': 'minivan',
         'Minivan': 'minivan',
         'Hatchback': 'hatchback',
+        'City car': 'hatchback',
         'Fuoristrada': 'suv',
         'Fuoristrada SUV': 'suv',
         'Pick-up': 'pickup',
@@ -334,9 +335,14 @@ class MultigestionalService {
       return mapped;
     };
   
-    const processImages = (images: any, companyLogo: string): any[] => {
+    const processImages = (images: any, companyLogo: string, imageCount: string): any[] => {
       const imageList: string[] = [];
-      
+
+      // Debug logging for images
+      if (!images?.element && parseInt(imageCount) > 0) {
+        console.warn(`⚠️ Car ${mgCar.ad_number} has ${imageCount} images in API but images.element is missing/empty:`, images);
+      }
+
       if (images?.element) {
         if (Array.isArray(images.element)) {
           imageList.push(...images.element);
@@ -344,11 +350,11 @@ class MultigestionalService {
           imageList.push(images.element);
         }
       }
-      
+
       if (imageList.length === 0 && companyLogo) {
         imageList.push(companyLogo);
       }
-  
+
       return imageList.map((url, index) => ({
         id: `img-${mgCar.ad_number}-${index}`,
         url: url,
@@ -387,7 +393,7 @@ class MultigestionalService {
       engineSize: parseInt(mgCar.cubic_capacity || '0'),
       power: parseInt(mgCar.power_kw || '0'),
       horsepower: parseInt(mgCar.power_cv || '0'),
-      images: processImages(mgCar.images, mgCar.company_logo),
+      images: processImages(mgCar.images, mgCar.company_logo, mgCar.images_number),
       description: mgCar.description || mgCar.title || '',
       features: [],
       location: config.location,
