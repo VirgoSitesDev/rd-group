@@ -318,6 +318,7 @@ class MultigestionalService {
         'Minivan': 'minivan',
         'Hatchback': 'hatchback',
         'Fuoristrada': 'suv',
+        'Fuoristrada SUV': 'suv',
         'Pick-up': 'pickup',
         'Pickup': 'pickup',
         'Van': 'van',
@@ -441,6 +442,20 @@ class MultigestionalService {
           
           if (data?.element) {
             const elements = Array.isArray(data.element) ? data.element : [data.element];
+
+            // Debug: Log first vehicle to see what API returns
+            if (elements.length > 0 && elements[0]) {
+              console.log('🔍 DEBUG - First vehicle RAW data from API:', elements[0]);
+              console.log('🔍 DEBUG - ALL fields from API element:',
+                Object.keys(elements[0]).filter(key =>
+                  key.toLowerCase().includes('trans') ||
+                  key.toLowerCase().includes('gear') ||
+                  key.toLowerCase().includes('traz') ||
+                  key.toLowerCase().includes('cambio')
+                )
+              );
+            }
+
             vehicles = elements.filter((el: any) => el && el.ad_number).map((el: any) => ({
               ad_number: el.ad_number || '',
               title: el.title || '',
@@ -468,17 +483,6 @@ class MultigestionalService {
               doors_count: el.doors_count || '',
               num_seats: el.num_seats || '',
             }));
-          }
-  
-          // Debug: Log first vehicle to see what API returns
-          if (vehicles.length > 0) {
-            console.log('🔍 DEBUG - First vehicle from API:', {
-              ad_number: vehicles[0].ad_number,
-              transmission_type: vehicles[0].transmission_type,
-              gearbox: vehicles[0].gearbox,
-              vehicle_category: vehicles[0].vehicle_category,
-              vehicle_class: vehicles[0].vehicle_class
-            });
           }
 
           const convertedCars = vehicles
