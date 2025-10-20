@@ -281,26 +281,56 @@ class MultigestionalService {
       return fuelMap[fuel] || 'petrol';
     };
   
-    const mapTransmission = (transmission: string): string => {
+    const mapTransmission = (transmission: string | undefined): string => {
+      if (!transmission || transmission.trim() === '') {
+        console.warn(`⚠️ Transmission type missing for car ${mgCar.ad_number}`);
+        return 'manual'; // fallback only when truly missing
+      }
       const transmissionMap: Record<string, string> = {
         'Manuale': 'manual',
         'Automatico': 'automatic',
         'Semiautomatico': 'semi_automatic',
         'Semi-automatico': 'semi_automatic',
       };
-      return transmissionMap[transmission] || 'manual';
+      const mapped = transmissionMap[transmission];
+      if (!mapped) {
+        console.warn(`⚠️ Unknown transmission type: "${transmission}" for car ${mgCar.ad_number}`);
+        return 'manual';
+      }
+      return mapped;
     };
   
-    const mapBodyType = (category: string): string => {
+    const mapBodyType = (category: string | undefined): string => {
+      if (!category || category.trim() === '') {
+        console.warn(`⚠️ Body type missing for car ${mgCar.ad_number}`);
+        return 'sedan';
+      }
       const bodyMap: Record<string, string> = {
         'Berlina': 'sedan',
-        'Station Wagon': 'estate', 
+        'Station Wagon': 'estate',
         'SUV': 'suv',
         'Coupé': 'coupe',
+        'Coupe': 'coupe',
+        'Coupè': 'coupe',
         'Cabriolet': 'convertible',
+        'Cabrio': 'convertible',
         'Monovolume': 'minivan',
+        'Minivan': 'minivan',
+        'Hatchback': 'hatchback',
+        'Fuoristrada': 'suv',
+        'Pick-up': 'pickup',
+        'Pickup': 'pickup',
+        'Van': 'van',
+        'Furgone': 'van',
+        'Sportiva': 'coupe',
+        'Crossover': 'suv',
       };
-      return bodyMap[category] || 'sedan';
+      const mapped = bodyMap[category];
+      if (!mapped) {
+        console.warn(`⚠️ Unknown body type: "${category}" for car ${mgCar.ad_number} - defaulting to sedan`);
+        return 'sedan';
+      }
+      return mapped;
     };
   
     const processImages = (images: any, companyLogo: string): any[] => {
@@ -346,7 +376,7 @@ class MultigestionalService {
       price: price,
       currency: 'EUR',
       fuelType: mapFuelType(mgCar.fuel_type) as any,
-      transmission: mapTransmission(mgCar.transmission_type || mgCar.gearbox || 'Manuale') as any,
+      transmission: mapTransmission(mgCar.transmission_type || mgCar.gearbox) as any,
       bodyType: mapBodyType(mgCar.vehicle_category) as any,
       doors: parseInt(mgCar.doors_count || '5'),
       seats: parseInt(mgCar.num_seats || '5'),
@@ -440,6 +470,17 @@ class MultigestionalService {
             }));
           }
   
+          // Debug: Log first vehicle to see what API returns
+          if (vehicles.length > 0) {
+            console.log('🔍 DEBUG - First vehicle from API:', {
+              ad_number: vehicles[0].ad_number,
+              transmission_type: vehicles[0].transmission_type,
+              gearbox: vehicles[0].gearbox,
+              vehicle_category: vehicles[0].vehicle_category,
+              vehicle_class: vehicles[0].vehicle_class
+            });
+          }
+
           const convertedCars = vehicles
           .map(v => this.convertToCarFormat(v, config))
           .filter((car): car is Car => car !== null);
